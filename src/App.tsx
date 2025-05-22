@@ -8,6 +8,10 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Inscription from "./pages/Inscription";
 import Connexion from "./pages/Connexion";
+import SearchResults from "./pages/SearchResults";
+import TeacherProfile from "./pages/TeacherProfile";
+import Payment from "./pages/Payment";
+import Classroom from "./pages/Classroom";
 
 const queryClient = new QueryClient();
 
@@ -31,11 +35,11 @@ const App = () => (
           <Route path="/subjects/:subjectId" element={<NotFound />} />
           
           {/* Platform functionality */}
-          <Route path="/search" element={<NotFound />} />
-          <Route path="/teachers/:teacherId" element={<NotFound />} />
+          <Route path="/search" element={<SearchResults />} />
+          <Route path="/teachers/:teacherId" element={<TeacherProfile />} />
           <Route path="/booking/:teacherId" element={<NotFound />} />
-          <Route path="/payments" element={<NotFound />} />
-          <Route path="/classroom/:sessionId" element={<NotFound />} />
+          <Route path="/payments" element={<Payment />} />
+          <Route path="/classroom/:sessionId" element={<Classroom />} />
           
           {/* Dashboard routes */}
           <Route path="/dashboard/student" element={<NotFound />} />
