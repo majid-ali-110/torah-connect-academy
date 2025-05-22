@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Child, Female, Video, Users } from 'lucide-react';
+import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const FeatureBlock = ({ 
@@ -102,7 +102,7 @@ const FeatureBlocks = () => {
       >
         <motion.div variants={item}>
           <FeatureBlock 
-            icon={Child} 
+            icon={Calendar} 
             title="Children's Learning" 
             link="/children-courses" 
             bgColor="bg-red-400"
@@ -112,7 +112,7 @@ const FeatureBlocks = () => {
         
         <motion.div variants={item}>
           <FeatureBlock 
-            icon={Female} 
+            icon={CalendarDays} 
             title="Women's Studies" 
             link="/women-courses" 
             bgColor="bg-pink-400"
