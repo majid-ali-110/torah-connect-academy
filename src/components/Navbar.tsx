@@ -1,36 +1,33 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Navbar = () => {
   return (
-    <nav className="border-b py-4">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center gap-1">
-          <Link to="/" className="font-bold text-2xl text-torah-600">TorahConnect</Link>
-        </div>
-        
-        <div className="hidden md:flex space-x-8">
-          <Link to="/find-teachers" className="text-gray-700 hover:text-torah-600 transition-colors">
-            Find teachers
-          </Link>
-          <Link to="/for-teachers" className="text-gray-700 hover:text-torah-600 transition-colors">
-            For teachers
-          </Link>
-          <Link to="/for-organizations" className="text-gray-700 hover:text-torah-600 transition-colors">
-            For organizations
-          </Link>
-        </div>
-        
+    <nav className="py-4 px-4 bg-white">
+      <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-3">
-          <div className="hidden md:block">
-            <Button variant="outline" asChild>
-              <Link to="/login">Log In</Link>
-            </Button>
-          </div>
-          <Button asChild className="bg-torah-500 hover:bg-torah-600">
-            <Link to="/signup">Get Started</Link>
+          <Link to="/" className="flex items-center">
+            <img 
+              src="/lovable-uploads/291e12e3-a310-4b8f-a7ac-621d484f544d.png" 
+              alt="E-team Torah Logo" 
+              className="h-12 w-auto"
+            />
+            <span className="text-2xl font-bold ml-2">E-team.torah</span>
+          </Link>
+        </div>
+        
+        <div className="hidden md:flex items-center justify-center flex-1 px-10">
+          <h1 className="text-3xl font-semibold text-center">"As-tu fixé des E-teams à la Torah ?"</h1>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" asChild className="bg-black text-white hover:bg-gray-800 rounded-full">
+            <Link to="/inscription">Inscription</Link>
+          </Button>
+          <Button asChild className="bg-black text-white hover:bg-gray-800 rounded-full">
+            <Link to="/connexion">Connexion</Link>
           </Button>
         </div>
       </div>

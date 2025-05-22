@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Inscription from "./pages/Inscription";
+import Connexion from "./pages/Connexion";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +19,19 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          
+          {/* Feature block routes */}
+          <Route path="/rabbanim" element={<NotFound />} />
+          <Route path="/eleves" element={<NotFound />} />
+          <Route path="/femmes" element={<NotFound />} />
+          <Route path="/beit-hamidrash" element={<NotFound />} />
+          <Route path="/sos-havrouta" element={<NotFound />} />
+          
+          {/* Auth routes */}
+          <Route path="/inscription" element={<Inscription />} />
+          <Route path="/connexion" element={<Connexion />} />
+          
+          {/* Catch-all route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
