@@ -36,7 +36,7 @@ const mockTeachers = {
     ],
     reviews: [
       { id: 1, user: 'Sarah M.', rating: 5, comment: 'Rabbi David is an exceptional teacher! His lessons are engaging and he explains complex concepts in an easy-to-understand way.', date: '2023-04-15' },
-      { id: 2, user: 'Michael K.', rating: 5, comment: 'I've learned so much in just a few sessions. Highly recommended!', date: '2023-03-22' },
+      { id: 2, user: 'Michael K.', rating: 5, comment: "I've learned so much in just a few sessions. Highly recommended!", date: '2023-03-22' },
       { id: 3, user: 'Rebecca L.', rating: 4, comment: 'Great teacher, very knowledgeable and patient. The lessons are well-structured.', date: '2023-02-10' },
     ]
   },
@@ -44,7 +44,7 @@ const mockTeachers = {
     id: 2,
     name: 'Sarah Goldstein',
     title: 'Torah and Jewish History Teacher',
-    description: 'Sarah specializes in women's Torah studies and Jewish history. Her classes are known for their warm atmosphere and inclusive approach, making Torah learning accessible to women of all backgrounds.',
+    description: "Sarah specializes in women's Torah studies and Jewish history. Her classes are known for their warm atmosphere and inclusive approach, making Torah learning accessible to women of all backgrounds.",
     subjects: ['Torah', 'Jewish History', 'Holidays'],
     audiences: ['Women', 'Children'],
     languages: ['English', 'French'],
@@ -63,7 +63,7 @@ const mockTeachers = {
     ],
     reviews: [
       { id: 1, user: 'Rachel G.', rating: 5, comment: 'Sarah is a wonderful teacher. Her knowledge of Jewish history is impressive and her teaching style is engaging.', date: '2023-05-10' },
-      { id: 2, user: 'Leah F.', rating: 5, comment: 'I've been taking classes with Sarah for months and I've learned so much. She creates a supportive environment for women to learn.', date: '2023-04-05' },
+      { id: 2, user: 'Leah F.', rating: 5, comment: "I've been taking classes with Sarah for months and I've learned so much. She creates a supportive environment for women to learn.", date: '2023-04-05' },
       { id: 3, user: 'Hannah B.', rating: 4, comment: 'Great classes for women wanting to deepen their Torah knowledge.', date: '2023-03-18' },
     ]
   }
