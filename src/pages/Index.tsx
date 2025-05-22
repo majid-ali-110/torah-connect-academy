@@ -7,6 +7,7 @@ import SOSPartner from '@/components/home/SOSPartner';
 import HowItWorksNew from '@/components/home/HowItWorksNew';
 import FAQ from '@/components/home/FAQ';
 import Testimonials from '@/components/home/Testimonials';
+import SubjectCards from '@/components/home/SubjectCards';
 
 const Index = () => {
   return (
@@ -14,6 +15,7 @@ const Index = () => {
       <Hero />
       <FeatureBlocks />
       <SOSPartner />
+      <SubjectCards />
       <HowItWorksNew />
       <FAQ />
       <Testimonials />

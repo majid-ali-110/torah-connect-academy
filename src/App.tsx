@@ -21,11 +21,26 @@ const App = () => (
           <Route path="/" element={<Index />} />
           
           {/* Feature block routes */}
-          <Route path="/rabbanim" element={<NotFound />} />
-          <Route path="/eleves" element={<NotFound />} />
-          <Route path="/femmes" element={<NotFound />} />
-          <Route path="/beit-hamidrash" element={<NotFound />} />
+          <Route path="/children-courses" element={<NotFound />} />
+          <Route path="/women-courses" element={<NotFound />} />
+          <Route path="/live-courses" element={<NotFound />} />
+          <Route path="/sos-partner" element={<NotFound />} />
           <Route path="/sos-havrouta" element={<NotFound />} />
+          
+          {/* Subject routes */}
+          <Route path="/subjects/:subjectId" element={<NotFound />} />
+          
+          {/* Platform functionality */}
+          <Route path="/search" element={<NotFound />} />
+          <Route path="/teachers/:teacherId" element={<NotFound />} />
+          <Route path="/booking/:teacherId" element={<NotFound />} />
+          <Route path="/payments" element={<NotFound />} />
+          <Route path="/classroom/:sessionId" element={<NotFound />} />
+          
+          {/* Dashboard routes */}
+          <Route path="/dashboard/student" element={<NotFound />} />
+          <Route path="/dashboard/teacher" element={<NotFound />} />
+          <Route path="/admin" element={<NotFound />} />
           
           {/* Auth routes */}
           <Route path="/inscription" element={<Inscription />} />
