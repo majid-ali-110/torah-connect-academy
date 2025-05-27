@@ -9,7 +9,271 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      courses: {
+        Row: {
+          age_range: string | null
+          audience: string
+          created_at: string | null
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          max_students: number | null
+          price: number
+          subject: string
+          teacher_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          audience: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          max_students?: number | null
+          price: number
+          subject: string
+          teacher_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          audience?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          max_students?: number | null
+          price?: number
+          subject?: string
+          teacher_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lesson_bookings: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          lesson_date: string
+          lesson_time: string
+          notes: string | null
+          payment_amount: number | null
+          payment_status: string | null
+          status: Database["public"]["Enums"]["lesson_status"] | null
+          student_id: string
+          subject: string | null
+          teacher_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lesson_date: string
+          lesson_time: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["lesson_status"] | null
+          student_id: string
+          subject?: string | null
+          teacher_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          lesson_date?: string
+          lesson_time?: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["lesson_status"] | null
+          student_id?: string
+          subject?: string | null
+          teacher_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_bookings_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lesson_bookings_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          audiences: string[] | null
+          availability_status:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          education: string[] | null
+          email: string
+          experience: string | null
+          first_name: string | null
+          hourly_rate: number | null
+          id: string
+          languages: string[] | null
+          last_name: string | null
+          location: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          subjects: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          audiences?: string[] | null
+          availability_status?:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          education?: string[] | null
+          email: string
+          experience?: string | null
+          first_name?: string | null
+          hourly_rate?: number | null
+          id: string
+          languages?: string[] | null
+          last_name?: string | null
+          location?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          subjects?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          audiences?: string[] | null
+          availability_status?:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          education?: string[] | null
+          email?: string
+          experience?: string | null
+          first_name?: string | null
+          hourly_rate?: number | null
+          id?: string
+          languages?: string[] | null
+          last_name?: string | null
+          location?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          subjects?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      teacher_availability: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_availability_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +282,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      availability_status: "available" | "busy" | "offline"
+      lesson_status: "scheduled" | "completed" | "cancelled"
+      user_role: "teacher" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +399,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      availability_status: ["available", "busy", "offline"],
+      lesson_status: ["scheduled", "completed", "cancelled"],
+      user_role: ["teacher", "student"],
+    },
   },
 } as const

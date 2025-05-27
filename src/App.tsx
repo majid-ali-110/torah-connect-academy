@@ -4,6 +4,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Inscription from "./pages/Inscription";
@@ -12,49 +14,70 @@ import SearchResults from "./pages/SearchResults";
 import TeacherProfile from "./pages/TeacherProfile";
 import Payment from "./pages/Payment";
 import Classroom from "./pages/Classroom";
+import AuthPage from "./pages/AuthPage";
+import FindTeachers from "./pages/FindTeachers";
+import ChildrenCourses from "./pages/ChildrenCourses";
+import FindPartner from "./pages/FindPartner";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          
-          {/* Feature block routes */}
-          <Route path="/children-courses" element={<NotFound />} />
-          <Route path="/women-courses" element={<NotFound />} />
-          <Route path="/live-courses" element={<NotFound />} />
-          <Route path="/sos-partner" element={<NotFound />} />
-          <Route path="/sos-havrouta" element={<NotFound />} />
-          
-          {/* Subject routes */}
-          <Route path="/subjects/:subjectId" element={<NotFound />} />
-          
-          {/* Platform functionality */}
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/teachers/:teacherId" element={<TeacherProfile />} />
-          <Route path="/booking/:teacherId" element={<NotFound />} />
-          <Route path="/payments" element={<Payment />} />
-          <Route path="/classroom/:sessionId" element={<Classroom />} />
-          
-          {/* Dashboard routes */}
-          <Route path="/dashboard/student" element={<NotFound />} />
-          <Route path="/dashboard/teacher" element={<NotFound />} />
-          <Route path="/admin" element={<NotFound />} />
-          
-          {/* Auth routes */}
-          <Route path="/inscription" element={<Inscription />} />
-          <Route path="/connexion" element={<Connexion />} />
-          
-          {/* Catch-all route */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            
+            {/* Auth routes */}
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/inscription" element={<Inscription />} />
+            <Route path="/connexion" element={<Connexion />} />
+            
+            {/* Feature block routes */}
+            <Route path="/children-courses" element={<ChildrenCourses />} />
+            <Route path="/women-courses" element={<NotFound />} />
+            <Route path="/live-courses" element={<NotFound />} />
+            <Route path="/sos-partner" element={<FindPartner />} />
+            <Route path="/sos-havrouta" element={<FindPartner />} />
+            
+            {/* Subject routes */}
+            <Route path="/subjects/:subjectId" element={<NotFound />} />
+            
+            {/* Platform functionality */}
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/find-teachers" element={<FindTeachers />} />
+            <Route path="/teachers/:teacherId" element={<TeacherProfile />} />
+            <Route path="/booking/:teacherId" element={<NotFound />} />
+            <Route path="/payments" element={<Payment />} />
+            <Route path="/classroom/:sessionId" element={<Classroom />} />
+            
+            {/* Dashboard routes */}
+            <Route path="/dashboard/student" element={
+              <ProtectedRoute requireRole="student">
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/teacher" element={
+              <ProtectedRoute requireRole="teacher">
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={<NotFound />} />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
