@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { flame, star, user, book, calendar } from 'lucide-react';
+import { Flame, Star, User, Book, Calendar } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 interface Teacher {
@@ -183,7 +183,7 @@ const StudentDashboard = () => {
                       transition={{ duration: 2, repeat: Infinity }}
                       className="text-orange-500"
                     >
-                      <flame className="h-8 w-8" />
+                      <Flame className="h-8 w-8" />
                     </motion.div>
                     <div>
                       <h3 className="text-lg font-semibold">Learning Streak</h3>
@@ -322,7 +322,7 @@ const StudentDashboard = () => {
                           transition={{ duration: 0.6 }}
                           className={`${milestone.achieved ? 'text-green-500' : 'text-gray-400'}`}
                         >
-                          <star className="h-6 w-6" />
+                          <Star className="h-6 w-6" />
                         </motion.div>
                         <div>
                           <h4 className="font-medium">{milestone.title}</h4>

@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { user, book, calendar as calendarIcon, star, activity } from 'lucide-react';
+import { User, Book, Calendar as CalendarIcon, Star, Activity } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 interface Course {
@@ -132,7 +132,11 @@ const TeacherDashboard = () => {
         .order('created_at', { ascending: false });
 
       if (payoutsData) {
-        setPayouts(payoutsData);
+        const typedPayouts = payoutsData.map(payout => ({
+          ...payout,
+          status: payout.status as 'pending' | 'completed' | 'failed'
+        }));
+        setPayouts(typedPayouts);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -190,7 +194,7 @@ const TeacherDashboard = () => {
                       {stats.total_students}
                     </motion.p>
                   </div>
-                  <user className="h-8 w-8 text-torah-500" />
+                  <User className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
@@ -209,7 +213,7 @@ const TeacherDashboard = () => {
                       {stats.total_courses}
                     </motion.p>
                   </div>
-                  <book className="h-8 w-8 text-torah-500" />
+                  <Book className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
@@ -228,7 +232,7 @@ const TeacherDashboard = () => {
                       {Math.round(stats.avg_progress)}%
                     </motion.p>
                   </div>
-                  <activity className="h-8 w-8 text-torah-500" />
+                  <Activity className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
@@ -321,7 +325,7 @@ const TeacherDashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <calendarIcon className="h-5 w-5" />
+                    <CalendarIcon className="h-5 w-5" />
                     <span>Teaching Schedule</span>
                   </CardTitle>
                 </CardHeader>
