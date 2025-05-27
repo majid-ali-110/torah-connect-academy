@@ -16,20 +16,20 @@ interface Course {
   id: string;
   title: string;
   subject: string;
+  description: string;
+  price: number;
   image_url?: string;
-  student_count: number;
-  avg_progress: number;
+  course_enrollments: Array<{
+    id: string;
+    progress: number;
+    student: {
+      first_name: string;
+      last_name: string;
+    };
+  }>;
 }
 
-interface StudentProgress {
-  id: string;
-  student_name: string;
-  progress: number;
-  last_accessed: string;
-  course_title: string;
-}
-
-interface TeacherStats {
+interface Stats {
   total_students: number;
   total_courses: number;
   avg_progress: number;
@@ -48,12 +48,14 @@ interface Payout {
 const TeacherDashboard = () => {
   const { user, profile, loading } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
-  const [studentProgress, setStudentProgress] = useState<StudentProgress[]>([]);
-  const [stats, setStats] = useState<TeacherStats>({ total_students: 0, total_courses: 0, avg_progress: 0 });
+  const [stats, setStats] = useState<Stats>({
+    total_students: 0,
+    total_courses: 0,
+    avg_progress: 0
+  });
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [dashboardLoading, setDashboardLoading] = useState(true);
-  const [flippedCard, setFlippedCard] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && profile?.role === 'teacher') {
@@ -63,66 +65,43 @@ const TeacherDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // Fetch courses with student counts
+      // Fetch courses with enrollments
       const { data: coursesData } = await supabase
         .from('courses')
         .select(`
           *,
-          course_enrollments(count)
+          course_enrollments(
+            id, progress,
+            student:profiles!student_id(
+              first_name, last_name
+            )
+          )
         `)
-        .eq('teacher_id', user?.id);
+        .eq('teacher_id', user?.id)
+        .eq('is_active', true);
 
       if (coursesData) {
-        const coursesWithStats = await Promise.all(
-          coursesData.map(async (course) => {
-            const { data: enrollments } = await supabase
-              .from('course_enrollments')
-              .select('progress')
-              .eq('course_id', course.id);
-
-            const avgProgress = enrollments && enrollments.length > 0
-              ? enrollments.reduce((sum, e) => sum + e.progress, 0) / enrollments.length
-              : 0;
-
-            return {
-              ...course,
-              student_count: course.course_enrollments?.[0]?.count || 0,
-              avg_progress: avgProgress
-            };
-          })
+        setCourses(coursesData);
+        
+        // Calculate stats
+        const totalStudents = coursesData.reduce((sum, course) => 
+          sum + course.course_enrollments.length, 0
         );
-        setCourses(coursesWithStats);
+        
+        const totalProgress = coursesData.reduce((sum, course) => 
+          sum + course.course_enrollments.reduce((courseSum, enrollment) => 
+            courseSum + enrollment.progress, 0
+          ), 0
+        );
+        
+        const avgProgress = totalStudents > 0 ? totalProgress / totalStudents : 0;
+        
+        setStats({
+          total_students: totalStudents,
+          total_courses: coursesData.length,
+          avg_progress: avgProgress
+        });
       }
-
-      // Fetch student progress
-      const { data: progressData } = await supabase
-        .from('course_enrollments')
-        .select(`
-          id, progress, last_accessed,
-          student:profiles!student_id(first_name, last_name),
-          course:courses!course_id(title)
-        `)
-        .eq('courses.teacher_id', user?.id);
-
-      if (progressData) {
-        const formattedProgress = progressData.map(item => ({
-          id: item.id,
-          student_name: `${item.student.first_name} ${item.student.last_name}`,
-          progress: item.progress,
-          last_accessed: item.last_accessed,
-          course_title: item.course.title
-        }));
-        setStudentProgress(formattedProgress);
-      }
-
-      // Calculate stats
-      const totalStudents = coursesData?.reduce((sum, course) => sum + (course.course_enrollments?.[0]?.count || 0), 0) || 0;
-      const totalCourses = coursesData?.length || 0;
-      const avgProgress = coursesData && coursesData.length > 0
-        ? coursesData.reduce((sum, course) => sum + (course.avg_progress || 0), 0) / coursesData.length
-        : 0;
-
-      setStats({ total_students: totalStudents, total_courses: totalCourses, avg_progress: avgProgress });
 
       // Fetch payouts
       const { data: payoutsData } = await supabase
@@ -166,162 +145,128 @@ const TeacherDashboard = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold mb-8">Teacher Dashboard</h1>
-
-          {/* Stats Cards */}
-          <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <Card>
+        <div className="space-y-8">
+          <div>
+            <h1 className="text-3xl font-bold mb-8">Teacher Dashboard</h1>
+          </div>
+          
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Total Students</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-torah-600"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.3 }}
-                    >
+                    <h3 className="text-sm font-medium text-gray-600">Total Students</h3>
+                    <div className="text-3xl font-bold text-blue-600">
                       {stats.total_students}
-                    </motion.p>
+                    </div>
                   </div>
                   <User className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Total Courses</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-torah-600"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.4 }}
-                    >
+                    <h3 className="text-sm font-medium text-gray-600">Active Courses</h3>
+                    <div className="text-3xl font-bold text-green-600">
                       {stats.total_courses}
-                    </motion.p>
+                    </div>
                   </div>
                   <Book className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-gray-600">Avg Progress</p>
-                    <motion.p 
-                      className="text-3xl font-bold text-torah-600"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.5 }}
-                    >
+                    <h3 className="text-sm font-medium text-gray-600">Avg Progress</h3>
+                    <div className="text-3xl font-bold text-purple-600">
                       {Math.round(stats.avg_progress)}%
-                    </motion.p>
+                    </div>
                   </div>
                   <Activity className="h-8 w-8 text-torah-500" />
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
           {/* My Courses Section */}
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div className="mb-8">
             <h2 className="text-2xl font-semibold mb-4">My Courses</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course, index) => (
-                <motion.div
-                  key={course.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
-                  className="transition-all duration-300"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <Badge variant="outline">{course.subject}</Badge>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span>Students: {course.student_count}</span>
-                          <span>Avg: {Math.round(course.avg_progress)}%</span>
-                        </div>
-                        <Progress value={course.avg_progress} className="h-2" />
-                        <Button className="w-full" variant="outline">
-                          View Details
-                        </Button>
+              {courses.map((course) => (
+                <Card key={course.id} className="hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{course.title}</CardTitle>
+                    <Badge variant="outline">{course.subject}</Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Students enrolled:</span>
+                        <span className="font-medium">{course.course_enrollments.length}</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Price:</span>
+                        <span className="font-medium">${course.price}</span>
+                      </div>
+                      <Button variant="outline" className="w-full">
+                        View Details
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </motion.div>
+          </div>
 
+          {/* Student Progress Overview */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold mb-4">Student Progress Overview</h2>
+            <div className="space-y-4">
+              {courses.map((course) => (
+                <Card key={course.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{course.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {course.course_enrollments.length > 0 ? (
+                        course.course_enrollments.map((enrollment) => (
+                          <div key={enrollment.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                            <div className="flex-1">
+                              <p className="font-medium">
+                                {enrollment.student.first_name} {enrollment.student.last_name}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2 flex-1">
+                              <Progress value={enrollment.progress} className="flex-1" />
+                              <span className="text-sm font-medium min-w-[3rem]">
+                                {Math.round(enrollment.progress)}%
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-gray-500 text-center py-4">No students enrolled yet</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Teaching Schedule and Payments */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Student Progress Table */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <Card>
-                <CardHeader>
-                  <CardTitle>Student Progress</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {studentProgress.slice(0, 5).map((student, index) => (
-                      <motion.div
-                        key={student.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        whileHover={{ backgroundColor: "rgba(0,0,0,0.02)" }}
-                        className="flex items-center justify-between p-3 rounded-lg transition-all duration-200"
-                      >
-                        <div>
-                          <p className="font-medium">{student.student_name}</p>
-                          <p className="text-sm text-gray-600">{student.course_title}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">{Math.round(student.progress)}%</p>
-                          <Progress value={student.progress} className="w-20 h-2" />
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
             {/* Calendar */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
+            <div>
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -338,74 +283,42 @@ const TeacherDashboard = () => {
                   />
                 </CardContent>
               </Card>
-            </motion.div>
-          </div>
+            </div>
 
-          {/* Payments Section */}
-          <motion.div 
-            className="mt-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-          >
-            <h2 className="text-2xl font-semibold mb-4">Payments</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {payouts.map((payout, index) => (
-                <motion.div
-                  key={payout.id}
-                  initial={{ opacity: 0, rotateY: 0 }}
-                  animate={{ opacity: 1, rotateY: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="perspective-1000"
-                >
-                  <motion.div
-                    animate={{ rotateY: flippedCard === payout.id ? 180 : 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="relative preserve-3d w-full h-32 cursor-pointer"
-                    onClick={() => setFlippedCard(flippedCard === payout.id ? null : payout.id)}
-                  >
-                    {/* Front of card */}
-                    <div className="absolute inset-0 backface-hidden">
-                      <Card className={`h-full ${payout.status === 'completed' ? 'bg-green-50 border-green-200' : payout.status === 'pending' ? 'bg-yellow-50 border-yellow-200' : 'bg-red-50 border-red-200'}`}>
-                        <CardContent className="p-4 h-full flex justify-between items-center">
+            {/* Payments */}
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Payouts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {payouts.length > 0 ? (
+                      payouts.slice(0, 5).map((payout) => (
+                        <div key={payout.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div>
-                            <p className="font-semibold text-lg">${payout.amount}</p>
-                            <Badge variant={payout.status === 'completed' ? 'default' : payout.status === 'pending' ? 'secondary' : 'destructive'}>
-                              {payout.status}
-                            </Badge>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-600">
+                            <p className="font-medium">${payout.amount}</p>
+                            <p className="text-sm text-gray-500">
                               {new Date(payout.period_start).toLocaleDateString()} - {new Date(payout.period_end).toLocaleDateString()}
                             </p>
-                            <p className="text-xs text-gray-500">Click for details</p>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Back of card */}
-                    <div className="absolute inset-0 backface-hidden rotate-y-180">
-                      <Card className="h-full bg-gray-50">
-                        <CardContent className="p-4 h-full">
-                          <div className="space-y-2 text-sm">
-                            <p><span className="font-medium">Created:</span> {new Date(payout.created_at).toLocaleDateString()}</p>
-                            {payout.paid_at && (
-                              <p><span className="font-medium">Paid:</span> {new Date(payout.paid_at).toLocaleDateString()}</p>
-                            )}
-                            <p><span className="font-medium">Period:</span> {new Date(payout.period_start).toLocaleDateString()} - {new Date(payout.period_end).toLocaleDateString()}</p>
-                            <p><span className="font-medium">Status:</span> {payout.status}</p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              ))}
+                          <Badge 
+                            variant={payout.status === 'completed' ? 'default' : 
+                                   payout.status === 'pending' ? 'secondary' : 'destructive'}
+                          >
+                            {payout.status}
+                          </Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 text-center py-4">No payouts yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </Layout>
   );

@@ -160,188 +160,121 @@ const StudentDashboard = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="space-y-8">
           <h1 className="text-3xl font-bold mb-8">Student Dashboard</h1>
           
           {/* Learning Streak Section */}
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="text-orange-500"
-                    >
-                      <Flame className="h-8 w-8" />
-                    </motion.div>
-                    <div>
-                      <h3 className="text-lg font-semibold">Learning Streak</h3>
-                      <p className="text-gray-600">Keep up the great work!</p>
-                    </div>
+          <Card className="bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="text-orange-500">
+                    <Flame className="h-8 w-8" />
                   </div>
-                  <div className="text-right">
-                    <motion.div
-                      key={streak?.current_streak}
-                      initial={{ scale: 1.2, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="text-3xl font-bold text-orange-600"
-                    >
-                      {streak?.current_streak || 0}
-                    </motion.div>
-                    <p className="text-sm text-gray-500">
-                      Best: {streak?.longest_streak || 0} days
-                    </p>
+                  <div>
+                    <h3 className="text-lg font-semibold">Learning Streak</h3>
+                    <p className="text-gray-600">Keep up the great work!</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+                <div className="text-right">
+                  <div className="text-3xl font-bold text-orange-600">
+                    {streak?.current_streak || 0}
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Best: {streak?.longest_streak || 0} days
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* My Teachers Section */}
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
+          <div>
             <h2 className="text-2xl font-semibold mb-4">My Teachers</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {teachers.map((teacher, index) => (
-                <motion.div
-                  key={teacher.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
-                  className="transition-all duration-300"
-                >
-                  <Card className="cursor-pointer overflow-hidden">
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <Avatar className="w-16 h-16">
-                          <AvatarImage src={teacher.avatar_url} alt={`${teacher.first_name} ${teacher.last_name}`} />
-                          <AvatarFallback>
-                            {teacher.first_name?.[0]}{teacher.last_name?.[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="font-semibold text-lg">
-                            {teacher.first_name} {teacher.last_name}
-                          </h3>
-                          <Badge variant="secondary" className="bg-torah-100 text-torah-700">
-                            {teacher.subject}
-                          </Badge>
-                        </div>
+              {teachers.map((teacher) => (
+                <Card key={teacher.id} className="cursor-pointer overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-4">
+                      <Avatar className="w-16 h-16">
+                        <AvatarImage src={teacher.avatar_url} alt={`${teacher.first_name} ${teacher.last_name}`} />
+                        <AvatarFallback>
+                          {teacher.first_name?.[0]}{teacher.last_name?.[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h3 className="font-semibold text-lg">
+                          {teacher.first_name} {teacher.last_name}
+                        </h3>
+                        <Badge variant="secondary" className="bg-torah-100 text-torah-700">
+                          {teacher.subject}
+                        </Badge>
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* My Courses Section */}
-          <motion.div 
-            className="mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
+          <div>
             <h2 className="text-2xl font-semibold mb-4">My Courses</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {enrollments.map((enrollment, index) => (
-                <motion.div
-                  key={enrollment.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0,0,0,0.1)" }}
-                  className="transition-all duration-300"
-                >
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">{enrollment.course.title}</CardTitle>
-                      <Badge variant="outline">{enrollment.course.subject}</Badge>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>Progress</span>
-                          <span>{Math.round(enrollment.progress)}%</span>
-                        </div>
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: "100%" }}
-                          transition={{ duration: 1, delay: 0.5 }}
-                        >
-                          <Progress 
-                            value={enrollment.progress} 
-                            className="h-2"
-                          />
-                        </motion.div>
+              {enrollments.map((enrollment) => (
+                <Card key={enrollment.id} className="hover:shadow-lg transition-shadow duration-300">
+                  <CardHeader>
+                    <CardTitle className="text-lg">{enrollment.course.title}</CardTitle>
+                    <Badge variant="outline">{enrollment.course.subject}</Badge>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Progress</span>
+                        <span>{Math.round(enrollment.progress)}%</span>
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                      <Progress 
+                        value={enrollment.progress} 
+                        className="h-2"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </motion.div>
+          </div>
 
           {/* Progress Milestones Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
+          <div>
             <h2 className="text-2xl font-semibold mb-4">Course Milestones</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {milestones.map((milestone, index) => (
-                <motion.div
-                  key={milestone.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
+              {milestones.map((milestone) => (
+                <Card 
+                  key={milestone.id} 
+                  className={`${milestone.achieved ? 'bg-green-50 border-green-200' : 'bg-gray-50'} transition-all duration-300 hover:scale-105`}
                 >
-                  <Card className={`${milestone.achieved ? 'bg-green-50 border-green-200' : 'bg-gray-50'} transition-all duration-300`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center space-x-3">
-                        <motion.div
-                          animate={milestone.achieved ? { rotate: 360, scale: [1, 1.2, 1] } : {}}
-                          transition={{ duration: 0.6 }}
-                          className={`${milestone.achieved ? 'text-green-500' : 'text-gray-400'}`}
-                        >
-                          <Star className="h-6 w-6" />
-                        </motion.div>
-                        <div>
-                          <h4 className="font-medium">{milestone.title}</h4>
-                          <p className="text-sm text-gray-600">{milestone.description}</p>
-                          <Badge 
-                            variant={milestone.achieved ? "default" : "secondary"}
-                            className="mt-1"
-                          >
-                            {milestone.achieved ? "Achieved!" : `${milestone.required_progress}% required`}
-                          </Badge>
-                        </div>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className={`${milestone.achieved ? 'text-green-500' : 'text-gray-400'}`}>
+                        <Star className="h-6 w-6" />
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
+                      <div>
+                        <h4 className="font-medium">{milestone.title}</h4>
+                        <p className="text-sm text-gray-600">{milestone.description}</p>
+                        <Badge 
+                          variant={milestone.achieved ? "default" : "secondary"}
+                          className="mt-1"
+                        >
+                          {milestone.achieved ? "Achieved!" : `${milestone.required_progress}% required`}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       </div>
     </Layout>
   );
