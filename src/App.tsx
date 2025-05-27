@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +17,9 @@ import AuthPage from "./pages/AuthPage";
 import FindTeachers from "./pages/FindTeachers";
 import ChildrenCourses from "./pages/ChildrenCourses";
 import FindPartner from "./pages/FindPartner";
+import Dashboard from "./pages/Dashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import TeacherDashboard from "./pages/TeacherDashboard";
 
 const queryClient = new QueryClient();
 
@@ -57,17 +59,17 @@ const App = () => (
             {/* Dashboard routes */}
             <Route path="/dashboard/student" element={
               <ProtectedRoute requireRole="student">
-                <NotFound />
+                <StudentDashboard />
               </ProtectedRoute>
             } />
             <Route path="/dashboard/teacher" element={
               <ProtectedRoute requireRole="teacher">
-                <NotFound />
+                <TeacherDashboard />
               </ProtectedRoute>
             } />
             <Route path="/dashboard" element={
               <ProtectedRoute>
-                <NotFound />
+                <Dashboard />
               </ProtectedRoute>
             } />
             <Route path="/admin" element={<NotFound />} />
