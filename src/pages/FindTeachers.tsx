@@ -30,9 +30,9 @@ const FindTeachers = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [subjectFilter, setSubjectFilter] = useState('');
-  const [languageFilter, setLanguageFilter] = useState('');
-  const [audienceFilter, setAudienceFilter] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [languageFilter, setLanguageFilter] = useState('all');
+  const [audienceFilter, setAudienceFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,19 +70,19 @@ const FindTeachers = () => {
       );
     }
 
-    if (subjectFilter) {
+    if (subjectFilter && subjectFilter !== 'all') {
       filtered = filtered.filter(teacher =>
         teacher.subjects?.includes(subjectFilter)
       );
     }
 
-    if (languageFilter) {
+    if (languageFilter && languageFilter !== 'all') {
       filtered = filtered.filter(teacher =>
         teacher.languages?.includes(languageFilter)
       );
     }
 
-    if (audienceFilter) {
+    if (audienceFilter && audienceFilter !== 'all') {
       filtered = filtered.filter(teacher =>
         teacher.audiences?.includes(audienceFilter)
       );
@@ -150,7 +150,7 @@ const FindTeachers = () => {
                 <SelectValue placeholder="Subject" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Subjects</SelectItem>
+                <SelectItem value="all">All Subjects</SelectItem>
                 {getUniqueValues('subjects').map(subject => (
                   <SelectItem key={subject} value={subject}>{subject}</SelectItem>
                 ))}
@@ -162,7 +162,7 @@ const FindTeachers = () => {
                 <SelectValue placeholder="Language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Languages</SelectItem>
+                <SelectItem value="all">All Languages</SelectItem>
                 {getUniqueValues('languages').map(language => (
                   <SelectItem key={language} value={language}>{language}</SelectItem>
                 ))}
@@ -174,7 +174,7 @@ const FindTeachers = () => {
                 <SelectValue placeholder="Audience" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Audiences</SelectItem>
+                <SelectItem value="all">All Audiences</SelectItem>
                 {getUniqueValues('audiences').map(audience => (
                   <SelectItem key={audience} value={audience}>{audience}</SelectItem>
                 ))}
@@ -261,9 +261,9 @@ const FindTeachers = () => {
               <Button 
                 onClick={() => {
                   setSearchTerm('');
-                  setSubjectFilter('');
-                  setLanguageFilter('');
-                  setAudienceFilter('');
+                  setSubjectFilter('all');
+                  setLanguageFilter('all');
+                  setAudienceFilter('all');
                 }}
                 className="mt-4"
                 variant="outline"
