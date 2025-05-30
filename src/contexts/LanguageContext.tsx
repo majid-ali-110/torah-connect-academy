@@ -106,13 +106,17 @@ const translations = {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile } = useAuth();
-  const [language, setLanguageState] = useState(profile?.preferred_language || 'en');
+  const [language, setLanguageState] = useState(() => {
+    // Get language from localStorage first, then profile, then default to 'en'
+    const savedLanguage = localStorage.getItem('language');
+    return savedLanguage || profile?.preferred_language || 'en';
+  });
 
   useEffect(() => {
-    if (profile?.preferred_language) {
+    if (profile?.preferred_language && profile.preferred_language !== language) {
       setLanguageState(profile.preferred_language);
     }
-  }, [profile]);
+  }, [profile?.preferred_language, language]);
 
   const setLanguage = async (lang: string) => {
     setLanguageState(lang);
@@ -122,10 +126,14 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // Update user profile if logged in
     if (user && profile) {
-      await supabase
-        .from('profiles')
-        .update({ preferred_language: lang })
-        .eq('id', user.id);
+      try {
+        await supabase
+          .from('profiles')
+          .update({ preferred_language: lang })
+          .eq('id', user.id);
+      } catch (error) {
+        console.error('Error updating language preference:', error);
+      }
     }
   };
 

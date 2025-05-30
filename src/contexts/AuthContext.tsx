@@ -19,6 +19,8 @@ interface Profile {
   experience?: string;
   education?: string[];
   availability_status?: 'available' | 'busy' | 'offline';
+  gender?: string;
+  preferred_language?: string;
 }
 
 interface AuthContextType {
