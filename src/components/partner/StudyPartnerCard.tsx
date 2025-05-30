@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,16 +25,20 @@ interface StudyPartnerCardProps {
 }
 
 const StudyPartnerCard: React.FC<StudyPartnerCardProps> = ({ partner, index }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
   };
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 * index }}
-      whileHover={{ y: -5 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.3, delay: 0.1 * index }}
+      layoutId={`partner-${partner.id}`}
     >
       <Card className="h-full hover:shadow-lg transition-all duration-300">
         <CardHeader>

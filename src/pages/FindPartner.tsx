@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '@/components/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
@@ -222,13 +222,15 @@ const FindPartner = () => {
 
           {/* Partners Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPartners.map((partner, index) => (
-              <StudyPartnerCard
-                key={partner.id}
-                partner={partner}
-                index={index}
-              />
-            ))}
+            <AnimatePresence mode="popLayout">
+              {filteredPartners.map((partner, index) => (
+                <StudyPartnerCard
+                  key={partner.id}
+                  partner={partner}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
           </div>
 
           {filteredPartners.length === 0 && (
