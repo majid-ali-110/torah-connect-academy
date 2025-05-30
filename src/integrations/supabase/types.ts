@@ -295,11 +295,13 @@ export type Database = {
           email: string
           experience: string | null
           first_name: string | null
+          gender: string | null
           hourly_rate: number | null
           id: string
           languages: string[] | null
           last_name: string | null
           location: string | null
+          preferred_language: string | null
           role: Database["public"]["Enums"]["user_role"]
           subjects: string[] | null
           updated_at: string | null
@@ -316,11 +318,13 @@ export type Database = {
           email: string
           experience?: string | null
           first_name?: string | null
+          gender?: string | null
           hourly_rate?: number | null
           id: string
           languages?: string[] | null
           last_name?: string | null
           location?: string | null
+          preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
           updated_at?: string | null
@@ -337,11 +341,13 @@ export type Database = {
           email?: string
           experience?: string | null
           first_name?: string | null
+          gender?: string | null
           hourly_rate?: number | null
           id?: string
           languages?: string[] | null
           last_name?: string | null
           location?: string | null
+          preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
           updated_at?: string | null
@@ -507,7 +513,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_gender: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       availability_status: "available" | "busy" | "offline"

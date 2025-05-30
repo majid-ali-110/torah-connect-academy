@@ -3,14 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '@/components/Layout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { User, Book, Calendar as CalendarIcon, Star, Activity } from 'lucide-react';
+import { User, Book, Calendar as CalendarIcon, Star, Activity, TrendingUp } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
+import AnimatedCounter from '@/components/AnimatedCounter';
+import AnimatedProgress from '@/components/ui/animated-progress';
 
 interface Course {
   id: string;
@@ -47,6 +50,7 @@ interface Payout {
 
 const TeacherDashboard = () => {
   const { user, profile, loading } = useAuth();
+  const { t } = useLanguage();
   const [courses, setCourses] = useState<Course[]>([]);
   const [stats, setStats] = useState<Stats>({
     total_students: 0,
@@ -56,6 +60,7 @@ const TeacherDashboard = () => {
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [dashboardLoading, setDashboardLoading] = useState(true);
+  const [flippedCard, setFlippedCard] = useState<string | null>(null);
 
   useEffect(() => {
     if (user && profile?.role === 'teacher') {
@@ -128,7 +133,11 @@ const TeacherDashboard = () => {
     return (
       <Layout>
         <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-torah-500"></div>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="rounded-full h-32 w-32 border-b-2 border-torah-500"
+          />
         </div>
       </Layout>
     );
@@ -146,132 +155,214 @@ const TeacherDashboard = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-8">Teacher Dashboard</h1>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <h1 className="text-3xl font-bold mb-8">{t('dashboard.teacher.title')}</h1>
+          </motion.div>
           
-          {/* Stats Overview */}
+          {/* Enhanced Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-600">Total Students</h3>
-                    <div className="text-3xl font-bold text-blue-600">
-                      {stats.total_students}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-600">{t('dashboard.total_students')}</h3>
+                      <div className="text-3xl font-bold text-blue-600">
+                        <AnimatedCounter value={stats.total_students} />
+                      </div>
                     </div>
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <User className="h-8 w-8 text-torah-500" />
+                    </motion.div>
                   </div>
-                  <User className="h-8 w-8 text-torah-500" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-600">Active Courses</h3>
-                    <div className="text-3xl font-bold text-green-600">
-                      {stats.total_courses}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-600">{t('dashboard.active_courses')}</h3>
+                      <div className="text-3xl font-bold text-green-600">
+                        <AnimatedCounter value={stats.total_courses} />
+                      </div>
                     </div>
+                    <motion.div
+                      animate={{ rotate: [0, 15, -15, 0] }}
+                      transition={{ duration: 3, repeat: Infinity }}
+                    >
+                      <Book className="h-8 w-8 text-torah-500" />
+                    </motion.div>
                   </div>
-                  <Book className="h-8 w-8 text-torah-500" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-600">Avg Progress</h3>
-                    <div className="text-3xl font-bold text-purple-600">
-                      {Math.round(stats.avg_progress)}%
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              whileHover={{ scale: 1.02 }}
+            >
+              <Card className="bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:shadow-lg transition-all duration-300">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-600">{t('dashboard.avg_progress')}</h3>
+                      <div className="text-3xl font-bold text-purple-600">
+                        <AnimatedCounter value={Math.round(stats.avg_progress)} suffix="%" />
+                      </div>
                     </div>
+                    <motion.div
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
+                      <TrendingUp className="h-8 w-8 text-torah-500" />
+                    </motion.div>
                   </div>
-                  <Activity className="h-8 w-8 text-torah-500" />
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
 
-          {/* My Courses Section */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">My Courses</h2>
+          {/* Enhanced My Courses Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-semibold mb-4">{t('dashboard.my_courses')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <Card key={course.id} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
-                    <CardTitle className="text-lg">{course.title}</CardTitle>
-                    <Badge variant="outline">{course.subject}</Badge>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Students enrolled:</span>
-                        <span className="font-medium">{course.course_enrollments.length}</span>
+              {courses.map((course, index) => (
+                <motion.div
+                  key={course.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * index }}
+                  whileHover={{ y: -5 }}
+                >
+                  <Card className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-torah-500">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Book className="h-5 w-5 text-torah-500" />
+                        {course.title}
+                      </CardTitle>
+                      <Badge variant="outline">{course.subject}</Badge>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <p className="text-sm text-gray-600 line-clamp-2">{course.description}</p>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Students enrolled:</span>
+                          <span className="font-medium">
+                            <AnimatedCounter value={course.course_enrollments.length} />
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-500">Price:</span>
+                          <span className="font-medium">${course.price}</span>
+                        </div>
+                        <Button variant="outline" className="w-full hover:bg-torah-50">
+                          View Details
+                        </Button>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Price:</span>
-                        <span className="font-medium">${course.price}</span>
-                      </div>
-                      <Button variant="outline" className="w-full">
-                        View Details
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Student Progress Overview */}
-          <div className="mb-8">
+          {/* Enhanced Student Progress Overview */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mb-8"
+          >
             <h2 className="text-2xl font-semibold mb-4">Student Progress Overview</h2>
             <div className="space-y-4">
-              {courses.map((course) => (
-                <Card key={course.id}>
-                  <CardHeader>
-                    <CardTitle className="text-lg">{course.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {course.course_enrollments.length > 0 ? (
-                        course.course_enrollments.map((enrollment) => (
-                          <div key={enrollment.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
-                            <div className="flex-1">
-                              <p className="font-medium">
-                                {enrollment.student.first_name} {enrollment.student.last_name}
-                              </p>
-                            </div>
-                            <div className="flex items-center space-x-2 flex-1">
-                              <Progress value={enrollment.progress} className="flex-1" />
-                              <span className="text-sm font-medium min-w-[3rem]">
-                                {Math.round(enrollment.progress)}%
-                              </span>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-gray-500 text-center py-4">No students enrolled yet</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+              {courses.map((course, courseIndex) => (
+                <motion.div
+                  key={course.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 * courseIndex }}
+                >
+                  <Card className="hover:shadow-md transition-shadow duration-300">
+                    <CardHeader>
+                      <CardTitle className="text-lg">{course.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {course.course_enrollments.length > 0 ? (
+                          course.course_enrollments.map((enrollment, enrollmentIndex) => (
+                            <motion.div 
+                              key={enrollment.id} 
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.05 * enrollmentIndex }}
+                              className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                            >
+                              <div className="flex-1">
+                                <p className="font-medium">
+                                  {enrollment.student.first_name} {enrollment.student.last_name}
+                                </p>
+                              </div>
+                              <div className="flex items-center space-x-2 flex-1">
+                                <AnimatedProgress 
+                                  value={enrollment.progress} 
+                                  className="flex-1 h-2"
+                                  delay={0.1 * enrollmentIndex}
+                                />
+                                <span className="text-sm font-medium min-w-[3rem]">
+                                  <AnimatedCounter value={Math.round(enrollment.progress)} suffix="%" />
+                                </span>
+                              </div>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <p className="text-gray-500 text-center py-4">No students enrolled yet</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* Teaching Schedule and Payments */}
+          {/* Enhanced Calendar and Payments Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Calendar */}
-            <div>
-              <Card>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <CalendarIcon className="h-5 w-5" />
-                    <span>Teaching Schedule</span>
+                    <span>{t('dashboard.teaching_schedule')}</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -283,32 +374,50 @@ const TeacherDashboard = () => {
                   />
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
 
-            {/* Payments */}
-            <div>
-              <Card>
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
-                  <CardTitle>Recent Payouts</CardTitle>
+                  <CardTitle>{t('dashboard.recent_payouts')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {payouts.length > 0 ? (
-                      payouts.slice(0, 5).map((payout) => (
-                        <div key={payout.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      payouts.slice(0, 5).map((payout, index) => (
+                        <motion.div 
+                          key={payout.id} 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.05 * index }}
+                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200 cursor-pointer"
+                          onClick={() => setFlippedCard(flippedCard === payout.id ? null : payout.id)}
+                          whileHover={{ scale: 1.02 }}
+                        >
                           <div>
-                            <p className="font-medium">${payout.amount}</p>
+                            <p className="font-medium">
+                              $<AnimatedCounter value={payout.amount} />
+                            </p>
                             <p className="text-sm text-gray-500">
                               {new Date(payout.period_start).toLocaleDateString()} - {new Date(payout.period_end).toLocaleDateString()}
                             </p>
                           </div>
-                          <Badge 
-                            variant={payout.status === 'completed' ? 'default' : 
-                                   payout.status === 'pending' ? 'secondary' : 'destructive'}
+                          <motion.div
+                            animate={{ rotateY: flippedCard === payout.id ? 180 : 0 }}
+                            transition={{ duration: 0.3 }}
                           >
-                            {payout.status}
-                          </Badge>
-                        </div>
+                            <Badge 
+                              variant={payout.status === 'completed' ? 'default' : 
+                                     payout.status === 'pending' ? 'secondary' : 'destructive'}
+                            >
+                              {payout.status}
+                            </Badge>
+                          </motion.div>
+                        </motion.div>
                       ))
                     ) : (
                       <p className="text-gray-500 text-center py-4">No payouts yet</p>
@@ -316,7 +425,7 @@ const TeacherDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
