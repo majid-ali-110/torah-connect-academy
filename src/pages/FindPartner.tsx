@@ -1,87 +1,133 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { Search, Filter, Users, MessageCircle, Heart } from 'lucide-react';
+import StudyPartnerCard from '@/components/partner/StudyPartnerCard';
 
-interface Partner {
-  id: string;
-  first_name: string;
-  last_name: string;
-  bio: string;
-  subjects: string[];
-  languages: string[];
-  availability_status: 'available' | 'busy' | 'offline';
-  avatar_url?: string;
-  role: 'teacher' | 'student';
-}
+// Dummy data for study partners
+const dummyStudyPartners = [
+  {
+    id: '1',
+    name: 'Sarah Miller',
+    subjects: ['Gemara', 'Halacha', 'Tanach'],
+    level: 'Intermediate',
+    availability: 'Evenings, Weekends',
+    studyGoals: 'Looking to deepen understanding of Talmudic texts and improve analytical skills',
+    rating: 4.8,
+    avatar: '',
+    location: 'New York',
+    languages: ['English', 'Hebrew']
+  },
+  {
+    id: '2',
+    name: 'David Cohen',
+    subjects: ['Parsha', 'Jewish Philosophy', 'Mussar'],
+    level: 'Advanced',
+    availability: 'Mornings, Sunday',
+    studyGoals: 'Seeking partner for weekly parsha study and philosophical discussions',
+    rating: 4.9,
+    avatar: '',
+    location: 'Los Angeles',
+    languages: ['English', 'Yiddish']
+  },
+  {
+    id: '3',
+    name: 'Rachel Green',
+    subjects: ['Hebrew Language', 'Torah', 'Jewish History'],
+    level: 'Beginner',
+    availability: 'Flexible weekdays',
+    studyGoals: 'New to Jewish learning, looking for supportive study partner to learn basics',
+    rating: 4.7,
+    avatar: '',
+    location: 'Chicago',
+    languages: ['English']
+  },
+  {
+    id: '4',
+    name: 'Michael Rosen',
+    subjects: ['Chassidut', 'Kabbalah', 'Jewish Mysticism'],
+    level: 'Advanced',
+    availability: 'Late evenings',
+    studyGoals: 'Exploring deeper mystical texts and chassidic teachings with like-minded partner',
+    rating: 4.6,
+    avatar: '',
+    location: 'Miami',
+    languages: ['English', 'Hebrew']
+  },
+  {
+    id: '5',
+    name: 'Esther Goldberg',
+    subjects: ['Women in Judaism', 'Jewish Law', 'Ethics'],
+    level: 'Intermediate',
+    availability: 'Mornings only',
+    studyGoals: 'Focus on women-specific halachic topics and contemporary Jewish ethics',
+    rating: 4.9,
+    avatar: '',
+    location: 'Brooklyn',
+    languages: ['English', 'Hebrew']
+  },
+  {
+    id: '6',
+    name: 'Joshua Levy',
+    subjects: ['Mishnah', 'Jewish Calendar', 'Holidays'],
+    level: 'Beginner',
+    availability: 'Weekends',
+    studyGoals: 'Learning about Jewish holidays and traditions, preparing for upcoming festivals',
+    rating: 4.5,
+    avatar: '',
+    location: 'Boston',
+    languages: ['English']
+  }
+];
 
 const FindPartner = () => {
-  const [partners, setPartners] = useState<Partner[]>([]);
+  const { t } = useLanguage();
+  const [partners, setPartners] = useState(dummyStudyPartners);
+  const [filteredPartners, setFilteredPartners] = useState(dummyStudyPartners);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const [levelFilter, setLevelFilter] = useState('all');
+  const [subjectFilter, setSubjectFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchAvailablePartners();
-    
-    // Set up realtime subscription for availability status
-    const channel = supabase
-      .channel('partner-availability')
-      .on('postgres_changes', 
-        { event: 'UPDATE', schema: 'public', table: 'profiles' },
-        (payload) => {
-          setPartners(prev => prev.map(partner => 
-            partner.id === payload.new.id 
-              ? { ...partner, availability_status: payload.new.availability_status }
-              : partner
-          ));
-        }
-      )
-      .subscribe();
+    let filtered = partners;
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchAvailablePartners = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .neq('id', user?.id || '')
-        .in('availability_status', ['available', 'busy']);
-
-      if (error) throw error;
-      setPartners(data || []);
-    } catch (error) {
-      console.error('Error fetching partners:', error);
-    } finally {
-      setLoading(false);
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(partner =>
+        partner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        partner.subjects.some(subject => 
+          subject.toLowerCase().includes(searchTerm.toLowerCase())
+        ) ||
+        partner.studyGoals.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        partner.location.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     }
-  };
 
-  const filteredPartners = partners.filter(partner =>
-    `${partner.first_name} ${partner.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    partner.subjects?.some(subject => subject.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    partner.bio?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    // Apply level filter
+    if (levelFilter !== 'all') {
+      filtered = filtered.filter(partner => 
+        partner.level.toLowerCase() === levelFilter
+      );
+    }
 
-  const handleConnect = async (partner: Partner) => {
-    // Here you would implement the connection logic
-    // For now, we'll just show an alert
-    alert(`Connecting with ${partner.first_name} ${partner.last_name}...`);
-    setSelectedPartner(null);
-  };
+    // Apply subject filter
+    if (subjectFilter !== 'all') {
+      filtered = filtered.filter(partner =>
+        partner.subjects.some(subject => 
+          subject.toLowerCase().includes(subjectFilter.toLowerCase())
+        )
+      );
+    }
+
+    setFilteredPartners(filtered);
+  }, [searchTerm, levelFilter, subjectFilter, partners]);
 
   return (
     <Layout>
@@ -91,173 +137,114 @@ const FindPartner = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
               Find Your Study Partner
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Connect with fellow learners and teachers for collaborative Torah study
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Connect with fellow learners who share your passion for Torah study
             </p>
           </div>
 
-          <div className="max-w-md mx-auto mb-8">
-            <Input
-              placeholder="Search by name, subject, or interest..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="focus:ring-2 focus:ring-teal-500 transition-all"
-            />
+          {/* Stats Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-center p-6 bg-blue-50 rounded-lg"
+            >
+              <Users className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-blue-600">150+</div>
+              <div className="text-gray-600">Active Partners</div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-center p-6 bg-green-50 rounded-lg"
+            >
+              <MessageCircle className="h-8 w-8 text-green-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-green-600">2,500+</div>
+              <div className="text-gray-600">Study Sessions</div>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-center p-6 bg-purple-50 rounded-lg"
+            >
+              <Heart className="h-8 w-8 text-purple-600 mx-auto mb-2" />
+              <div className="text-2xl font-bold text-purple-600">98%</div>
+              <div className="text-gray-600">Success Rate</div>
+            </motion.div>
           </div>
 
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                        <div className="space-y-2">
-                          <div className="h-4 bg-gray-200 rounded w-32"></div>
-                          <div className="h-3 bg-gray-200 rounded w-24"></div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
+          {/* Search and Filter Section */}
+          <div className="mb-8 space-y-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search partners by name, subject, or location..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={levelFilter} onValueChange={setLevelFilter}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Levels</SelectItem>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={subjectFilter} onValueChange={setSubjectFilter}>
+                <SelectTrigger className="w-full md:w-40">
+                  <SelectValue placeholder="Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Subjects</SelectItem>
+                  <SelectItem value="gemara">Gemara</SelectItem>
+                  <SelectItem value="halacha">Halacha</SelectItem>
+                  <SelectItem value="tanach">Tanach</SelectItem>
+                  <SelectItem value="parsha">Parsha</SelectItem>
+                  <SelectItem value="philosophy">Philosophy</SelectItem>
+                  <SelectItem value="hebrew">Hebrew</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filteredPartners.map((partner, index) => (
-                  <motion.div
-                    key={partner.id}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    whileHover={{ y: -5, boxShadow: "0 10px 25px rgba(0,0,0,0.15)" }}
-                  >
-                    <Card className="h-full cursor-pointer overflow-hidden border-2 hover:border-teal-300 transition-all duration-300">
-                      <CardContent className="p-6">
-                        <div className="flex items-center space-x-4 mb-4">
-                          <div className="relative">
-                            <Avatar className="w-12 h-12">
-                              <AvatarImage src={partner.avatar_url} alt={`${partner.first_name} ${partner.last_name}`} />
-                              <AvatarFallback>
-                                {partner.first_name?.[0]}{partner.last_name?.[0]}
-                              </AvatarFallback>
-                            </Avatar>
-                            <motion.div
-                              className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                                partner.availability_status === 'available' ? 'bg-green-500' :
-                                partner.availability_status === 'busy' ? 'bg-yellow-500' : 'bg-gray-400'
-                              }`}
-                              animate={partner.availability_status === 'available' ? { scale: [1, 1.2, 1] } : {}}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            />
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="font-bold">{partner.first_name} {partner.last_name}</h3>
-                            <Badge variant={partner.role === 'teacher' ? 'default' : 'secondary'} className="text-xs">
-                              {partner.role === 'teacher' ? 'Teacher' : 'Student'}
-                            </Badge>
-                          </div>
-                        </div>
-                        
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-3">{partner.bio}</p>
-                        
-                        {partner.subjects && partner.subjects.length > 0 && (
-                          <div className="mb-4">
-                            <p className="text-xs font-medium text-gray-500 mb-2">Interested in:</p>
-                            <div className="flex flex-wrap gap-1">
-                              {partner.subjects.slice(0, 3).map(subject => (
-                                <Badge key={subject} variant="outline" className="text-xs">
-                                  {subject}
-                                </Badge>
-                              ))}
-                              {partner.subjects.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{partner.subjects.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                              <Button 
-                                className={`w-full transition-all duration-300 ${
-                                  partner.availability_status === 'available' 
-                                    ? 'bg-teal-500 hover:bg-teal-600' 
-                                    : 'bg-gray-400 hover:bg-gray-500'
-                                }`}
-                                disabled={partner.availability_status === 'offline'}
-                                onClick={() => setSelectedPartner(partner)}
-                              >
-                                {partner.availability_status === 'available' ? 'Connect Now' :
-                                 partner.availability_status === 'busy' ? 'Request Connection' : 'Unavailable'}
-                              </Button>
-                            </motion.div>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <motion.div
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.3 }}
-                            >
-                              <DialogHeader>
-                                <DialogTitle>Connect with {selectedPartner?.first_name}</DialogTitle>
-                              </DialogHeader>
-                              <div className="py-4">
-                                <p className="mb-4">
-                                  Would you like to connect with {selectedPartner?.first_name} {selectedPartner?.last_name} for Torah study?
-                                </p>
-                                <div className="flex space-x-4">
-                                  <Button 
-                                    onClick={() => selectedPartner && handleConnect(selectedPartner)}
-                                    className="bg-teal-500 hover:bg-teal-600"
-                                  >
-                                    Yes, Connect
-                                  </Button>
-                                  <Button 
-                                    variant="outline" 
-                                    onClick={() => setSelectedPartner(null)}
-                                  >
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </div>
-                            </motion.div>
-                          </DialogContent>
-                        </Dialog>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-          
-          {filteredPartners.length === 0 && !loading && (
+          </div>
+
+          {/* Partners Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPartners.map((partner, index) => (
+              <StudyPartnerCard
+                key={partner.id}
+                partner={partner}
+                index={index}
+              />
+            ))}
+          </div>
+
+          {filteredPartners.length === 0 && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-12"
             >
-              <div className="text-6xl mb-4">🤝</div>
-              <h3 className="text-2xl font-bold mb-4">No partners found</h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm ? 'Try adjusting your search terms.' : 'No study partners are currently available.'}
-              </p>
-              {searchTerm && (
-                <Button onClick={() => setSearchTerm('')} variant="outline">
-                  Clear Search
-                </Button>
-              )}
+              <p className="text-gray-500 text-lg">No study partners found matching your criteria.</p>
+              <Button className="mt-4" onClick={() => {
+                setSearchTerm('');
+                setLevelFilter('all');
+                setSubjectFilter('all');
+              }}>
+                Clear Filters
+              </Button>
             </motion.div>
           )}
         </motion.div>

@@ -30,6 +30,7 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string, userData: any) => Promise<any>;
+  signInWithGoogle: () => Promise<any>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<Profile>) => Promise<void>;
 }
@@ -54,19 +55,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth event:', event, session);
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
-          // Fetch user profile
+        if (session?.user && event === 'SIGNED_IN') {
+          // Fetch or create user profile
           setTimeout(async () => {
-            const { data: profileData } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
-            
-            setProfile(profileData);
+            await fetchOrCreateProfile(session.user);
           }, 0);
         } else {
           setProfile(null);
@@ -79,11 +75,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchOrCreateProfile(session.user);
+      }
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchOrCreateProfile = async (user: User) => {
+    try {
+      // First try to fetch existing profile
+      const { data: profileData, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      if (error && error.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        console.log('Creating new profile for user:', user.id);
+        const newProfile = {
+          id: user.id,
+          email: user.email!,
+          first_name: user.user_metadata?.first_name || '',
+          last_name: user.user_metadata?.last_name || '',
+          role: user.user_metadata?.role || 'student',
+          gender: user.user_metadata?.gender || '',
+          preferred_language: 'en'
+        };
+
+        const { data: createdProfile, error: createError } = await supabase
+          .from('profiles')
+          .insert([newProfile])
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating profile:', createError);
+        } else {
+          setProfile(createdProfile);
+        }
+      } else if (profileData) {
+        setProfile(profileData);
+      }
+    } catch (error) {
+      console.error('Error fetching/creating profile:', error);
+    }
+  };
 
   const signIn = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -98,8 +138,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
       options: {
-        data: userData,
+        data: {
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          role: userData.role,
+          gender: userData.gender
+        },
       },
+    });
+    return { data, error };
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
     });
     return { data, error };
   };
@@ -128,6 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     updateProfile,
   };

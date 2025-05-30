@@ -14,7 +14,7 @@ import Layout from '@/components/Layout';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -29,6 +29,7 @@ const AuthPage = () => {
     firstName: '',
     lastName: '',
     role: 'student' as 'teacher' | 'student',
+    gender: '' as string,
   });
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -49,7 +50,7 @@ const AuthPage = () => {
           title: 'Success',
           description: 'Welcome back!',
         });
-        navigate('/');
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({
@@ -68,9 +69,10 @@ const AuthPage = () => {
 
     try {
       const { error } = await signUp(signUpData.email, signUpData.password, {
-        first_name: signUpData.firstName,
-        last_name: signUpData.lastName,
+        firstName: signUpData.firstName,
+        lastName: signUpData.lastName,
         role: signUpData.role,
+        gender: signUpData.gender,
       });
       
       if (error) {
@@ -83,6 +85,28 @@ const AuthPage = () => {
         toast({
           title: 'Success',
           description: 'Account created successfully! Please check your email for verification.',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
         });
       }
     } catch (error) {
@@ -117,105 +141,161 @@ const AuthPage = () => {
                 </TabsList>
                 
                 <TabsContent value="signin">
-                  <form onSubmit={handleSignIn} className="space-y-4">
-                    <div>
-                      <Label htmlFor="signin-email">Email</Label>
-                      <Input
-                        id="signin-email"
-                        type="email"
-                        value={signInData.email}
-                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-torah-500 transition-all"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="signin-password">Password</Label>
-                      <Input
-                        id="signin-password"
-                        type="password"
-                        value={signInData.password}
-                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-torah-500 transition-all"
-                      />
-                    </div>
+                  <div className="space-y-4">
                     <Button
-                      type="submit"
-                      className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
+                      onClick={handleGoogleSignIn}
+                      variant="outline"
+                      className="w-full"
                       disabled={isLoading}
                     >
-                      {isLoading ? 'Signing In...' : 'Sign In'}
+                      Continue with Google
                     </Button>
-                  </form>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Or continue with email
+                        </span>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSignIn} className="space-y-4">
+                      <div>
+                        <Label htmlFor="signin-email">Email</Label>
+                        <Input
+                          id="signin-email"
+                          type="email"
+                          value={signInData.email}
+                          onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                          required
+                          className="focus:ring-2 focus:ring-torah-500 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="signin-password">Password</Label>
+                        <Input
+                          id="signin-password"
+                          type="password"
+                          value={signInData.password}
+                          onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+                          required
+                          className="focus:ring-2 focus:ring-torah-500 transition-all"
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Signing In...' : 'Sign In'}
+                      </Button>
+                    </form>
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="signup">
-                  <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="signup-firstname">First Name</Label>
-                        <Input
-                          id="signup-firstname"
-                          value={signUpData.firstName}
-                          onChange={(e) => setSignUpData({ ...signUpData, firstName: e.target.value })}
-                          required
-                          className="focus:ring-2 focus:ring-torah-500 transition-all"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="signup-lastname">Last Name</Label>
-                        <Input
-                          id="signup-lastname"
-                          value={signUpData.lastName}
-                          onChange={(e) => setSignUpData({ ...signUpData, lastName: e.target.value })}
-                          required
-                          className="focus:ring-2 focus:ring-torah-500 transition-all"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label htmlFor="signup-email">Email</Label>
-                      <Input
-                        id="signup-email"
-                        type="email"
-                        value={signUpData.email}
-                        onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-torah-500 transition-all"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="signup-password">Password</Label>
-                      <Input
-                        id="signup-password"
-                        type="password"
-                        value={signUpData.password}
-                        onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                        required
-                        className="focus:ring-2 focus:ring-torah-500 transition-all"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="signup-role">I want to</Label>
-                      <Select value={signUpData.role} onValueChange={(value: 'teacher' | 'student') => setSignUpData({ ...signUpData, role: value })}>
-                        <SelectTrigger className="focus:ring-2 focus:ring-torah-500 transition-all">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="student">Learn Torah</SelectItem>
-                          <SelectItem value="teacher">Teach Torah</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="space-y-4">
                     <Button
-                      type="submit"
-                      className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
+                      onClick={handleGoogleSignIn}
+                      variant="outline"
+                      className="w-full"
                       disabled={isLoading}
                     >
-                      {isLoading ? 'Creating Account...' : 'Create Account'}
+                      Continue with Google
                     </Button>
-                  </form>
+                    
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">
+                          Or continue with email
+                        </span>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleSignUp} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="signup-firstname">First Name</Label>
+                          <Input
+                            id="signup-firstname"
+                            value={signUpData.firstName}
+                            onChange={(e) => setSignUpData({ ...signUpData, firstName: e.target.value })}
+                            required
+                            className="focus:ring-2 focus:ring-torah-500 transition-all"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="signup-lastname">Last Name</Label>
+                          <Input
+                            id="signup-lastname"
+                            value={signUpData.lastName}
+                            onChange={(e) => setSignUpData({ ...signUpData, lastName: e.target.value })}
+                            required
+                            className="focus:ring-2 focus:ring-torah-500 transition-all"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="signup-email">Email</Label>
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          value={signUpData.email}
+                          onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                          required
+                          className="focus:ring-2 focus:ring-torah-500 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="signup-password">Password</Label>
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          value={signUpData.password}
+                          onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+                          required
+                          className="focus:ring-2 focus:ring-torah-500 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="signup-role">I want to</Label>
+                        <Select value={signUpData.role} onValueChange={(value: 'teacher' | 'student') => setSignUpData({ ...signUpData, role: value })}>
+                          <SelectTrigger className="focus:ring-2 focus:ring-torah-500 transition-all">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="student">Learn Torah</SelectItem>
+                            <SelectItem value="teacher">Teach Torah</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="signup-gender">Gender</Label>
+                        <Select value={signUpData.gender} onValueChange={(value: string) => setSignUpData({ ...signUpData, gender: value })}>
+                          <SelectTrigger className="focus:ring-2 focus:ring-torah-500 transition-all">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="submit"
+                        className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                      </Button>
+                    </form>
+                  </div>
                 </TabsContent>
               </Tabs>
             </CardContent>

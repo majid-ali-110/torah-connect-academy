@@ -11,6 +11,7 @@ import AuthPage from "./pages/AuthPage";
 import FindTeachers from "./pages/FindTeachers";
 import TeacherProfile from "./pages/TeacherProfile";
 import ChildrenCourses from "./pages/ChildrenCourses";
+import WomenCourses from "./pages/WomenCourses";
 import SearchResults from "./pages/SearchResults";
 import Classroom from "./pages/Classroom";
 import Payment from "./pages/Payment";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/find-teachers" element={<FindTeachers />} />
               <Route path="/teacher/:id" element={<TeacherProfile />} />
               <Route path="/children-courses" element={<ChildrenCourses />} />
+              <Route path="/women-courses" element={<WomenCourses />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/classroom/:id" element={<Classroom />} />
               <Route path="/payment" element={<Payment />} />

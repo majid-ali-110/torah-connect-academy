@@ -5,100 +5,91 @@ import Layout from '@/components/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Search, Filter, Star, User } from 'lucide-react';
-import ChildrenCourseCard from '@/components/courses/ChildrenCourseCard';
+import { Search } from 'lucide-react';
+import WomenCourseCard from '@/components/courses/WomenCourseCard';
 
-// Dummy data for children courses
-const dummyChildrenCourses = [
+// Dummy data for women courses
+const dummyWomenCourses = [
   {
     id: '1',
-    title: 'Torah Stories for Little Ones',
-    description: 'Engaging Torah stories adapted for young children with colorful illustrations and interactive activities.',
-    ageRange: '3-6',
-    duration: '30 min',
-    instructor: 'Rabbi Sarah Cohen',
+    title: 'Women in Torah Leadership',
+    description: 'Exploring the roles of biblical matriarchs and contemporary Jewish women leaders.',
+    schedule: 'Tuesday 8 PM',
+    instructor: 'Rebbetzin Sarah Goldstein',
     rating: 4.9,
-    enrolled: 45,
-    price: 25,
-    image: '/placeholder.svg',
-    level: 'Beginner' as const
+    enrolled: 34,
+    price: 45,
+    category: 'Leadership',
+    level: 'Intermediate' as const
   },
   {
     id: '2',
-    title: 'Hebrew Alphabet Adventure',
-    description: 'Fun and interactive way to learn Hebrew letters through songs, games, and creative activities.',
-    ageRange: '4-8',
-    duration: '45 min',
-    instructor: 'Morah Rachel Goldstein',
+    title: 'Niddah Laws & Mikvah',
+    description: 'Comprehensive study of family purity laws and their practical applications.',
+    schedule: 'Sunday 7 PM',
+    instructor: 'Rebbetzin Rachel Cohen',
     rating: 4.8,
-    enrolled: 67,
-    price: 30,
-    image: '/placeholder.svg',
+    enrolled: 28,
+    price: 40,
+    category: 'Halacha',
     level: 'Beginner' as const
   },
   {
     id: '3',
-    title: 'Junior Shabbat Club',
-    description: 'Learn about Shabbat traditions, blessings, and customs through hands-on activities and songs.',
-    ageRange: '5-9',
-    duration: '1 hour',
-    instructor: 'Rabbi David Levy',
+    title: 'Shabbat for the Modern Woman',
+    description: 'Practical guidance for creating meaningful Shabbat experiences in contemporary life.',
+    schedule: 'Thursday 9 PM',
+    instructor: 'Mrs. Esther Rosen',
     rating: 4.7,
-    enrolled: 38,
+    enrolled: 52,
     price: 35,
-    image: '/placeholder.svg',
+    category: 'Practical',
     level: 'Beginner' as const
   },
   {
     id: '4',
-    title: 'Young Scholars Parsha Class',
-    description: 'Weekly Torah portion discussions adapted for children with interactive storytelling and activities.',
-    ageRange: '7-12',
-    duration: '1 hour',
-    instructor: 'Morah Esther Rosen',
+    title: 'Mystical Teachings for Women',
+    description: 'Exploring Kabbalistic concepts and chassidic teachings relevant to women\'s spiritual journey.',
+    schedule: 'Monday 8:30 PM',
+    instructor: 'Rebbetzin Miriam Klein',
     rating: 4.9,
-    enrolled: 52,
-    price: 40,
-    image: '/placeholder.svg',
-    level: 'Intermediate' as const
+    enrolled: 19,
+    price: 55,
+    category: 'Spirituality',
+    level: 'Advanced' as const
   },
   {
     id: '5',
-    title: 'Holiday Celebrations Workshop',
-    description: 'Learn about Jewish holidays through crafts, cooking, and storytelling activities.',
-    ageRange: '6-10',
-    duration: '1.5 hours',
-    instructor: 'Rabbi Michael Green',
-    rating: 4.6,
-    enrolled: 29,
-    price: 45,
-    image: '/placeholder.svg',
-    level: 'Beginner' as const
+    title: 'Jewish Motherhood & Parenting',
+    description: 'Torah perspectives on raising children and creating a Jewish home environment.',
+    schedule: 'Wednesday 2 PM',
+    instructor: 'Mrs. Devorah Levy',
+    rating: 4.8,
+    enrolled: 41,
+    price: 40,
+    category: 'Family',
+    level: 'Intermediate' as const
   },
   {
     id: '6',
-    title: 'Teen Torah Study Circle',
-    description: 'Advanced Torah study and discussion group for teenagers exploring deeper Jewish concepts.',
-    ageRange: '13-17',
-    duration: '1.5 hours',
-    instructor: 'Rabbi Jonathan Klein',
-    rating: 4.8,
-    enrolled: 23,
-    price: 50,
-    image: '/placeholder.svg',
-    level: 'Advanced' as const
+    title: 'Women\'s Prayer & Spirituality',
+    description: 'Deep dive into women\'s unique relationship with prayer and spiritual practice.',
+    schedule: 'Friday 10 AM',
+    instructor: 'Rebbetzin Chaya Green',
+    rating: 4.6,
+    enrolled: 33,
+    price: 38,
+    category: 'Spirituality',
+    level: 'Beginner' as const
   }
 ];
 
-const ChildrenCourses = () => {
+const WomenCourses = () => {
   const { t } = useLanguage();
-  const [courses, setCourses] = useState(dummyChildrenCourses);
-  const [filteredCourses, setFilteredCourses] = useState(dummyChildrenCourses);
+  const [courses, setCourses] = useState(dummyWomenCourses);
+  const [filteredCourses, setFilteredCourses] = useState(dummyWomenCourses);
   const [searchTerm, setSearchTerm] = useState('');
-  const [ageFilter, setAgeFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all');
 
   useEffect(() => {
@@ -109,17 +100,14 @@ const ChildrenCourses = () => {
       filtered = filtered.filter(course =>
         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         course.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+        course.instructor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        course.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Apply age filter
-    if (ageFilter !== 'all') {
-      filtered = filtered.filter(course => {
-        const [minAge, maxAge] = course.ageRange.split('-').map(Number);
-        const [filterMin, filterMax] = ageFilter.split('-').map(Number);
-        return minAge >= filterMin && maxAge <= filterMax;
-      });
+    // Apply category filter
+    if (categoryFilter !== 'all') {
+      filtered = filtered.filter(course => course.category.toLowerCase() === categoryFilter);
     }
 
     // Apply level filter
@@ -128,7 +116,7 @@ const ChildrenCourses = () => {
     }
 
     setFilteredCourses(filtered);
-  }, [searchTerm, ageFilter, levelFilter, courses]);
+  }, [searchTerm, categoryFilter, levelFilter, courses]);
 
   return (
     <Layout>
@@ -140,10 +128,10 @@ const ChildrenCourses = () => {
         >
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Torah Courses for Children
+              Torah Classes for Women
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Nurture your child's Jewish learning with engaging, age-appropriate Torah courses
+              Empowering Jewish women through meaningful Torah study and spiritual growth
             </p>
           </div>
 
@@ -153,21 +141,23 @@ const ChildrenCourses = () => {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search courses, instructors..."
+                  placeholder="Search courses, instructors, topics..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
                 />
               </div>
-              <Select value={ageFilter} onValueChange={setAgeFilter}>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                 <SelectTrigger className="w-full md:w-40">
-                  <SelectValue placeholder="Age Range" />
+                  <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Ages</SelectItem>
-                  <SelectItem value="3-6">3-6 years</SelectItem>
-                  <SelectItem value="7-12">7-12 years</SelectItem>
-                  <SelectItem value="13-17">13-17 years</SelectItem>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  <SelectItem value="leadership">Leadership</SelectItem>
+                  <SelectItem value="halacha">Halacha</SelectItem>
+                  <SelectItem value="practical">Practical</SelectItem>
+                  <SelectItem value="spirituality">Spirituality</SelectItem>
+                  <SelectItem value="family">Family</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={levelFilter} onValueChange={setLevelFilter}>
@@ -187,7 +177,7 @@ const ChildrenCourses = () => {
           {/* Courses Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCourses.map((course, index) => (
-              <ChildrenCourseCard
+              <WomenCourseCard
                 key={course.id}
                 course={course}
                 index={index}
@@ -210,4 +200,4 @@ const ChildrenCourses = () => {
   );
 };
 
-export default ChildrenCourses;
+export default WomenCourses;
