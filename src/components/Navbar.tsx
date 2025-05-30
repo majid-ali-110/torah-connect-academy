@@ -58,6 +58,12 @@ const Navbar = () => {
             >
               {t('nav.courses')}
             </Link>
+            <Link 
+              to="/find-partner" 
+              className="text-gray-700 hover:text-torah-600 transition-colors"
+            >
+              Study Partners
+            </Link>
             {user && (
               <Link 
                 to="/dashboard" 
