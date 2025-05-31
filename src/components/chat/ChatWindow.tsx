@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Send, Calendar, Clock, Check, CheckCheck } from 'lucide-react';
+import { Send, Calendar, Check, CheckCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import MeetingScheduler from './MeetingScheduler';
 
@@ -13,8 +14,6 @@ interface Message {
   sender_id: string;
   created_at: string;
   read_at: string | null;
-  message_type: 'text' | 'meeting_request' | 'meeting_response';
-  meeting_data?: any;
   sender: {
     first_name: string;
     last_name: string;
@@ -44,7 +43,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   useEffect(() => {
     if (conversationId) {
       fetchMessages();
-      fetchConversationDetails();
+      fetchOtherUser();
       markMessagesAsRead();
 
       // Subscribe to real-time messages
@@ -55,22 +54,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           {
             event: 'INSERT',
             schema: 'public',
-            table: 'chat_messages',
-            filter: `conversation_id=eq.${conversationId}`
+            table: 'messages',
+            filter: `recipient_id=eq.${currentUserId}`
           },
-          (payload) => {
-            fetchMessages();
-          }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'chat_messages',
-            filter: `conversation_id=eq.${conversationId}`
-          },
-          (payload) => {
+          () => {
             fetchMessages();
           }
         )
@@ -88,19 +75,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const fetchMessages = async () => {
     try {
+      // Get messages where current user is sender or recipient
       const { data, error } = await supabase
-        .from('chat_messages')
+        .from('messages')
         .select(`
           id,
           content,
           sender_id,
           created_at,
           read_at,
-          message_type,
-          meeting_data,
-          profiles!chat_messages_sender_id_fkey(first_name, last_name, avatar_url)
+          profiles!messages_sender_id_fkey(first_name, last_name, avatar_url)
         `)
-        .eq('conversation_id', conversationId)
+        .or(`and(sender_id.eq.${currentUserId},recipient_id.eq.${conversationId}),and(sender_id.eq.${conversationId},recipient_id.eq.${currentUserId})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -118,85 +104,67 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   };
 
-  const fetchConversationDetails = async () => {
+  const fetchOtherUser = async () => {
     try {
       const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          student_id,
-          teacher_id,
-          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
-          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
-        `)
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, role')
         .eq('id', conversationId)
         .single();
 
       if (error) throw error;
-
-      const otherUserData = data.student_id === currentUserId 
-        ? (data as any).profiles__conversations_teacher_id_fkey 
-        : (data as any).profiles__conversations_student_id_fkey;
-
-      setOtherUser(otherUserData);
+      setOtherUser(data);
     } catch (error) {
-      console.error('Error fetching conversation details:', error);
+      console.error('Error fetching other user:', error);
     }
   };
 
-  function markMessagesAsRead() {
-    supabase
-      .from('chat_messages')
-      .update({ read_at: new Date().toISOString() })
-      .eq('conversation_id', conversationId)
-      .neq('sender_id', currentUserId)
-      .is('read_at', null)
-      .then(({ error }) => {
-        if (error) console.error('Error marking messages as read:', error);
-      });
-  }
+  const markMessagesAsRead = async () => {
+    try {
+      await supabase
+        .from('messages')
+        .update({ read_at: new Date().toISOString() })
+        .eq('recipient_id', currentUserId)
+        .eq('sender_id', conversationId)
+        .is('read_at', null);
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+    }
+  };
 
-  function sendMessage() {
+  const sendMessage = async () => {
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
-    supabase
-      .from('chat_messages')
-      .insert([{
-        conversation_id: conversationId,
-        sender_id: currentUserId,
-        content: newMessage.trim(),
-        message_type: 'text'
-      }])
-      .then(({ error }) => {
-        if (error) throw error;
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert([{
+          sender_id: currentUserId,
+          recipient_id: conversationId,
+          content: newMessage.trim()
+        }]);
 
-        // Update conversation timestamp
-        return supabase
-          .from('conversations')
-          .update({ updated_at: new Date().toISOString() })
-          .eq('id', conversationId);
-      })
-      .then(() => {
-        setNewMessage('');
-      })
-      .catch((error) => {
-        console.error('Error sending message:', error);
-      })
-      .finally(() => {
-        setSending(false);
-      });
-  }
+      if (error) throw error;
+      setNewMessage('');
+      fetchMessages();
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setSending(false);
+    }
+  };
 
-  function scrollToBottom() {
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }
+  };
 
-  function formatTime(dateString: string) {
+  const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
+  };
 
-  function formatDate(dateString: string) {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const today = new Date();
     const yesterday = new Date(today);
@@ -209,9 +177,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     } else {
       return date.toLocaleDateString();
     }
-  }
+  };
 
-  function groupMessagesByDate(messages: Message[]) {
+  const groupMessagesByDate = (messages: Message[]) => {
     const groups: { [key: string]: Message[] } = {};
     
     messages.forEach(message => {
@@ -223,14 +191,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     });
 
     return groups;
-  }
+  };
 
-  function handleKeyPress(e: React.KeyboardEvent) {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -313,29 +281,13 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                       )}
                       
                       <div className={`${!showAvatar && !isOwn ? 'ml-10' : ''}`}>
-                        {message.message_type === 'text' ? (
-                          <div className={`px-4 py-2 rounded-lg ${
-                            isOwn 
-                              ? 'bg-torah-500 text-white' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                          </div>
-                        ) : (
-                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-2 text-blue-600 mb-2">
-                              <Calendar className="h-4 w-4" />
-                              <span className="text-sm font-medium">Meeting Request</span>
-                            </div>
-                            {message.meeting_data && (
-                              <div className="text-sm text-gray-600">
-                                <p><strong>Date:</strong> {message.meeting_data.date}</p>
-                                <p><strong>Time:</strong> {message.meeting_data.time}</p>
-                                <p><strong>Subject:</strong> {message.meeting_data.subject}</p>
-                              </div>
-                            )}
-                          </div>
-                        )}
+                        <div className={`px-4 py-2 rounded-lg ${
+                          isOwn 
+                            ? 'bg-torah-500 text-white' 
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                        </div>
                         
                         <div className={`flex items-center space-x-1 mt-1 ${
                           isOwn ? 'justify-end' : 'justify-start'

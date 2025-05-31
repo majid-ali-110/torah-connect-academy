@@ -1,7 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
@@ -34,49 +33,47 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthProvider>
-          <LanguageProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/find-teachers" element={<FindTeachers />} />
-              <Route path="/teacher/:id" element={<TeacherProfile />} />
-              <Route path="/children-courses" element={<ChildrenCourses />} />
-              <Route path="/women-courses" element={<WomenCourses />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/classroom/:id" element={<Classroom />} />
-              <Route path="/payment" element={<Payment />} />
-              <Route path="/find-partner" element={<FindPartner />} />
-              <Route path="/chat" element={
-                <ProtectedRoute>
-                  <Chat />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/student" element={
-                <ProtectedRoute requireRole="student">
-                  <StudentDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/dashboard/teacher" element={
-                <ProtectedRoute requireRole="teacher">
-                  <TeacherDashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </LanguageProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <LanguageProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/find-teachers" element={<FindTeachers />} />
+            <Route path="/teacher/:id" element={<TeacherProfile />} />
+            <Route path="/children-courses" element={<ChildrenCourses />} />
+            <Route path="/women-courses" element={<WomenCourses />} />
+            <Route path="/search" element={<SearchResults />} />
+            <Route path="/classroom/:id" element={<Classroom />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="/find-partner" element={<FindPartner />} />
+            <Route path="/chat" element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/student" element={
+              <ProtectedRoute requireRole="student">
+                <StudentDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/teacher" element={
+              <ProtectedRoute requireRole="teacher">
+                <TeacherDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </LanguageProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
