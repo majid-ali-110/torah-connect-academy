@@ -55,30 +55,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth event:', event, session);
+        console.log('Auth event:', event, session?.user?.id);
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user && event === 'SIGNED_IN') {
-          // Fetch or create user profile
+        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+          // Use setTimeout to avoid potential deadlock
           setTimeout(async () => {
             await fetchOrCreateProfile(session.user);
+            setLoading(false);
           }, 0);
-        } else {
+        } else if (event === 'SIGNED_OUT') {
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.id);
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchOrCreateProfile(session.user);
+        fetchOrCreateProfile(session.user).finally(() => setLoading(false));
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
@@ -86,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchOrCreateProfile = async (user: User) => {
     try {
+      console.log('Fetching profile for user:', user.id);
       // First try to fetch existing profile
       const { data: profileData, error } = await supabase
         .from('profiles')
@@ -115,25 +119,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (createError) {
           console.error('Error creating profile:', createError);
         } else {
+          console.log('Profile created successfully:', createdProfile);
           setProfile(createdProfile);
         }
       } else if (profileData) {
+        console.log('Profile fetched successfully:', profileData);
         setProfile(profileData);
+      } else if (error) {
+        console.error('Error fetching profile:', error);
       }
     } catch (error) {
-      console.error('Error fetching/creating profile:', error);
+      console.error('Error in fetchOrCreateProfile:', error);
     }
   };
 
   const signIn = async (email: string, password: string) => {
+    setLoading(true);
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    if (error) setLoading(false);
     return { data, error };
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
+    setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -146,21 +157,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         },
       },
     });
+    if (error) setLoading(false);
     return { data, error };
   };
 
   const signInWithGoogle = async () => {
+    setLoading(true);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/dashboard`
       }
     });
+    if (error) setLoading(false);
     return { data, error };
   };
 
   const signOut = async () => {
+    setLoading(true);
     await supabase.auth.signOut();
+    setProfile(null);
+    setLoading(false);
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {

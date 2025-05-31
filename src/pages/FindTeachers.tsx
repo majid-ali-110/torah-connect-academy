@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
 interface Teacher {
@@ -24,9 +25,11 @@ interface Teacher {
   experience: string;
   avatar_url?: string;
   availability_status: 'available' | 'busy' | 'offline';
+  gender: string;
 }
 
 const FindTeachers = () => {
+  const { profile } = useAuth();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [filteredTeachers, setFilteredTeachers] = useState<Teacher[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,8 +39,10 @@ const FindTeachers = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchTeachers();
-  }, []);
+    if (profile) {
+      fetchTeachers();
+    }
+  }, [profile]);
 
   useEffect(() => {
     filterTeachers();
@@ -45,13 +50,24 @@ const FindTeachers = () => {
 
   const fetchTeachers = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Current user gender:', profile?.gender);
+      
+      // Fetch teachers with same gender as current user (if gender is specified)
+      let query = supabase
         .from('profiles')
         .select('*')
         .eq('role', 'teacher')
         .not('subjects', 'is', null);
 
+      // Apply gender filter - only show teachers of same gender
+      if (profile?.gender) {
+        query = query.eq('gender', profile.gender);
+      }
+
+      const { data, error } = await query;
+
       if (error) throw error;
+      console.log('Fetched teachers:', data?.length, 'teachers');
       setTeachers(data || []);
     } catch (error) {
       console.error('Error fetching teachers:', error);
@@ -134,7 +150,14 @@ const FindTeachers = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-3xl font-bold mb-8">Find Your Torah Teacher</h1>
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-3xl font-bold">Find Your Torah Teacher</h1>
+            {profile?.gender && (
+              <div className="text-sm text-gray-600">
+                Showing {profile.gender} teachers only
+              </div>
+            )}
+          </div>
           
           {/* Filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

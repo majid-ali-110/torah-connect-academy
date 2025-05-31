@@ -11,6 +11,8 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }) => {
   const { user, profile, loading } = useAuth();
 
+  console.log('ProtectedRoute - user:', user?.id, 'profile:', profile?.role, 'loading:', loading);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -20,10 +22,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
   }
 
   if (!user) {
+    console.log('No user found, redirecting to auth');
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!profile) {
+    console.log('No profile found, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 
   if (requireRole && profile?.role !== requireRole) {
+    console.log('Role mismatch, redirecting to dashboard');
     return <Navigate to="/dashboard" replace />;
   }
 
