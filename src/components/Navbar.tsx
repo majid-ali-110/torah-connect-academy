@@ -39,10 +39,18 @@ const Navbar = () => {
               {t('nav.home')}
             </Link>
             
+            <Link to="/search" className="text-gray-700 hover:text-torah-600 transition-colors">
+              Find Teachers
+            </Link>
             
             <Link to="/find-partner" className="text-gray-700 hover:text-torah-600 transition-colors">
               Study Partners
             </Link>
+
+            {user && <Link to="/chat" className="text-gray-700 hover:text-torah-600 transition-colors">
+                Messages
+              </Link>}
+            
             {user && <Link to="/dashboard" className="text-gray-700 hover:text-torah-600 transition-colors">
                 {t('nav.dashboard')}
               </Link>}

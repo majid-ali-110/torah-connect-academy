@@ -16,6 +16,7 @@ import SearchResults from "./pages/SearchResults";
 import Classroom from "./pages/Classroom";
 import Payment from "./pages/Payment";
 import FindPartner from "./pages/FindPartner";
+import Chat from "./pages/Chat";
 import Dashboard from "./pages/Dashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
@@ -50,6 +51,11 @@ const App = () => (
               <Route path="/classroom/:id" element={<Classroom />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/find-partner" element={<FindPartner />} />
+              <Route path="/chat" element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              } />
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
