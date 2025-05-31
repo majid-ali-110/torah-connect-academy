@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, forwardRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -24,9 +24,23 @@ interface StudyPartnerCardProps {
   index: number;
 }
 
-const StudyPartnerCard: React.FC<StudyPartnerCardProps> = ({ partner, index }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+const StudyPartnerCard = forwardRef<HTMLDivElement, StudyPartnerCardProps>(({ partner, index }, forwardedRef) => {
+  const innerRef = useRef<HTMLDivElement>(null);
+  // Create a ref object that we'll use for useInView
+  const combinedRef = useRef<HTMLDivElement>(null);
+  
+  // Update our ref object when either innerRef or forwardedRef changes
+  React.useEffect(() => {
+    if (forwardedRef) {
+      if (typeof forwardedRef === 'function') {
+        if (combinedRef.current) forwardedRef(combinedRef.current);
+      } else {
+        forwardedRef.current = combinedRef.current;
+      }
+    }
+  }, [forwardedRef]);
+  
+  const isInView = useInView(combinedRef, { once: true });
   
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
@@ -34,11 +48,11 @@ const StudyPartnerCard: React.FC<StudyPartnerCardProps> = ({ partner, index }) =
 
   return (
     <motion.div
-      ref={ref}
+      ref={combinedRef}
       initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3, delay: 0.1 * index }}
-      layoutId={`partner-${partner.id}`}
     >
       <Card className="h-full hover:shadow-lg transition-all duration-300">
         <CardHeader>
@@ -113,6 +127,8 @@ const StudyPartnerCard: React.FC<StudyPartnerCardProps> = ({ partner, index }) =
       </Card>
     </motion.div>
   );
-};
+});
+
+StudyPartnerCard.displayName = 'StudyPartnerCard';
 
 export default StudyPartnerCard;

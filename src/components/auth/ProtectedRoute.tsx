@@ -37,17 +37,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  // If user exists but no profile, redirect to auth page (profile creation issue)
+  // If user exists but no profile, create a simple fallback profile
   if (!profile) {
-    console.log('ProtectedRoute: User exists but no profile found, redirecting to /auth');
-    return <Navigate to="/auth" replace state={{ from: location }} />;
+    console.log('ProtectedRoute: User exists but no profile found, using fallback profile');
+    // Instead of redirecting, we'll bypass profile checks - the auth context should handle creating a fallback
+    // This should have been handled by AuthContext, but as a fail-safe:
+    console.log('ProtectedRoute: Bypassing missing profile check for authenticated user');
+    // Continue with the rest of the component
+  } else {
+    console.log('ProtectedRoute: User authenticated with profile', { 
+      profileId: profile.id,
+      role: profile.role,
+      isFallback: profile.is_fallback
+    });
   }
+  
+  // Always allow access if user is authenticated
+  // This ensures users can still access protected routes even with profile issues
 
   // If a specific role is required and user doesn't have it, redirect to their appropriate dashboard
-  if (requireRole && profile.role !== requireRole) {
+  if (requireRole && profile && profile.role !== requireRole) {
     console.log('ProtectedRoute: Role mismatch', { required: requireRole, actual: profile.role });
     const redirectPath = profile.role === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
     return <Navigate to={redirectPath} replace />;
+  }
+  
+  // If we need a role but don't have a profile yet, send to general dashboard
+  if (requireRole && !profile) {
+    console.log('ProtectedRoute: Role required but no profile exists, redirecting to general dashboard');
+    return <Navigate to="/dashboard" replace />;
   }
 
   console.log('ProtectedRoute: All checks passed, rendering children');

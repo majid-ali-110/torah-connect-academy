@@ -222,15 +222,14 @@ const FindPartner = () => {
 
           {/* Partners Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <AnimatePresence mode="popLayout">
-              {filteredPartners.map((partner, index) => (
+            {filteredPartners.map((partner, index) => (
+              <div key={partner.id}>
                 <StudyPartnerCard
-                  key={partner.id}
                   partner={partner}
                   index={index}
                 />
-              ))}
-            </AnimatePresence>
+              </div>
+            ))}
           </div>
 
           {filteredPartners.length === 0 && (
