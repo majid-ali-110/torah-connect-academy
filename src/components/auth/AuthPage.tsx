@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -9,14 +8,31 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/Layout';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, signInWithGoogle } = useAuth();
+  const { user, profile, loading, signIn, signUp, signInWithGoogle } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = location.state?.from?.pathname || '/dashboard';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    console.log('AuthPage: Checking if user is already authenticated', { 
+      loading, 
+      hasUser: !!user, 
+      hasProfile: !!profile 
+    });
+    
+    if (!loading && user && profile) {
+      console.log('AuthPage: User already authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
+    }
+  }, [user, profile, loading, navigate, from]);
 
   const [signInData, setSignInData] = useState({
     email: '',
@@ -37,22 +53,26 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
+      console.log('AuthPage: Attempting sign in');
       const { error } = await signIn(signInData.email, signInData.password);
       
       if (error) {
+        console.error('AuthPage: Sign in error:', error);
         toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
         });
       } else {
+        console.log('AuthPage: Sign in successful');
         toast({
           title: 'Success',
           description: 'Welcome back!',
         });
-        navigate('/dashboard');
+        // Navigation will be handled by useEffect when auth state updates
       }
     } catch (error) {
+      console.error('AuthPage: Unexpected error:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -68,6 +88,7 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
+      console.log('AuthPage: Attempting sign up');
       const { error } = await signUp(signUpData.email, signUpData.password, {
         firstName: signUpData.firstName,
         lastName: signUpData.lastName,
@@ -76,18 +97,21 @@ const AuthPage = () => {
       });
       
       if (error) {
+        console.error('AuthPage: Sign up error:', error);
         toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
         });
       } else {
+        console.log('AuthPage: Sign up successful');
         toast({
           title: 'Success',
           description: 'Account created successfully! Please check your email for verification.',
         });
       }
     } catch (error) {
+      console.error('AuthPage: Unexpected error:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -101,8 +125,10 @@ const AuthPage = () => {
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     try {
+      console.log('AuthPage: Attempting Google sign in');
       const { error } = await signInWithGoogle();
       if (error) {
+        console.error('AuthPage: Google sign in error:', error);
         toast({
           title: 'Error',
           description: error.message,
@@ -110,6 +136,7 @@ const AuthPage = () => {
         });
       }
     } catch (error) {
+      console.error('AuthPage: Unexpected error:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred',
@@ -119,6 +146,19 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking authentication status
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto flex items-center justify-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-torah-500"></div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
