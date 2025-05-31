@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -108,7 +107,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
       const formattedMessages = data?.map(msg => ({
         ...msg,
-        sender: msg.profiles!chat_messages_sender_id_fkey
+        sender: (msg as any).profiles
       })) || [];
 
       setMessages(formattedMessages);
@@ -135,8 +134,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       if (error) throw error;
 
       const otherUserData = data.student_id === currentUserId 
-        ? data.profiles!conversations_teacher_id_fkey 
-        : data.profiles!conversations_student_id_fkey;
+        ? (data as any).profiles__conversations_teacher_id_fkey 
+        : (data as any).profiles__conversations_student_id_fkey;
 
       setOtherUser(otherUserData);
     } catch (error) {
@@ -144,59 +143,60 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   };
 
-  const markMessagesAsRead = async () => {
-    try {
-      await supabase
-        .from('chat_messages')
-        .update({ read_at: new Date().toISOString() })
-        .eq('conversation_id', conversationId)
-        .neq('sender_id', currentUserId)
-        .is('read_at', null);
-    } catch (error) {
-      console.error('Error marking messages as read:', error);
-    }
-  };
+  function markMessagesAsRead() {
+    supabase
+      .from('chat_messages')
+      .update({ read_at: new Date().toISOString() })
+      .eq('conversation_id', conversationId)
+      .neq('sender_id', currentUserId)
+      .is('read_at', null)
+      .then(({ error }) => {
+        if (error) console.error('Error marking messages as read:', error);
+      });
+  }
 
-  const sendMessage = async () => {
+  function sendMessage() {
     if (!newMessage.trim() || sending) return;
 
     setSending(true);
-    try {
-      const { error } = await supabase
-        .from('chat_messages')
-        .insert([{
-          conversation_id: conversationId,
-          sender_id: currentUserId,
-          content: newMessage.trim(),
-          message_type: 'text'
-        }]);
+    supabase
+      .from('chat_messages')
+      .insert([{
+        conversation_id: conversationId,
+        sender_id: currentUserId,
+        content: newMessage.trim(),
+        message_type: 'text'
+      }])
+      .then(({ error }) => {
+        if (error) throw error;
 
-      if (error) throw error;
+        // Update conversation timestamp
+        return supabase
+          .from('conversations')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', conversationId);
+      })
+      .then(() => {
+        setNewMessage('');
+      })
+      .catch((error) => {
+        console.error('Error sending message:', error);
+      })
+      .finally(() => {
+        setSending(false);
+      });
+  }
 
-      // Update conversation timestamp
-      await supabase
-        .from('conversations')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', conversationId);
-
-      setNewMessage('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setSending(false);
-    }
-  };
-
-  const scrollToBottom = () => {
+  function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }
 
-  const formatTime = (dateString: string) => {
+  function formatTime(dateString: string) {
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  }
 
-  const formatDate = (dateString: string) => {
+  function formatDate(dateString: string) {
     const date = new Date(dateString);
     const today = new Date();
     const yesterday = new Date(today);
@@ -209,9 +209,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     } else {
       return date.toLocaleDateString();
     }
-  };
+  }
 
-  const groupMessagesByDate = (messages: Message[]) => {
+  function groupMessagesByDate(messages: Message[]) {
     const groups: { [key: string]: Message[] } = {};
     
     messages.forEach(message => {
@@ -223,14 +223,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     });
 
     return groups;
-  };
+  }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  function handleKeyPress(e: React.KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
+  }
 
   if (loading) {
     return (

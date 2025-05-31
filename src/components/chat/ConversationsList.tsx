@@ -86,8 +86,8 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
           student_id,
           teacher_id,
           updated_at,
-          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
-          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
+          student_profile:profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
+          teacher_profile:profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
         `)
         .or(`student_id.eq.${currentUserId},teacher_id.eq.${currentUserId}`)
         .order('updated_at', { ascending: false });
@@ -114,8 +114,8 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
             .is('read_at', null);
 
           const otherUser = conv.student_id === currentUserId 
-            ? conv.profiles!conversations_teacher_id_fkey 
-            : conv.profiles!conversations_student_id_fkey;
+            ? (conv as any).teacher_profile 
+            : (conv as any).student_profile;
 
           return {
             ...conv,
