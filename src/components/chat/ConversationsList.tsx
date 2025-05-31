@@ -10,10 +10,16 @@ import NewChatModal from './NewChatModal';
 
 interface Conversation {
   id: string;
-  first_name: string;
-  last_name: string;
-  avatar_url?: string;
-  role: string;
+  student_id: string;
+  teacher_id: string;
+  updated_at: string;
+  other_user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+    role: string;
+  };
   last_message?: {
     content: string;
     created_at: string;
@@ -45,13 +51,22 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
     
     // Subscribe to real-time updates
     const channel = supabase
-      .channel('messages-list')
+      .channel('conversations-list')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'messages'
+          table: 'conversations'
+        },
+        () => fetchConversations()
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'chat_messages'
         },
         () => fetchConversations()
       )
@@ -64,72 +79,53 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
 
   const fetchConversations = async () => {
     try {
-      // Get all users who have exchanged messages with current user
-      const { data: messagesData, error } = await supabase
-        .from('messages')
+      const { data: conversationsData, error } = await (supabase as any)
+        .from('conversations')
         .select(`
-          sender_id,
-          recipient_id,
-          content,
-          created_at,
-          read_at,
-          profiles!messages_sender_id_fkey(id, first_name, last_name, avatar_url, role)
+          id,
+          student_id,
+          teacher_id,
+          updated_at,
+          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
+          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
         `)
-        .or(`sender_id.eq.${currentUserId},recipient_id.eq.${currentUserId}`)
-        .order('created_at', { ascending: false });
+        .or(`student_id.eq.${currentUserId},teacher_id.eq.${currentUserId}`)
+        .order('updated_at', { ascending: false });
 
       if (error) throw error;
 
-      // Group messages by conversation partner
-      const conversationMap = new Map<string, Conversation>();
-      
-      messagesData?.forEach((message) => {
-        const otherUserId = message.sender_id === currentUserId 
-          ? message.recipient_id 
-          : message.sender_id;
-        
-        if (!conversationMap.has(otherUserId)) {
-          // Get user info for the conversation partner
-          const userProfile = message.sender_id === currentUserId 
-            ? null 
-            : (message as any).profiles;
-          
-          if (userProfile) {
-            conversationMap.set(otherUserId, {
-              id: otherUserId,
-              first_name: userProfile.first_name,
-              last_name: userProfile.last_name,
-              avatar_url: userProfile.avatar_url,
-              role: userProfile.role,
-              last_message: {
-                content: message.content,
-                created_at: message.created_at,
-                sender_id: message.sender_id
-              },
-              unread_count: 0
-            });
-          }
-        }
-      });
+      // Get last message for each conversation
+      const conversationsWithMessages = await Promise.all(
+        (conversationsData || []).map(async (conv: any) => {
+          const { data: lastMessage } = await (supabase as any)
+            .from('chat_messages')
+            .select('content, created_at, sender_id')
+            .eq('conversation_id', conv.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
 
-      // Get unread counts for each conversation
-      const conversationsWithCounts = await Promise.all(
-        Array.from(conversationMap.values()).map(async (conv) => {
-          const { count } = await supabase
-            .from('messages')
+          const { count: unreadCount } = await (supabase as any)
+            .from('chat_messages')
             .select('*', { count: 'exact', head: true })
-            .eq('sender_id', conv.id)
-            .eq('recipient_id', currentUserId)
+            .eq('conversation_id', conv.id)
+            .neq('sender_id', currentUserId)
             .is('read_at', null);
+
+          const otherUser = conv.student_id === currentUserId 
+            ? conv.profiles_conversations_teacher_id_fkey 
+            : conv.profiles_conversations_student_id_fkey;
 
           return {
             ...conv,
-            unread_count: count || 0
+            other_user: otherUser,
+            last_message: lastMessage,
+            unread_count: unreadCount || 0
           };
         })
       );
 
-      setConversations(conversationsWithCounts);
+      setConversations(conversationsWithMessages);
     } catch (error) {
       console.error('Error fetching conversations:', error);
     } finally {
@@ -138,7 +134,7 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
   };
 
   const filteredConversations = conversations.filter(conv =>
-    `${conv.first_name} ${conv.last_name}`
+    `${conv.other_user.first_name} ${conv.other_user.last_name}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
@@ -228,9 +224,9 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
                 <div className="flex items-center space-x-3">
                   <div className="relative">
                     <Avatar className="w-12 h-12">
-                      <AvatarImage src={conversation.avatar_url} />
+                      <AvatarImage src={conversation.other_user.avatar_url} />
                       <AvatarFallback className="bg-torah-100 text-torah-700">
-                        {conversation.first_name?.[0]}{conversation.last_name?.[0]}
+                        {conversation.other_user.first_name?.[0]}{conversation.other_user.last_name?.[0]}
                       </AvatarFallback>
                     </Avatar>
                     {conversation.unread_count > 0 && (
@@ -243,7 +239,7 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium text-gray-900 truncate">
-                        {conversation.first_name} {conversation.last_name}
+                        {conversation.other_user.first_name} {conversation.other_user.last_name}
                       </h3>
                       {conversation.last_message && (
                         <span className="text-xs text-gray-500">
@@ -260,7 +256,7 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
                     )}
                     
                     <span className="text-xs text-torah-600 capitalize">
-                      {conversation.role}
+                      {conversation.other_user.role}
                     </span>
                   </div>
                 </div>

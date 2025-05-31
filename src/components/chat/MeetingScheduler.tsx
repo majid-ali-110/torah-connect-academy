@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -67,7 +66,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
       // Send meeting request message
       const meetingMessage = `Meeting Request:\n\nDate: ${formData.date}\nTime: ${formData.time}\nDuration: ${formData.duration} minutes\nSubject: ${formData.subject}\n\n${formData.notes ? `Notes: ${formData.notes}` : ''}`;
 
-      const { error: messageError } = await supabase
+      const { error: messageError } = (await supabase as any)
         .from('chat_messages')
         .insert([{
           conversation_id: conversationId,
@@ -87,7 +86,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
       if (messageError) throw messageError;
 
       // Update conversation timestamp
-      await supabase
+      await (supabase as any)
         .from('conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);

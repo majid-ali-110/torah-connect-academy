@@ -68,7 +68,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
     setCreating(true);
     try {
       // Check if conversation already exists
-      const { data: existingConv } = await supabase
+      const { data: existingConv } = await (supabase as any)
         .from('conversations')
         .select('id')
         .or(
@@ -82,7 +82,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
       }
 
       // Create new conversation
-      const { data: newConv, error } = await supabase
+      const { data: newConv, error } = await (supabase as any)
         .from('conversations')
         .insert([{
           student_id: userRole === 'student' ? currentUserId : otherUserId,

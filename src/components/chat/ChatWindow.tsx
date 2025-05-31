@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,8 @@ interface Message {
   sender_id: string;
   created_at: string;
   read_at: string | null;
+  message_type: 'text' | 'meeting_request' | 'meeting_response';
+  meeting_data?: any;
   sender: {
     first_name: string;
     last_name: string;
@@ -43,7 +44,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   useEffect(() => {
     if (conversationId) {
       fetchMessages();
-      fetchOtherUser();
+      fetchConversationDetails();
       markMessagesAsRead();
 
       // Subscribe to real-time messages
@@ -54,10 +55,22 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           {
             event: 'INSERT',
             schema: 'public',
-            table: 'messages',
-            filter: `recipient_id=eq.${currentUserId}`
+            table: 'chat_messages',
+            filter: `conversation_id=eq.${conversationId}`
           },
-          () => {
+          (payload) => {
+            fetchMessages();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'chat_messages',
+            filter: `conversation_id=eq.${conversationId}`
+          },
+          (payload) => {
             fetchMessages();
           }
         )
@@ -75,25 +88,26 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const fetchMessages = async () => {
     try {
-      // Get messages where current user is sender or recipient
-      const { data, error } = await supabase
-        .from('messages')
+      const { data, error } = await (supabase as any)
+        .from('chat_messages')
         .select(`
           id,
           content,
           sender_id,
           created_at,
           read_at,
-          profiles!messages_sender_id_fkey(first_name, last_name, avatar_url)
+          message_type,
+          meeting_data,
+          profiles!chat_messages_sender_id_fkey(first_name, last_name, avatar_url)
         `)
-        .or(`and(sender_id.eq.${currentUserId},recipient_id.eq.${conversationId}),and(sender_id.eq.${conversationId},recipient_id.eq.${currentUserId})`)
+        .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      const formattedMessages = data?.map(msg => ({
+      const formattedMessages = data?.map((msg: any) => ({
         ...msg,
-        sender: (msg as any).profiles
+        sender: msg.profiles
       })) || [];
 
       setMessages(formattedMessages);
@@ -104,28 +118,38 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   };
 
-  const fetchOtherUser = async () => {
+  const fetchConversationDetails = async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, avatar_url, role')
+      const { data, error } = await (supabase as any)
+        .from('conversations')
+        .select(`
+          student_id,
+          teacher_id,
+          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
+          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
+        `)
         .eq('id', conversationId)
         .single();
 
       if (error) throw error;
-      setOtherUser(data);
+
+      const otherUserData = data.student_id === currentUserId 
+        ? data.profiles_conversations_teacher_id_fkey 
+        : data.profiles_conversations_student_id_fkey;
+
+      setOtherUser(otherUserData);
     } catch (error) {
-      console.error('Error fetching other user:', error);
+      console.error('Error fetching conversation details:', error);
     }
   };
 
   const markMessagesAsRead = async () => {
     try {
-      await supabase
-        .from('messages')
+      await (supabase as any)
+        .from('chat_messages')
         .update({ read_at: new Date().toISOString() })
-        .eq('recipient_id', currentUserId)
-        .eq('sender_id', conversationId)
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', currentUserId)
         .is('read_at', null);
     } catch (error) {
       console.error('Error marking messages as read:', error);
@@ -137,17 +161,24 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
     setSending(true);
     try {
-      const { error } = await supabase
-        .from('messages')
+      const { error } = await (supabase as any)
+        .from('chat_messages')
         .insert([{
+          conversation_id: conversationId,
           sender_id: currentUserId,
-          recipient_id: conversationId,
-          content: newMessage.trim()
+          content: newMessage.trim(),
+          message_type: 'text'
         }]);
 
       if (error) throw error;
+
+      // Update conversation timestamp
+      await (supabase as any)
+        .from('conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId);
+
       setNewMessage('');
-      fetchMessages();
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -281,13 +312,29 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                       )}
                       
                       <div className={`${!showAvatar && !isOwn ? 'ml-10' : ''}`}>
-                        <div className={`px-4 py-2 rounded-lg ${
-                          isOwn 
-                            ? 'bg-torah-500 text-white' 
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                        </div>
+                        {message.message_type === 'text' ? (
+                          <div className={`px-4 py-2 rounded-lg ${
+                            isOwn 
+                              ? 'bg-torah-500 text-white' 
+                              : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                          </div>
+                        ) : (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div className="flex items-center space-x-2 text-blue-600 mb-2">
+                              <Calendar className="h-4 w-4" />
+                              <span className="text-sm font-medium">Meeting Request</span>
+                            </div>
+                            {message.meeting_data && (
+                              <div className="text-sm text-gray-600">
+                                <p><strong>Date:</strong> {message.meeting_data.date}</p>
+                                <p><strong>Time:</strong> {message.meeting_data.time}</p>
+                                <p><strong>Subject:</strong> {message.meeting_data.subject}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         
                         <div className={`flex items-center space-x-1 mt-1 ${
                           isOwn ? 'justify-end' : 'justify-start'
