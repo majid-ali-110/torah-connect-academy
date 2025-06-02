@@ -600,6 +600,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_gender: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_gender: {
         Args: Record<PropertyKey, never>
         Returns: string

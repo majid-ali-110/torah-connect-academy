@@ -21,7 +21,7 @@ interface Profile {
   availability_status?: 'available' | 'busy' | 'offline';
   gender?: string;
   preferred_language?: string;
-  is_fallback?: boolean; // Flag to indicate this is a fallback profile not from database
+  is_fallback?: boolean;
 }
 
 interface AuthContextType {
@@ -38,7 +38,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Export as function declaration instead of arrow function for better HMR compatibility
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -56,7 +55,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     console.log('AuthProvider: Setting up auth listener');
     
-    // Get initial session
     const getInitialSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -72,15 +70,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setSession(session);
           setUser(session.user);
           await fetchOrCreateProfile(session.user);
+        } else {
+          setLoading(false);
         }
-        setLoading(false);
       } catch (error) {
         console.error('AuthProvider: Error in getInitialSession:', error);
         setLoading(false);
       }
     };
 
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('AuthProvider: Auth state change', { event, sessionExists: !!session, userId: session?.user?.id });
@@ -89,9 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          setLoading(true);
           await fetchOrCreateProfile(session.user);
-          setLoading(false);
         } else if (event === 'SIGNED_OUT') {
           setProfile(null);
           setLoading(false);
@@ -99,25 +95,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     );
 
-    // Get initial session
     getInitialSession();
 
     return () => {
       console.log('AuthProvider: Cleaning up auth listener');
       subscription.unsubscribe();
     };
-  }, []);  const fetchOrCreateProfile = async (user: User) => {
+  }, []);
+
+  const fetchOrCreateProfile = async (user: User) => {
     try {
       console.log('AuthProvider: Fetching profile for user:', user.id);
       
-      // First check if we're dealing with a new user from metadata
-      const isNewUser = user.app_metadata?.provider === 'email' && 
-                      user.created_at === user.updated_at;
-                      
-      console.log('AuthProvider: User status check', { isNewUser, metadata: user.user_metadata });
-      
-      // Create fallback profile first as a safety measure
-      const fallbackProfile = {
+      // Create fallback profile immediately as safety measure
+      const fallbackProfile: Profile = {
         id: user.id,
         email: user.email!,
         first_name: user.user_metadata?.first_name || '',
@@ -125,17 +116,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         role: user.user_metadata?.role || 'student',
         gender: user.user_metadata?.gender || '',
         preferred_language: 'en',
-        is_fallback: true  // Flag to indicate this is not from database
+        is_fallback: true
       };
 
+      // Set timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.log('AuthProvider: Profile fetch timeout, using fallback');
+        setProfile(fallbackProfile);
+        setLoading(false);
+      }, 5000);
+
       try {
-        // Add a limit or timeout to prevent infinite recursion
         const { data: profileData, error } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
-          .limit(1)
           .single();
+
+        clearTimeout(timeoutId);
 
         if (error && error.code === 'PGRST116') {
           console.log('AuthProvider: Profile not found, creating new profile');
@@ -157,9 +155,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
           if (createError) {
             console.error('AuthProvider: Error creating profile:', createError);
-            // Use fallback profile if creation failed
-            setProfile(fallbackProfile as Profile);
-            console.log('AuthProvider: Using fallback profile after create error');
+            setProfile(fallbackProfile);
           } else {
             console.log('AuthProvider: Profile created successfully:', createdProfile);
             setProfile(createdProfile);
@@ -169,29 +165,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setProfile(profileData);
         } else if (error) {
           console.error('AuthProvider: Error fetching profile:', error);
-          
-          // Improved fallback behavior for any profile fetching error
-          console.log('AuthProvider: Using fallback profile due to database issue');
-          setProfile(fallbackProfile as Profile);
-          console.log('AuthProvider: Fallback profile set:', fallbackProfile);
+          setProfile(fallbackProfile);
         }
       } catch (innerError) {
+        clearTimeout(timeoutId);
         console.error('AuthProvider: Inner error in fetchOrCreateProfile:', innerError);
-        // If anything fails, use the fallback profile
-        setProfile(fallbackProfile as Profile);
-        console.log('AuthProvider: Using fallback profile after exception');
+        setProfile(fallbackProfile);
       }
+      
+      setLoading(false);
     } catch (error) {
       console.error('AuthProvider: Error in fetchOrCreateProfile:', error);
-      // Make sure to set profile to avoid blocking protected routes
-      const emergencyProfile = {
+      // Emergency fallback to prevent blocking
+      const emergencyProfile: Profile = {
         id: user.id,
         email: user.email!,
-        role: 'student' as const,
+        role: 'student',
         is_fallback: true
       };
       setProfile(emergencyProfile);
-      console.log('AuthProvider: Using emergency profile after critical error');
+      setLoading(false);
     }
   };
 
@@ -207,13 +200,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log('AuthProvider: Sign in result', { success: !!data.session, error });
       
-      // Force profile fetch on sign in to ensure we have profile data
       if (data.session && data.user) {
         console.log('AuthProvider: Manually fetching profile after sign in');
         await fetchOrCreateProfile(data.user);
+      } else {
+        setLoading(false);
       }
       
-      setLoading(false);
       return { data, error };
     } catch (error) {
       console.error('AuthProvider: Error during sign in:', error);
