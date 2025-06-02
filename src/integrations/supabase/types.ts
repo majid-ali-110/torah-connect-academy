@@ -516,6 +516,95 @@ export type Database = {
           },
         ]
       }
+      study_hours: {
+        Row: {
+          id: string
+          last_session_date: string | null
+          total_minutes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_session_date?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_session_date?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_hours_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_sessions: {
+        Row: {
+          created_at: string
+          duration_minutes: number | null
+          ended_at: string | null
+          id: string
+          room_id: string
+          started_at: string
+          status: string
+          student_id: string
+          subject: string | null
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          room_id: string
+          started_at?: string
+          status?: string
+          student_id: string
+          subject?: string | null
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number | null
+          ended_at?: string | null
+          id?: string
+          room_id?: string
+          started_at?: string
+          status?: string
+          student_id?: string
+          subject?: string | null
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_sessions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_availability: {
         Row: {
           created_at: string | null

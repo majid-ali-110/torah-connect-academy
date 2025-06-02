@@ -52,6 +52,28 @@ export const signInWithGoogleOAuth = async () => {
 };
 
 export const signOutUser = async () => {
-  console.log('AuthOperations: Signing out');
-  await supabase.auth.signOut();
+  console.log('AuthOperations: Signing out user');
+  
+  try {
+    // Clear any local storage or session data first
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    // Sign out from Supabase
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error('AuthOperations: Error during sign out:', error);
+      throw error;
+    }
+    
+    console.log('AuthOperations: Sign out successful');
+    
+    // Force a page reload to clear any cached state
+    window.location.href = '/auth';
+  } catch (error) {
+    console.error('AuthOperations: Sign out failed:', error);
+    // Force redirect even if sign out fails
+    window.location.href = '/auth';
+  }
 };

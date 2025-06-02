@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -5,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, User } from 'lucide-react';
+import { Calendar, Clock, User, Video } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface MeetingSchedulerProps {
   isOpen: boolean;
@@ -23,12 +25,14 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
   currentUserId,
   otherUser
 }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     date: '',
     time: '',
     duration: '60',
     subject: '',
-    notes: ''
+    notes: '',
+    isVideoCall: false
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -66,7 +70,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
       // Send meeting request message
       const meetingMessage = `Meeting Request:\n\nDate: ${formData.date}\nTime: ${formData.time}\nDuration: ${formData.duration} minutes\nSubject: ${formData.subject}\n\n${formData.notes ? `Notes: ${formData.notes}` : ''}`;
 
-      const { error: messageError } = (await supabase as any)
+      const { error: messageError } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: conversationId,
@@ -79,14 +83,15 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
             time: formData.time,
             duration: formData.duration,
             subject: formData.subject,
-            notes: formData.notes
+            notes: formData.notes,
+            isVideoCall: formData.isVideoCall
           }
         }]);
 
       if (messageError) throw messageError;
 
       // Update conversation timestamp
-      await (supabase as any)
+      await supabase
         .from('conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);
@@ -96,13 +101,29 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
         description: "Your meeting request has been sent successfully.",
       });
 
+      // If it's a video call and the meeting is now, start immediately
+      if (formData.isVideoCall) {
+        const now = new Date();
+        const meetingDateTime = new Date(`${formData.date}T${formData.time}`);
+        const timeDiff = meetingDateTime.getTime() - now.getTime();
+        
+        // If meeting is within 15 minutes, offer to start now
+        if (timeDiff <= 15 * 60 * 1000 && timeDiff >= -5 * 60 * 1000) {
+          const startNow = window.confirm("The meeting time is now or very soon. Would you like to start the video call?");
+          if (startNow) {
+            navigate(`/video-call/${booking.id}`);
+          }
+        }
+      }
+
       onClose();
       setFormData({
         date: '',
         time: '',
         duration: '60',
         subject: '',
-        notes: ''
+        notes: '',
+        isVideoCall: false
       });
     } catch (error) {
       console.error('Error scheduling meeting:', error);
@@ -213,6 +234,20 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
               placeholder="Any additional notes or preparation instructions..."
               rows={3}
             />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="videoCall"
+              checked={formData.isVideoCall}
+              onChange={(e) => setFormData({ ...formData, isVideoCall: e.target.checked })}
+              className="rounded"
+            />
+            <label htmlFor="videoCall" className="text-sm text-gray-700 flex items-center">
+              <Video className="h-4 w-4 mr-1" />
+              Include video call link
+            </label>
           </div>
 
           <div className="flex space-x-3">
