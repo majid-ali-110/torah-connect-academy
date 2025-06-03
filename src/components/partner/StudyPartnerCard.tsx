@@ -1,3 +1,4 @@
+
 import React, { useRef, forwardRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,10 +27,8 @@ interface StudyPartnerCardProps {
 
 const StudyPartnerCard = forwardRef<HTMLDivElement, StudyPartnerCardProps>(({ partner, index }, forwardedRef) => {
   const innerRef = useRef<HTMLDivElement>(null);
-  // Create a ref object that we'll use for useInView
   const combinedRef = useRef<HTMLDivElement>(null);
   
-  // Update our ref object when either innerRef or forwardedRef changes
   React.useEffect(() => {
     if (forwardedRef) {
       if (typeof forwardedRef === 'function') {
@@ -77,27 +76,31 @@ const StudyPartnerCard = forwardRef<HTMLDivElement, StudyPartnerCardProps>(({ pa
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <span className="text-sm font-medium text-gray-700">Subjects:</span>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {partner.subjects.map((subject, idx) => (
-                <Badge key={idx} variant="secondary" className="text-xs">
-                  {subject}
-                </Badge>
-              ))}
+          {partner.subjects && partner.subjects.length > 0 && (
+            <div>
+              <span className="text-sm font-medium text-gray-700">Subjects:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {partner.subjects.map((subject, idx) => (
+                  <Badge key={idx} variant="secondary" className="text-xs">
+                    {subject}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           
-          <div>
-            <span className="text-sm font-medium text-gray-700">Languages:</span>
-            <div className="flex flex-wrap gap-1 mt-1">
-              {partner.languages.map((language, idx) => (
-                <Badge key={idx} variant="outline" className="text-xs">
-                  {language}
-                </Badge>
-              ))}
+          {partner.languages && partner.languages.length > 0 && (
+            <div>
+              <span className="text-sm font-medium text-gray-700">Languages:</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {partner.languages.map((language, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {language}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           
           <div>
             <span className="text-sm font-medium text-gray-700">Level:</span>

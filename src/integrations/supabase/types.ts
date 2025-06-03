@@ -548,6 +548,50 @@ export type Database = {
           },
         ]
       }
+      study_partner_requests: {
+        Row: {
+          availability: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          preferred_level: string | null
+          study_goals: string | null
+          subjects: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preferred_level?: string | null
+          study_goals?: string | null
+          subjects?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preferred_level?: string | null
+          study_goals?: string | null
+          subjects?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_partner_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_sessions: {
         Row: {
           created_at: string
@@ -677,6 +721,47 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "teacher_payouts_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          hourly_rate: number
+          id: string
+          is_active: boolean
+          subject: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hourly_rate: number
+          id?: string
+          is_active?: boolean
+          subject: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean
+          subject?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_services_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
