@@ -39,7 +39,7 @@ const LanguageSelector = () => {
           </motion.div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent align="end" className="w-32 bg-white border shadow-lg">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
