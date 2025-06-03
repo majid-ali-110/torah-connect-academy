@@ -111,8 +111,6 @@ const Navbar = () => {
       </div>
     </motion.nav>
   );
-    </motion.nav>
-  );
 };
 
 export default Navbar;
