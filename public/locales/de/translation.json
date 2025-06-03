@@ -1,0 +1,43 @@
+
+{
+  "nav": {
+    "home": "Startseite",
+    "teachers": "Lehrer Finden",
+    "courses": "Kurse",
+    "dashboard": "Dashboard",
+    "login": "Anmelden",
+    "signup": "Registrieren",
+    "logout": "Abmelden"
+  },
+  "dashboard": {
+    "student": {
+      "title": "Studenten Dashboard"
+    },
+    "teacher": {
+      "title": "Lehrer Dashboard"
+    },
+    "learning_streak": "Lernstreak",
+    "my_teachers": "Meine Lehrer",
+    "my_courses": "Meine Kurse",
+    "course_milestones": "Kurs-Meilensteine",
+    "total_students": "Gesamte Studenten",
+    "active_courses": "Aktive Kurse",
+    "avg_progress": "Durchschn. Fortschritt",
+    "recent_payouts": "Letzte Auszahlungen",
+    "teaching_schedule": "Unterrichtsplan"
+  },
+  "common": {
+    "progress": "Fortschritt",
+    "achieved": "Erreicht!",
+    "required": "erforderlich",
+    "best": "Beste",
+    "days": "Tage",
+    "keep_up": "Weiter so!"
+  },
+  "auth": {
+    "select_gender": "Geschlecht Auswählen",
+    "gender_male": "Männlich",
+    "gender_female": "Weiblich",
+    "language_preference": "Sprachpräferenz"
+  }
+}

@@ -1,0 +1,43 @@
+
+{
+  "nav": {
+    "home": "Accueil",
+    "teachers": "Trouver des Professeurs",
+    "courses": "Cours",
+    "dashboard": "Tableau de Bord",
+    "login": "Connexion",
+    "signup": "Inscription",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "student": {
+      "title": "Tableau de Bord Étudiant"
+    },
+    "teacher": {
+      "title": "Tableau de Bord Professeur"
+    },
+    "learning_streak": "Série d'Apprentissage",
+    "my_teachers": "Mes Professeurs",
+    "my_courses": "Mes Cours",
+    "course_milestones": "Jalons du Cours",
+    "total_students": "Total Étudiants",
+    "active_courses": "Cours Actifs",
+    "avg_progress": "Progrès Moyen",
+    "recent_payouts": "Paiements Récents",
+    "teaching_schedule": "Horaire d'Enseignement"
+  },
+  "common": {
+    "progress": "Progrès",
+    "achieved": "Accompli!",
+    "required": "requis",
+    "best": "Meilleur",
+    "days": "jours",
+    "keep_up": "Continuez ce bon travail!"
+  },
+  "auth": {
+    "select_gender": "Sélectionnez le Genre",
+    "gender_male": "Homme",
+    "gender_female": "Femme",
+    "language_preference": "Préférence Linguistique"
+  }
+}
