@@ -1,6 +1,5 @@
 
 import React from 'react';
-import Layout from '@/components/Layout';
 import Hero from '@/components/home/Hero';
 import FeatureBlocks from '@/components/home/FeatureBlocks';
 import SOSPartner from '@/components/home/SOSPartner';
@@ -11,7 +10,7 @@ import SubjectCards from '@/components/home/SubjectCards';
 
 const Index = () => {
   return (
-    <Layout>
+    <>
       <Hero />
       <FeatureBlocks />
       <SOSPartner />
@@ -19,7 +18,7 @@ const Index = () => {
       <HowItWorksNew />
       <FAQ />
       <Testimonials />
-    </Layout>
+    </>
   );
 };
 
