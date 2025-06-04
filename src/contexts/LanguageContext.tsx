@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,17 +14,20 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, profile } = useAuth();
   const { i18n, t } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
   useEffect(() => {
     // Set language from user profile if available
-    if (profile?.preferred_language && profile.preferred_language !== i18n.language) {
+    if (profile?.preferred_language && profile.preferred_language !== currentLanguage) {
       i18n.changeLanguage(profile.preferred_language);
+      setCurrentLanguage(profile.preferred_language);
     }
-  }, [profile?.preferred_language, i18n]);
+  }, [profile?.preferred_language, i18n, currentLanguage]);
 
   const setLanguage = async (lang: string) => {
     // Change language in i18next
     await i18n.changeLanguage(lang);
+    setCurrentLanguage(lang); // Update state to trigger re-render
     
     // Update user profile if logged in
     if (user && profile) {
@@ -41,7 +43,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   return (
-    <LanguageContext.Provider value={{ language: i18n.language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language: currentLanguage, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
