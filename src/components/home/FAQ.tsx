@@ -1,23 +1,26 @@
 
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const FAQ = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="container mx-auto px-4 py-12">
-      <h2 className="text-3xl font-bold mb-10">Foire aux Questions</h2>
+      <h2 className="text-3xl font-bold mb-10">{t('home.faq_title')}</h2>
       
       <div className="space-y-8">
         <div>
-          <h3 className="text-xl font-semibold mb-2">Pour qui s'adresse ce site?</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('home.faq_who_title')}</h3>
           <p className="text-gray-700">
-            Pour toutes personnes désirant fixer un moment d'étude dans sa journée: que ça soit homme, femme ou même enfants (aide à l'école ou préparation a la bar mitsva)
+            {t('home.faq_who_content')}
           </p>
         </div>
         
         <div>
-          <h3 className="text-xl font-semibold mb-2">Quels types de cours sont proposés ?</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('home.faq_courses_title')}</h3>
           <p className="text-gray-700">
-            Des cours interactif en direct avec un Rav sur la matière désirée
+            {t('home.faq_courses_content')}
           </p>
         </div>
       </div>
