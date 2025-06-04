@@ -131,7 +131,7 @@ const Profile = () => {
   };
 
   return (
-    <Layout>
+    
       <div className="container mx-auto py-8 px-4 max-w-4xl">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
@@ -390,7 +390,7 @@ const Profile = () => {
           </Card>
         </div>
       </div>
-    </Layout>
+    
   );
 };
 

@@ -119,7 +119,6 @@ const WomenCourses = () => {
   }, [searchTerm, categoryFilter, levelFilter, courses]);
 
   return (
-    <Layout>
       <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -196,7 +195,6 @@ const WomenCourses = () => {
           )}
         </motion.div>
       </div>
-    </Layout>
   );
 };
 
