@@ -3,6 +3,11 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+// Import translation files directly
+import enTranslation from '../../public/locales/en/translation.json';
+import frTranslation from '../../public/locales/fr/translation.json';
+import deTranslation from '../../public/locales/de/translation.json';
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -16,19 +21,15 @@ i18n
       caches: ['localStorage'],
     },
 
-    backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
-    },
-
     resources: {
       en: {
-        translation: await import('../../public/locales/en/translation.json'),
+        translation: enTranslation,
       },
       fr: {
-        translation: await import('../../public/locales/fr/translation.json'),
+        translation: frTranslation,
       },
       de: {
-        translation: await import('../../public/locales/de/translation.json'),
+        translation: deTranslation,
       },
     },
 
