@@ -43,45 +43,28 @@ const MessageSystem = () => {
       // Get all messages involving the current user
       const { data: messagesData, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+          *,
+          sender:profiles!sender_id(id, first_name, last_name, role),
+          recipient:profiles!recipient_id(id, first_name, last_name, role)
+        `)
         .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // Get all unique user IDs from messages
-      const userIds = new Set<string>();
-      messagesData?.forEach((message) => {
-        if (message.sender_id !== user.id) userIds.add(message.sender_id);
-        if (message.recipient_id !== user.id) userIds.add(message.recipient_id);
-      });
-
-      // Fetch user profiles
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role')
-        .in('id', Array.from(userIds));
-
-      if (profilesError) throw profilesError;
-
-      // Create a map of user profiles
-      const profilesMap = new Map();
-      profilesData?.forEach((profile) => {
-        profilesMap.set(profile.id, profile);
-      });
 
       // Group messages by conversation partner
       const conversationMap = new Map<string, Conversation>();
       
       messagesData?.forEach((message) => {
         const isFromCurrentUser = message.sender_id === user.id;
-        const partnerId = isFromCurrentUser ? message.recipient_id : message.sender_id;
-        const otherUser = profilesMap.get(partnerId);
+        const otherUser = isFromCurrentUser ? message.recipient : message.sender;
+        const partnerId = otherUser.id;
 
-        if (otherUser && !conversationMap.has(partnerId)) {
+        if (!conversationMap.has(partnerId)) {
           conversationMap.set(partnerId, {
             id: partnerId,
-            other_user: { ...otherUser },
+            other_user: otherUser,
             last_message: message,
             unread_count: 0
           });
@@ -108,32 +91,16 @@ const MessageSystem = () => {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+          *,
+          sender:profiles!sender_id(first_name, last_name, role)
+        `)
         .or(`and(sender_id.eq.${user.id},recipient_id.eq.${partnerId}),and(sender_id.eq.${partnerId},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      // Get sender profiles for messages
-      const senderIds = [...new Set(data?.map(m => m.sender_id) || [])];
-      const { data: sendersData, error: sendersError } = await supabase
-        .from('profiles')
-        .select('id, first_name, last_name, role')
-        .in('id', senderIds);
-
-      if (sendersError) throw sendersError;
-
-      const sendersMap = new Map();
-      sendersData?.forEach((sender) => {
-        sendersMap.set(sender.id, sender);
-      });
-
-      const messagesWithSenders = data?.map(message => ({
-        ...message,
-        sender: sendersMap.get(message.sender_id)
-      })) || [];
-
-      setMessages(messagesWithSenders);
+      setMessages(data || []);
 
       // Mark messages as read
       await supabase
