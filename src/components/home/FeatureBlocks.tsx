@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 
 const FeatureBlock = ({ 
   icon: Icon, 
@@ -52,7 +52,6 @@ const FeatureBlock = ({
           </motion.div>
         </div>
         
-        {/* Background ripple effect */}
         <motion.div 
           className="absolute w-0 h-0 rounded-full bg-white/10"
           initial={{ scale: 0, x: "50%", y: "50%" }}
@@ -66,6 +65,8 @@ const FeatureBlock = ({
 };
 
 const FeatureBlocks = () => {
+  const { profile } = useAuth();
+  
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -79,6 +80,24 @@ const FeatureBlocks = () => {
   const item = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
+  };
+
+  const getGenderSpecificTitle = () => {
+    if (profile?.gender === 'male') {
+      return "Men's Studies";
+    } else if (profile?.gender === 'female') {
+      return "Women's Studies";
+    }
+    return "Adult Studies";
+  };
+
+  const getGenderSpecificDescription = () => {
+    if (profile?.gender === 'male') {
+      return "Torah learning opportunities specifically tailored for men";
+    } else if (profile?.gender === 'female') {
+      return "Torah learning opportunities specifically tailored for women";
+    }
+    return "Torah learning opportunities for adults";
   };
 
   return (
@@ -113,10 +132,10 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={CalendarDays} 
-            title="Women's Studies" 
+            title={getGenderSpecificTitle()}
             link="/women-courses" 
             bgColor="bg-pink-400"
-            description="Torah learning opportunities specifically tailored for women"
+            description={getGenderSpecificDescription()}
           />
         </motion.div>
         

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -56,7 +55,7 @@ const FindTeachers = () => {
     try {
       console.log('Current user gender:', profile?.gender);
       
-      // Fetch teachers with active services and same gender as current user
+      // Fetch teachers with active services
       let query = supabase
         .from('profiles')
         .select(`
@@ -70,11 +69,6 @@ const FindTeachers = () => {
         `)
         .eq('role', 'teacher')
         .eq('teacher_services.is_active', true);
-
-      // Apply gender filter - only show teachers of same gender
-      if (profile?.gender) {
-        query = query.eq('gender', profile.gender);
-      }
 
       const { data, error } = await query;
 
@@ -96,8 +90,31 @@ const FindTeachers = () => {
         return acc;
       }, []) || [];
 
-      console.log('Fetched teachers with services:', teachersWithServices.length, 'teachers');
-      setTeachers(teachersWithServices);
+      // Apply gender-based filtering
+      const genderFilteredTeachers = teachersWithServices.filter(teacher => {
+        if (!profile?.gender || !teacher.gender) return true;
+        
+        // If user is male, show male teachers for men and children
+        if (profile.gender === 'male') {
+          return teacher.gender === 'male' && 
+                 (teacher.audiences?.includes('men') || 
+                  teacher.audiences?.includes('adults') || 
+                  teacher.audiences?.includes('children'));
+        }
+        
+        // If user is female, show female teachers for women and children
+        if (profile.gender === 'female') {
+          return teacher.gender === 'female' && 
+                 (teacher.audiences?.includes('women') || 
+                  teacher.audiences?.includes('adults') || 
+                  teacher.audiences?.includes('children'));
+        }
+        
+        return true;
+      });
+
+      console.log('Fetched gender-filtered teachers:', genderFilteredTeachers.length, 'teachers');
+      setTeachers(genderFilteredTeachers);
     } catch (error) {
       console.error('Error fetching teachers:', error);
     } finally {
@@ -154,6 +171,33 @@ const FindTeachers = () => {
     return [...new Set([...profileSubjects, ...serviceSubjects])];
   };
 
+  const getFilteredAudiences = () => {
+    if (!profile?.gender) return getUniqueValues('audiences');
+    
+    const allAudiences = getUniqueValues('audiences');
+    
+    if (profile.gender === 'male') {
+      return allAudiences.filter(audience => 
+        ['men', 'adults', 'children'].includes(audience.toLowerCase())
+      );
+    } else if (profile.gender === 'female') {
+      return allAudiences.filter(audience => 
+        ['women', 'adults', 'children'].includes(audience.toLowerCase())
+      );
+    }
+    
+    return allAudiences;
+  };
+
+  const getPageDescription = () => {
+    if (profile?.gender === 'male') {
+      return 'Showing male teachers for men and children';
+    } else if (profile?.gender === 'female') {
+      return 'Showing female teachers for women and children';
+    }
+    return 'Find qualified Torah teachers';
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
@@ -191,11 +235,9 @@ const FindTeachers = () => {
       >
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Find Your Torah Teacher</h1>
-          {profile?.gender && (
-            <div className="text-sm text-gray-600">
-              Showing {profile.gender} teachers only
-            </div>
-          )}
+          <div className="text-sm text-gray-600">
+            {getPageDescription()}
+          </div>
         </div>
         
         {/* Filters */}
@@ -237,7 +279,7 @@ const FindTeachers = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Audiences</SelectItem>
-              {getUniqueValues('audiences').map(audience => (
+              {getFilteredAudiences().map(audience => (
                 <SelectItem key={audience} value={audience}>{audience}</SelectItem>
               ))}
             </SelectContent>
