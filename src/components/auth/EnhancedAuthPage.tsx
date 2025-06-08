@@ -74,7 +74,8 @@ const EnhancedAuthPage: React.FC = () => {
         });
         toast.success('Successfully signed in!');
       } else {
-        await signUp(email, password);
+        // Pass empty userData object as third parameter
+        await signUp(email, password, {});
         await logSecurityEvent('login_attempt', { 
           success: true, 
           type: 'signup',
