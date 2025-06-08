@@ -22,7 +22,7 @@ interface TeacherProfile {
   location: string;
   experience: string;
   avatar_url?: string;
-  availability_status: 'available' | 'busy' | 'offline';
+  availability_status: string;
   gender: string;
   hourly_rate?: number;
 }
