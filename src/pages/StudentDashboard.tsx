@@ -31,21 +31,21 @@ const StudentDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {profile.first_name}!
+            Bon retour, {profile.first_name}!
           </h1>
-          <p className="text-gray-600 mt-2">Here's your learning dashboard</p>
+          <p className="text-gray-600 mt-2">Voici votre tableau de bord d'apprentissage</p>
         </div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="cursor-pointer hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Find Teachers</CardTitle>
+              <CardTitle className="text-sm font-medium">Trouver Professeurs</CardTitle>
               <Book className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => window.location.href = '/find-teachers'}>
-                Browse Teachers
+                Parcourir Professeurs
               </Button>
             </CardContent>
           </Card>
@@ -57,31 +57,31 @@ const StudentDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => window.location.href = '/chat'}>
-                View Messages
+                Voir Messages
               </Button>
             </CardContent>
           </Card>
 
           <Card className="cursor-pointer hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Courses</CardTitle>
+              <CardTitle className="text-sm font-medium">Cours</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => window.location.href = '/children-courses'}>
-                Browse Courses
+                Parcourir Cours
               </Button>
             </CardContent>
           </Card>
 
           <Card className="cursor-pointer hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Study Partner</CardTitle>
+              <CardTitle className="text-sm font-medium">Partenaire d'Étude</CardTitle>
               <Video className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => window.location.href = '/find-partner'}>
-                Find Partner
+                Trouver Partenaire
               </Button>
             </CardContent>
           </Card>
@@ -91,7 +91,7 @@ const StudentDashboard = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
             <Clock className="mr-2 h-6 w-6" />
-            Study Hours Tracking
+            Suivi des Heures d'Étude
           </h2>
           <StudyHoursTracker />
         </div>
@@ -100,19 +100,19 @@ const StudentDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Lessons</CardTitle>
+              <CardTitle>Cours Prochains</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500 text-center py-4">No upcoming lessons scheduled</p>
+              <p className="text-gray-500 text-center py-4">Aucun cours programmé</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Learning Progress</CardTitle>
+              <CardTitle>Progrès d'Apprentissage</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500 text-center py-4">Start your learning journey today!</p>
+              <p className="text-gray-500 text-center py-4">Commencez votre parcours d'apprentissage aujourd'hui!</p>
             </CardContent>
           </Card>
         </div>

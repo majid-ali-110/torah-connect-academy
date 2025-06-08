@@ -31,21 +31,21 @@ const TeacherDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {profile.first_name}!
+            Bon retour, {profile.first_name}!
           </h1>
-          <p className="text-gray-600 mt-2">Manage your teaching activities</p>
+          <p className="text-gray-600 mt-2">Gérez vos activités d'enseignement</p>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+              <CardTitle className="text-sm font-medium">Total Étudiants</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">No students yet</p>
+              <p className="text-xs text-muted-foreground">Aucun étudiant pour le moment</p>
             </CardContent>
           </Card>
 
@@ -56,30 +56,30 @@ const TeacherDashboard = () => {
             </CardHeader>
             <CardContent>
               <Button variant="outline" className="w-full" onClick={() => window.location.href = '/chat'}>
-                View Messages
+                Voir les Messages
               </Button>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">This Month</CardTitle>
+              <CardTitle className="text-sm font-medium">Ce Mois</CardTitle>
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$0</div>
-              <p className="text-xs text-muted-foreground">Earnings</p>
+              <div className="text-2xl font-bold">0€</div>
+              <p className="text-xs text-muted-foreground">Revenus</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Upcoming Lessons</CardTitle>
+              <CardTitle className="text-sm font-medium">Cours Prochains</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">Today</p>
+              <p className="text-xs text-muted-foreground">Aujourd'hui</p>
             </CardContent>
           </Card>
         </div>
@@ -88,7 +88,7 @@ const TeacherDashboard = () => {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
             <Clock className="mr-2 h-6 w-6" />
-            Teaching Hours Tracking
+            Suivi des Heures d'Enseignement
           </h2>
           <StudyHoursTracker />
         </div>
@@ -97,19 +97,19 @@ const TeacherDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Today's Schedule</CardTitle>
+              <CardTitle>Planning d'Aujourd'hui</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500 text-center py-4">No lessons scheduled for today</p>
+              <p className="text-gray-500 text-center py-4">Aucun cours programmé pour aujourd'hui</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle>Activité Récente</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-500 text-center py-4">No recent activity</p>
+              <p className="text-gray-500 text-center py-4">Aucune activité récente</p>
             </CardContent>
           </Card>
         </div>
