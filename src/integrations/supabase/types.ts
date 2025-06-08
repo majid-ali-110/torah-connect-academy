@@ -246,11 +246,58 @@ export type Database = {
           },
         ]
       }
+      course_enrollments: {
+        Row: {
+          course_id: string | null
+          enrolled_at: string
+          id: string
+          payment_id: string | null
+          student_id: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          enrolled_at?: string
+          id?: string
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          enrolled_at?: string
+          id?: string
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_enrollments_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           age_range: string | null
           audience: string
           created_at: string | null
+          currency: string | null
           description: string | null
           id: string
           image_url: string | null
@@ -266,6 +313,7 @@ export type Database = {
           age_range?: string | null
           audience: string
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -281,6 +329,7 @@ export type Database = {
           age_range?: string | null
           audience?: string
           created_at?: string | null
+          currency?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -457,15 +506,64 @@ export type Database = {
           },
         ]
       }
+      live_class_enrollments: {
+        Row: {
+          id: string
+          joined_at: string
+          live_class_id: string | null
+          payment_id: string | null
+          student_id: string | null
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          live_class_id?: string | null
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          live_class_id?: string | null
+          payment_id?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_class_enrollments_live_class_id_fkey"
+            columns: ["live_class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_class_enrollments_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_class_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_classes: {
         Row: {
           course_key: string
           created_at: string
           description: string | null
           duration_minutes: number
+          enrolled_count: number | null
           id: string
+          is_free: boolean | null
           max_participants: number
           meeting_link: string
+          price: number | null
           scheduled_at: string
           teacher_id: string
           title: string
@@ -476,9 +574,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number
+          enrolled_count?: number | null
           id?: string
+          is_free?: boolean | null
           max_participants?: number
           meeting_link: string
+          price?: number | null
           scheduled_at: string
           teacher_id: string
           title: string
@@ -489,9 +590,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number
+          enrolled_count?: number | null
           id?: string
+          is_free?: boolean | null
           max_participants?: number
           meeting_link?: string
+          price?: number | null
           scheduled_at?: string
           teacher_id?: string
           title?: string
@@ -533,6 +637,86 @@ export type Database = {
           sender_id?: string | null
         }
         Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          brand: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          last_four: string | null
+          stripe_payment_method_id: string | null
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          stripe_payment_method_id?: string | null
+          type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          last_four?: string | null
+          stripe_payment_method_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payments: {
+        Row: {
+          amount: number
+          course_id: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          status: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          course_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          course_id?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          status?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -951,6 +1135,64 @@ export type Database = {
           },
         ]
       }
+      teacher_earnings: {
+        Row: {
+          admin_set_rate: number | null
+          amount: number
+          course_id: string | null
+          created_at: string
+          id: string
+          payment_id: string | null
+          status: string | null
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_set_rate?: number | null
+          amount: number
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          payment_id?: string | null
+          status?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_set_rate?: number | null
+          amount?: number
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          payment_id?: string | null
+          status?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_earnings_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_earnings_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_earnings_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teachers: {
         Row: {
           availability: Json | null
@@ -998,6 +1240,57 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      withdrawals: {
+        Row: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          amount: number
+          bank_account: string | null
+          created_at: string
+          id: string
+          status: string | null
+          teacher_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          amount: number
+          bank_account?: string | null
+          created_at?: string
+          id?: string
+          status?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          amount?: number
+          bank_account?: string | null
+          created_at?: string
+          id?: string
+          status?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawals_admin_approved_by_fkey"
+            columns: ["admin_approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "withdrawals_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
