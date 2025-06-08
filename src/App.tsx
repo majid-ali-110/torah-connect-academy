@@ -4,85 +4,190 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from '@/contexts/AuthContext';
-import { LanguageProvider } from '@/contexts/LanguageContext';
-import Layout from './components/Layout';
-import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import StudentDashboard from "./pages/StudentDashboard";
-import AuthPage from "./pages/AuthPage";
-import Profile from "./pages/Profile";
-import TeacherProfile from "./pages/TeacherProfile";
-import FindTeachers from "./pages/FindTeachers";
-import Chat from "./pages/Chat";
-import VideoCall from "./pages/VideoCall";
-import Classroom from "./pages/Classroom";
-import ChildrenCourses from "./pages/ChildrenCourses";
-import WomenCourses from "./pages/WomenCourses";
-import MaleCourses from "./pages/MaleCourses";
-import BeitMidrash from "./pages/BeitMidrash";
-import Contact from "./pages/Contact";
-import Support from "./pages/Support";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Cookies from "./pages/Cookies";
-import FAQ from "./pages/FAQ";
-import Blog from "./pages/Blog";
-import Payment from "./pages/Payment";
-import RabbisDirectory from "./pages/RabbisDirectory";
-import SearchResults from "./pages/SearchResults";
-import FindPartner from "./pages/FindPartner";
-import Inscription from "./pages/Inscription";
-import NotFound from "./pages/NotFound";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import Layout from "@/components/Layout";
+import Index from "@/pages/Index";
+import AuthPage from "@/pages/AuthPage";
+import Dashboard from "@/pages/Dashboard";
+import StudentDashboard from "@/pages/StudentDashboard";
+import TeacherDashboard from "@/pages/TeacherDashboard";
+import Profile from "@/pages/Profile";
+import FindTeachers from "@/pages/FindTeachers";
+import TeacherProfile from "@/pages/TeacherProfile";
+import Chat from "@/pages/Chat";
+import VideoCall from "@/pages/VideoCall";
+import ChildrenCourses from "@/pages/ChildrenCourses";
+import WomenCourses from "@/pages/WomenCourses";
+import FindPartner from "@/pages/FindPartner";
+import Classroom from "@/pages/Classroom";
+import Payment from "@/pages/Payment";
+import SearchResults from "@/pages/SearchResults";
+import RabbisDirectory from "@/pages/RabbisDirectory";
+import FAQ from "@/pages/FAQ";
+import Blog from "@/pages/Blog";
+import Contact from "@/pages/Contact";
+import Support from "@/pages/Support";
+import BeitMidrash from "@/pages/BeitMidrash";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
+import Cookies from "@/pages/Cookies";
+import NotFound from "@/pages/NotFound";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Layout><Index /></Layout>} />
-                <Route path="/auth" element={<Layout><AuthPage /></Layout>} />
-                <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-                <Route path="/teacher-dashboard" element={<Layout><TeacherDashboard /></Layout>} />
-                <Route path="/student-dashboard" element={<Layout><StudentDashboard /></Layout>} />
-                <Route path="/profile" element={<Layout><Profile /></Layout>} />
-                <Route path="/teacher/:id" element={<Layout><TeacherProfile /></Layout>} />
-                <Route path="/find-teachers" element={<Layout><FindTeachers /></Layout>} />
-                <Route path="/search" element={<Layout><SearchResults /></Layout>} />
-                <Route path="/chat" element={<Layout><Chat /></Layout>} />
-                <Route path="/video-call/:roomId" element={<VideoCall />} />
-                <Route path="/classroom/:id" element={<Layout><Classroom /></Layout>} />
-                <Route path="/children-courses" element={<Layout><ChildrenCourses /></Layout>} />
-                <Route path="/women-courses" element={<Layout><WomenCourses /></Layout>} />
-                <Route path="/male-courses" element={<Layout><MaleCourses /></Layout>} />
-                <Route path="/beit-midrash" element={<Layout><BeitMidrash /></Layout>} />
-                <Route path="/contact" element={<Layout><Contact /></Layout>} />
-                <Route path="/support" element={<Layout><Support /></Layout>} />
-                <Route path="/terms" element={<Layout><Terms /></Layout>} />
-                <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
-                <Route path="/cookies" element={<Layout><Cookies /></Layout>} />
-                <Route path="/faq" element={<Layout><FAQ /></Layout>} />
-                <Route path="/blog" element={<Layout><Blog /></Layout>} />
-                <Route path="/payment" element={<Layout><Payment /></Layout>} />
-                <Route path="/rabbis" element={<Layout><RabbisDirectory /></Layout>} />
-                <Route path="/find-partner" element={<Layout><FindPartner /></Layout>} />
-                <Route path="/inscription" element={<Layout><Inscription /></Layout>} />
-                <Route path="*" element={<Layout><NotFound /></Layout>} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout><Index /></Layout>} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/student" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><StudentDashboard /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/teacher" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><TeacherDashboard /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/profile" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Profile /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/find-teachers" 
+                element={<Layout><FindTeachers /></Layout>} 
+              />
+              <Route 
+                path="/teacher/:id" 
+                element={<Layout><TeacherProfile /></Layout>} 
+              />
+              <Route 
+                path="/chat" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Chat /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/video-call/:roomId" 
+                element={
+                  <ProtectedRoute>
+                    <VideoCall />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/children-courses" 
+                element={<Layout><ChildrenCourses /></Layout>} 
+              />
+              <Route 
+                path="/women-courses" 
+                element={<Layout><WomenCourses /></Layout>} 
+              />
+              <Route 
+                path="/find-partner" 
+                element={<Layout><FindPartner /></Layout>} 
+              />
+              <Route 
+                path="/classroom/:id" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Classroom /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/payment" 
+                element={
+                  <ProtectedRoute>
+                    <Layout><Payment /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/search" 
+                element={<Layout><SearchResults /></Layout>} 
+              />
+              {/* New pages */}
+              <Route 
+                path="/rabbanim" 
+                element={<RabbisDirectory />} 
+              />
+              <Route 
+                path="/eleves" 
+                element={<Layout><ChildrenCourses /></Layout>} 
+              />
+              <Route 
+                path="/femmes" 
+                element={<Layout><WomenCourses /></Layout>} 
+              />
+              <Route 
+                path="/beit-hamidrash" 
+                element={<BeitMidrash />} 
+              />
+              <Route 
+                path="/faq" 
+                element={<FAQ />} 
+              />
+              <Route 
+                path="/blog" 
+                element={<Blog />} 
+              />
+              <Route 
+                path="/contact" 
+                element={<Contact />} 
+              />
+              <Route 
+                path="/support" 
+                element={<Support />} 
+              />
+              <Route 
+                path="/conditions" 
+                element={<Terms />} 
+              />
+              <Route 
+                path="/privacy" 
+                element={<Privacy />} 
+              />
+              <Route 
+                path="/cookies" 
+                element={<Cookies />} 
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
       </LanguageProvider>
-    </QueryClientProvider>
-  );
-}
+    </AuthProvider>
+  </QueryClientProvider>
+);
 
 export default App;

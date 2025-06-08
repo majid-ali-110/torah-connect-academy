@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthContext';
 
 const FeatureBlock = ({ 
   icon: Icon, 
@@ -67,8 +66,6 @@ const FeatureBlock = ({
 };
 
 const FeatureBlocks = () => {
-  const { profile } = useAuth();
-  
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -83,37 +80,6 @@ const FeatureBlocks = () => {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 }
   };
-
-  // Determine the studies block based on user gender
-  const getStudiesBlock = () => {
-    if (!profile) {
-      // Default to Women's Studies for non-logged in users
-      return {
-        title: "Women's Studies",
-        link: "/women-courses",
-        bgColor: "bg-pink-400",
-        description: "Torah learning opportunities specifically tailored for women"
-      };
-    }
-
-    if (profile.gender === 'male') {
-      return {
-        title: "Male Studies",
-        link: "/male-courses",
-        bgColor: "bg-blue-400",
-        description: "Torah learning opportunities specifically tailored for men"
-      };
-    } else {
-      return {
-        title: "Women's Studies",
-        link: "/women-courses",
-        bgColor: "bg-pink-400",
-        description: "Torah learning opportunities specifically tailored for women"
-      };
-    }
-  };
-
-  const studiesBlock = getStudiesBlock();
 
   return (
     <div className="container mx-auto px-4 py-16">
@@ -147,10 +113,10 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={CalendarDays} 
-            title={studiesBlock.title}
-            link={studiesBlock.link} 
-            bgColor={studiesBlock.bgColor}
-            description={studiesBlock.description}
+            title="Women's Studies" 
+            link="/women-courses" 
+            bgColor="bg-pink-400"
+            description="Torah learning opportunities specifically tailored for women"
           />
         </motion.div>
         

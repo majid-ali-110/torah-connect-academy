@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -11,118 +12,76 @@ import { Separator } from '@/components/ui/separator';
 import { Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAuth } from '@/contexts/AuthContext';
 
-// Mock teacher data filtered by gender
-const getMockTeachers = (userGender?: string) => {
-  const allTeachers = [
-    {
-      id: 1,
-      name: 'Rabbi David',
-      subjects: ['Torah', 'Talmud', 'Hebrew'],
-      audiences: ['Adults', 'Children'],
-      languages: ['English', 'Hebrew'],
-      hourlyRate: 40,
-      rating: 4.9,
-      reviewCount: 124,
-      availability: 'Mon - Thu',
-      gender: 'male',
-      image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    },
-    {
-      id: 2,
-      name: 'Sarah Cohen',
-      subjects: ['Torah', 'Jewish History', 'Holidays'],
-      audiences: ['Women', 'Children'],
-      languages: ['English', 'French'],
-      hourlyRate: 35,
-      rating: 4.8,
-      reviewCount: 89,
-      availability: 'Tue - Fri',
-      gender: 'female',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    },
-    {
-      id: 3,
-      name: 'Rabbi Moshe',
-      subjects: ['Talmud', 'Kabbalah', 'Ethics'],
-      audiences: ['Adults', 'Seniors'],
-      languages: ['English', 'Hebrew', 'Yiddish'],
-      hourlyRate: 45,
-      rating: 5.0,
-      reviewCount: 156,
-      availability: 'Sun - Thu',
-      gender: 'male',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    },
-    {
-      id: 4,
-      name: 'Leah Goldstein',
-      subjects: ['Women in Judaism', 'Torah', 'Holidays'],
-      audiences: ['Women'],
-      languages: ['English', 'Hebrew'],
-      hourlyRate: 38,
-      rating: 4.7,
-      reviewCount: 72,
-      availability: 'Mon, Wed, Thu',
-      gender: 'female',
-      image: 'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    },
-    {
-      id: 5,
-      name: 'Rabbi Aaron',
-      subjects: ['Torah', 'Children Studies'],
-      audiences: ['Children'],
-      languages: ['English', 'Hebrew'],
-      hourlyRate: 30,
-      rating: 4.8,
-      reviewCount: 95,
-      availability: 'All days',
-      gender: 'male',
-      image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    },
-    {
-      id: 6,
-      name: 'Miriam Klein',
-      subjects: ['Torah', 'Children Studies'],
-      audiences: ['Children'],
-      languages: ['English', 'French'],
-      hourlyRate: 32,
-      rating: 4.9,
-      reviewCount: 87,
-      availability: 'Mon - Fri',
-      gender: 'female',
-      image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-    }
-  ];
-
-  // Filter based on user gender: same gender + children's teachers
-  if (!userGender) return allTeachers;
-  
-  return allTeachers.filter(teacher => 
-    teacher.gender === userGender || teacher.audiences.includes('Children')
-  );
-};
+// Mock teacher data (would come from API in a real app)
+const mockTeachers = [
+  {
+    id: 1,
+    name: 'Rabbi David',
+    subjects: ['Torah', 'Talmud', 'Hebrew'],
+    audiences: ['Adults', 'Children'],
+    languages: ['English', 'Hebrew'],
+    hourlyRate: 40,
+    rating: 4.9,
+    reviewCount: 124,
+    availability: 'Mon - Thu',
+    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
+  },
+  {
+    id: 2,
+    name: 'Sarah Cohen',
+    subjects: ['Torah', 'Jewish History', 'Holidays'],
+    audiences: ['Women', 'Children'],
+    languages: ['English', 'French'],
+    hourlyRate: 35,
+    rating: 4.8,
+    reviewCount: 89,
+    availability: 'Tue - Fri',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
+  },
+  {
+    id: 3,
+    name: 'Rabbi Moshe',
+    subjects: ['Talmud', 'Kabbalah', 'Ethics'],
+    audiences: ['Adults', 'Seniors'],
+    languages: ['English', 'Hebrew', 'Yiddish'],
+    hourlyRate: 45,
+    rating: 5.0,
+    reviewCount: 156,
+    availability: 'Sun - Thu',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
+  },
+  {
+    id: 4,
+    name: 'Leah Goldstein',
+    subjects: ['Women in Judaism', 'Torah', 'Holidays'],
+    audiences: ['Women'],
+    languages: ['English', 'Hebrew'],
+    hourlyRate: 38,
+    rating: 4.7,
+    reviewCount: 72,
+    availability: 'Mon, Wed, Thu',
+    image: 'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
+  },
+];
 
 // Filter panel component
 const FilterPanel = ({ 
   isOpen, 
   toggleOpen, 
   filters, 
-  setFilters,
-  teachers
+  setFilters 
 }: { 
   isOpen: boolean, 
   toggleOpen: () => void, 
   filters: any, 
-  setFilters: (filters: any) => void,
-  teachers: any[]
+  setFilters: (filters: any) => void 
 }) => {
   const isMobile = useIsMobile();
   
-  const subjectOptions = [...new Set(teachers.flatMap(t => t.subjects))];
-  const audienceOptions = [...new Set(teachers.flatMap(t => t.audiences))];
-  const languageOptions = [...new Set(teachers.flatMap(t => t.languages))];
+  const subjectOptions = ['Torah', 'Talmud', 'Hebrew', 'Jewish History', 'Holidays', 'Kabbalah', 'Ethics'];
+  const audienceOptions = ['Adults', 'Children', 'Women', 'Seniors'];
+  const languageOptions = ['English', 'Hebrew', 'French', 'Yiddish'];
   
   const handleFilterChange = (category: string, value: string) => {
     setFilters({
@@ -226,6 +185,28 @@ const FilterPanel = ({
                 </div>
               </div>
 
+              <Separator />
+
+              {/* Availability Filter - simplified for this example */}
+              <div>
+                <h3 className="font-semibold mb-3">Availability</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                    <div key={day} className="flex items-center">
+                      <Checkbox 
+                        id={`day-${day}`} 
+                        checked={filters.days?.[day] || false}
+                        onCheckedChange={() => handleFilterChange('days', day)}
+                        className="mr-2 data-[state=checked]:bg-torah-500"
+                      />
+                      <label htmlFor={`day-${day}`} className="text-sm cursor-pointer">
+                        {day}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <Button 
                 onClick={() => setFilters({})} 
                 variant="outline" 
@@ -262,11 +243,8 @@ const TeacherCard = ({ teacher }: { teacher: any }) => {
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-bold text-lg">{teacher.name}</h3>
-                  <div className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
+                  <div className="text-sm text-muted-foreground mb-2">
                     Available: {teacher.availability}
-                    <Badge variant="outline" className="text-xs">
-                      {teacher.gender === 'male' ? '👨‍🏫' : '👩‍🏫'} {teacher.gender}
-                    </Badge>
                   </div>
                 </div>
                 <div className="text-right">
@@ -318,34 +296,26 @@ const TeacherCard = ({ teacher }: { teacher: any }) => {
 
 const SearchResults = () => {
   const [searchParams] = useSearchParams();
-  const { profile } = useAuth();
   const searchQuery = searchParams.get('q') || '';
   const [filters, setFilters] = useState({});
-  const [teachers, setTeachers] = useState<any[]>([]);
-  const [filteredTeachers, setFilteredTeachers] = useState<any[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState(mockTeachers);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const isMobile = useIsMobile();
 
-  // Initialize teachers based on user gender
-  useEffect(() => {
-    const genderFilteredTeachers = getMockTeachers(profile?.gender);
-    setTeachers(genderFilteredTeachers);
-  }, [profile?.gender]);
-
   // Filter teachers based on search query and filters
   useEffect(() => {
-    let results = teachers;
+    let results = mockTeachers;
     
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       results = results.filter(teacher => 
         teacher.name.toLowerCase().includes(query) ||
-        teacher.subjects.some((subj: string) => subj.toLowerCase().includes(query))
+        teacher.subjects.some(subj => subj.toLowerCase().includes(query))
       );
     }
     
-    // Apply other filters (subjects, audiences, languages)
+    // Apply other filters (subjects, audiences, languages, days)
     Object.entries(filters).forEach(([filterType, selectedValues]) => {
       if (Object.values(selectedValues).some(v => v)) {
         results = results.filter(teacher => {
@@ -360,70 +330,55 @@ const SearchResults = () => {
     });
     
     setFilteredTeachers(results);
-  }, [searchQuery, filters, teachers]);
-
-  const getGenderDisplayText = () => {
-    if (!profile?.gender) return 'all available teachers';
-    
-    if (profile.gender === 'male') {
-      return 'male teachers and children\'s teachers only';
-    } else {
-      return 'female teachers and children\'s teachers only';
-    }
-  };
+  }, [searchQuery, filters]);
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-3xl font-bold">
+      <div className="container mx-auto py-8 px-4">
+        <h1 className="text-3xl font-bold mb-8">
           {searchQuery ? `Search results for "${searchQuery}"` : 'All Teachers'}
         </h1>
-        <div className="text-sm text-gray-600">
-          Showing {getGenderDisplayText()}
-        </div>
-      </div>
-      
-      <div className="mb-6">
-        <div className="relative">
-          <Input 
-            type="text" 
-            placeholder="Refine your search..." 
-            defaultValue={searchQuery}
-            className="pl-10"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-        </div>
-      </div>
-      
-      <div className="flex flex-col md:flex-row gap-6">
-        {/* Filters */}
-        <div className={`${isMobile ? 'w-full' : 'w-80 flex-shrink-0'}`}>
-          <FilterPanel 
-            isOpen={isFilterOpen} 
-            toggleOpen={() => setIsFilterOpen(!isFilterOpen)} 
-            filters={filters} 
-            setFilters={setFilters}
-            teachers={teachers}
-          />
+        
+        <div className="mb-6">
+          <div className="relative">
+            <Input 
+              type="text" 
+              placeholder="Refine your search..." 
+              defaultValue={searchQuery}
+              className="pl-10"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          </div>
         </div>
         
-        {/* Results */}
-        <div className="flex-grow">
-          {filteredTeachers.length === 0 ? (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2">No teachers found</h3>
-              <p className="text-gray-600">Try adjusting your filters or search query</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6">
-              {filteredTeachers.map(teacher => (
-                <TeacherCard key={teacher.id} teacher={teacher} />
-              ))}
-            </div>
-          )}
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* Filters */}
+          <div className={`${isMobile ? 'w-full' : 'w-80 flex-shrink-0'}`}>
+            <FilterPanel 
+              isOpen={isFilterOpen} 
+              toggleOpen={() => setIsFilterOpen(!isFilterOpen)} 
+              filters={filters} 
+              setFilters={setFilters} 
+            />
+          </div>
+          
+          {/* Results */}
+          <div className="flex-grow">
+            {filteredTeachers.length === 0 ? (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-semibold mb-2">No teachers found</h3>
+                <p className="text-gray-600">Try adjusting your filters or search query</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {filteredTeachers.map(teacher => (
+                  <TeacherCard key={teacher.id} teacher={teacher} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    
   );
 };
 

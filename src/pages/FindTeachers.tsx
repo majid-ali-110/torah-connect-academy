@@ -56,7 +56,7 @@ const FindTeachers = () => {
     try {
       console.log('Current user gender:', profile?.gender);
       
-      // Fetch teachers with active services based on user gender
+      // Fetch teachers with active services and same gender as current user
       let query = supabase
         .from('profiles')
         .select(`
@@ -71,10 +71,9 @@ const FindTeachers = () => {
         .eq('role', 'teacher')
         .eq('teacher_services.is_active', true);
 
-      // Apply gender filter based on user's gender and audience preferences
+      // Apply gender filter - only show teachers of same gender
       if (profile?.gender) {
-        // Show teachers of same gender OR teachers who teach children (regardless of gender)
-        query = query.or(`gender.eq.${profile.gender},audiences.cs.{"Children"}`);
+        query = query.eq('gender', profile.gender);
       }
 
       const { data, error } = await query;
@@ -155,16 +154,6 @@ const FindTeachers = () => {
     return [...new Set([...profileSubjects, ...serviceSubjects])];
   };
 
-  const getGenderDisplayText = () => {
-    if (!profile?.gender) return 'all available';
-    
-    if (profile.gender === 'male') {
-      return 'male teachers and children\'s teachers';
-    } else {
-      return 'female teachers and children\'s teachers';
-    }
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
@@ -202,9 +191,11 @@ const FindTeachers = () => {
       >
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Find Your Torah Teacher</h1>
-          <div className="text-sm text-gray-600">
-            Showing {getGenderDisplayText()} only
-          </div>
+          {profile?.gender && (
+            <div className="text-sm text-gray-600">
+              Showing {profile.gender} teachers only
+            </div>
+          )}
         </div>
         
         {/* Filters */}
@@ -282,16 +273,11 @@ const FindTeachers = () => {
                     <div>
                       <h3 className="font-bold text-lg">{teacher.first_name} {teacher.last_name}</h3>
                       <p className="text-sm text-gray-600">{teacher.location}</p>
-                      <div className="flex items-center gap-2">
-                        {teacher.services.length > 0 && (
-                          <p className="text-sm font-medium text-torah-600">
-                            From ${Math.min(...teacher.services.map(s => s.hourly_rate))}/hour
-                          </p>
-                        )}
-                        <Badge variant="outline" className="text-xs">
-                          {teacher.gender === 'male' ? '👨‍🏫' : '👩‍🏫'} {teacher.gender}
-                        </Badge>
-                      </div>
+                      {teacher.services.length > 0 && (
+                        <p className="text-sm font-medium text-torah-600">
+                          From ${Math.min(...teacher.services.map(s => s.hourly_rate))}/hour
+                        </p>
+                      )}
                     </div>
                   </div>
                   
@@ -319,19 +305,6 @@ const FindTeachers = () => {
                           {teacher.languages.map(language => (
                             <Badge key={language} variant="outline" className="text-xs">
                               {language}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {teacher.audiences && teacher.audiences.length > 0 && (
-                      <div>
-                        <p className="text-xs font-medium text-gray-500 mb-1">Teaches:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {teacher.audiences.map(audience => (
-                            <Badge key={audience} variant="outline" className="text-xs text-blue-600">
-                              {audience}
                             </Badge>
                           ))}
                         </div>
