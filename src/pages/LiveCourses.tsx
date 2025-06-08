@@ -99,11 +99,27 @@ const LiveCourses = () => {
             isEnrolled = !!enrollment;
           }
 
+          // Generate meeting URL for enrolled courses
+          let meetingUrl = course.meeting_url;
+          if (!meetingUrl && isEnrolled) {
+            meetingUrl = `https://meet.jit.si/torahlearn-${course.id}`;
+            
+            // Update the course with the meeting URL
+            await supabase
+              .from('live_courses')
+              .update({ 
+                meeting_url: meetingUrl,
+                meeting_id: `torahlearn-${course.id}`
+              })
+              .eq('id', course.id);
+          }
+
           return {
             ...course,
             teacher_name: teacher ? `${teacher.first_name} ${teacher.last_name}` : 'Unknown Teacher',
             enrollment_count: count || 0,
-            is_enrolled: isEnrolled
+            is_enrolled: isEnrolled,
+            meeting_url: meetingUrl
           };
         })
       );
@@ -183,6 +199,21 @@ const LiveCourses = () => {
 
   const joinMeeting = (course: LiveCourse) => {
     if (course.meeting_url) {
+      // Check if it's close to start time (within 15 minutes)
+      const startTime = new Date(course.start_time);
+      const now = new Date();
+      const timeDiff = startTime.getTime() - now.getTime();
+      const minutesDiff = timeDiff / (1000 * 60);
+
+      if (minutesDiff > 15) {
+        toast({
+          title: "Meeting Not Ready",
+          description: `Meeting will be available 15 minutes before start time. ${Math.floor(minutesDiff)} minutes remaining.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       window.open(course.meeting_url, '_blank');
     } else {
       toast({
@@ -195,6 +226,27 @@ const LiveCourses = () => {
 
   const getUniqueSubjects = () => {
     return [...new Set(courses.map(course => course.subject))];
+  };
+
+  const isLive = (startTime: string, durationMinutes: number) => {
+    const start = new Date(startTime);
+    const end = new Date(start.getTime() + durationMinutes * 60000);
+    const now = new Date();
+    return now >= start && now <= end;
+  };
+
+  const getTimeUntilStart = (startTime: string) => {
+    const start = new Date(startTime);
+    const now = new Date();
+    const diff = start.getTime() - now.getTime();
+    const minutes = Math.floor(diff / (1000 * 60));
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days} day(s)`;
+    if (hours > 0) return `${hours} hour(s)`;
+    if (minutes > 0) return `${minutes} minute(s)`;
+    return 'Starting now';
   };
 
   if (loading) {
@@ -267,9 +319,16 @@ const LiveCourses = () => {
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <Badge variant="secondary">{course.subject}</Badge>
-                    <Badge variant={course.status === 'scheduled' ? 'default' : 'secondary'}>
-                      {course.status}
-                    </Badge>
+                    <div className="flex gap-2">
+                      {isLive(course.start_time, course.duration_minutes) && (
+                        <Badge variant="destructive" className="animate-pulse">
+                          LIVE
+                        </Badge>
+                      )}
+                      <Badge variant={course.status === 'scheduled' ? 'default' : 'secondary'}>
+                        {course.status}
+                      </Badge>
+                    </div>
                   </div>
                   <CardTitle className="text-xl">{course.title}</CardTitle>
                   {course.description && (
@@ -297,6 +356,10 @@ const LiveCourses = () => {
                       </div>
                     )}
 
+                    <div className="text-sm text-blue-600 font-medium">
+                      Starts in: {getTimeUntilStart(course.start_time)}
+                    </div>
+
                     {course.price > 0 && (
                       <div className="text-lg font-bold text-green-600">
                         ${(course.price / 100).toFixed(2)}
@@ -310,11 +373,12 @@ const LiveCourses = () => {
                             className="w-full" 
                             onClick={() => joinMeeting(course)}
                             disabled={!course.meeting_url}
+                            variant={isLive(course.start_time, course.duration_minutes) ? "destructive" : "default"}
                           >
                             <Video className="h-4 w-4 mr-2" />
-                            Join Meeting
+                            {isLive(course.start_time, course.duration_minutes) ? 'Join Live Session' : 'Join Meeting'}
                           </Button>
-                          <p className="text-xs text-green-600 text-center">Enrolled</p>
+                          <p className="text-xs text-green-600 text-center">✓ Enrolled</p>
                         </div>
                       ) : (
                         <Button 
