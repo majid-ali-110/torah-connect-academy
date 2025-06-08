@@ -87,7 +87,7 @@ const FeatureBlocks = () => {
 
   // Determine gender-specific learning section
   const getGenderSpecificSection = () => {
-    if (!profile || !profile.gender) {
+    if (!profile) {
       return {
         title: t('features.children_learning') || "Children's Learning",
         link: "/children-courses",
@@ -154,10 +154,10 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={CalendarDays} 
-            title={t('features.children_learning') || "Children's Learning"}
-            link="/children-courses" 
+            title={t('features.women_studies') || "Women's Studies"}
+            link="/women-courses" 
             bgColor="bg-pink-400"
-            description={t('features.children_description') || "Specialized Torah education designed for children of all ages"}
+            description={t('features.women_description') || "Torah learning opportunities specifically tailored for women"}
           />
         </motion.div>
         
