@@ -19,6 +19,7 @@ const Navbar = () => {
   const {
     t
   } = useLanguage();
+
   return (
     <motion.nav 
       initial={{ y: -100 }}
