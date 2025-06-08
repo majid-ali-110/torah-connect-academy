@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Save, User, Globe, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -132,7 +132,7 @@ const Profile = () => {
   return (
     <Layout>
       <div className="container mx-auto py-4 sm:py-6 lg:py-8 px-4 max-w-4xl">
-        {/* Profile Header - Improved alignment */}
+        {/* Profile Header */}
         <div className="bg-white rounded-lg shadow-sm border p-4 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             {/* User Info Section */}

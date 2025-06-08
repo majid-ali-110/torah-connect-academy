@@ -77,7 +77,7 @@ const App = () => (
                 path="/profile" 
                 element={
                   <ProtectedRoute>
-                    <Layout><Profile /></Layout>
+                    <Profile />
                   </ProtectedRoute>
                 } 
               />
@@ -145,7 +145,6 @@ const App = () => (
                 path="/search" 
                 element={<Layout><SearchResults /></Layout>} 
               />
-              {/* New pages */}
               <Route 
                 path="/rabbanim" 
                 element={<RabbisDirectory />} 
