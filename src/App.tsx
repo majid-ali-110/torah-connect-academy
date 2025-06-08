@@ -19,6 +19,7 @@ import Chat from "@/pages/Chat";
 import VideoCall from "@/pages/VideoCall";
 import ChildrenCourses from "@/pages/ChildrenCourses";
 import WomenCourses from "@/pages/WomenCourses";
+import LiveCourses from "@/pages/LiveCourses";
 import FindPartner from "@/pages/FindPartner";
 import Classroom from "@/pages/Classroom";
 import Payment from "@/pages/Payment";
