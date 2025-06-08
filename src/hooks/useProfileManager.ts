@@ -95,19 +95,11 @@ export const useProfileManager = () => {
     if (!user) return;
     
     // Convert our Profile type to match Supabase expected format
-    // Remove any fields that don't exist in Supabase or have incompatible types
-    const { is_fallback, ...supabaseUpdates } = updates;
-    
-    // Handle role field specifically - only pass roles that Supabase expects
-    if (supabaseUpdates.role === 'admin') {
-      // For admin role, we might want to handle this differently
-      // For now, let's not update the role in Supabase if it's admin
-      delete supabaseUpdates.role;
-    }
+    const supabaseUpdates = { ...updates };
     
     const { error } = await supabase
       .from('profiles')
-      .update(supabaseUpdates as any)
+      .update(supabaseUpdates)
       .eq('id', user.id);
     
     if (!error && profile) {

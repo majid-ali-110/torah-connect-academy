@@ -9,47 +9,104 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_actions: {
+      beit_midrash_sessions: {
         Row: {
-          action_type: string
-          admin_id: string
           created_at: string
-          details: Json | null
+          current_participants: number | null
+          description: string | null
+          duration_minutes: number | null
           id: string
-          target_user_id: string | null
+          is_active: boolean | null
+          level: string | null
+          max_participants: number | null
+          meeting_url: string | null
+          session_date: string
+          start_time: string
+          subject: string | null
+          teacher_name: string
+          title: string
+          updated_at: string
         }
         Insert: {
-          action_type: string
-          admin_id: string
           created_at?: string
-          details?: Json | null
+          current_participants?: number | null
+          description?: string | null
+          duration_minutes?: number | null
           id?: string
-          target_user_id?: string | null
+          is_active?: boolean | null
+          level?: string | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          session_date: string
+          start_time: string
+          subject?: string | null
+          teacher_name: string
+          title: string
+          updated_at?: string
         }
         Update: {
-          action_type?: string
-          admin_id?: string
           created_at?: string
-          details?: Json | null
+          current_participants?: number | null
+          description?: string | null
+          duration_minutes?: number | null
           id?: string
-          target_user_id?: string | null
+          is_active?: boolean | null
+          level?: string | null
+          max_participants?: number | null
+          meeting_url?: string | null
+          session_date?: string
+          start_time?: string
+          subject?: string | null
+          teacher_name?: string
+          title?: string
+          updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "admin_actions_admin_id_fkey"
-            columns: ["admin_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_actions_target_user_id_fkey"
-            columns: ["target_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          published: boolean | null
+          published_at: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          category: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          published?: boolean | null
+          published_at?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -58,7 +115,7 @@ export type Database = {
           created_at: string
           id: string
           meeting_data: Json | null
-          message_type: Database["public"]["Enums"]["message_type"]
+          message_type: string
           read_at: string | null
           sender_id: string
         }
@@ -68,7 +125,7 @@ export type Database = {
           created_at?: string
           id?: string
           meeting_data?: Json | null
-          message_type?: Database["public"]["Enums"]["message_type"]
+          message_type?: string
           read_at?: string | null
           sender_id: string
         }
@@ -78,7 +135,7 @@ export type Database = {
           created_at?: string
           id?: string
           meeting_data?: Json | null
-          message_type?: Database["public"]["Enums"]["message_type"]
+          message_type?: string
           read_at?: string | null
           sender_id?: string
         }
@@ -168,6 +225,86 @@ export type Database = {
           },
         ]
       }
+      course_enrollments: {
+        Row: {
+          course_id: string
+          enrolled_at: string
+          id: string
+          last_accessed: string | null
+          progress: number | null
+          student_id: string
+        }
+        Insert: {
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          last_accessed?: string | null
+          progress?: number | null
+          student_id: string
+        }
+        Update: {
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          last_accessed?: string | null
+          progress?: number | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_milestones: {
+        Row: {
+          badge_icon: string | null
+          course_id: string
+          created_at: string
+          description: string | null
+          id: string
+          required_progress: number
+          title: string
+        }
+        Insert: {
+          badge_icon?: string | null
+          course_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          required_progress: number
+          title: string
+        }
+        Update: {
+          badge_icon?: string | null
+          course_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          required_progress?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_milestones_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           age_range: string | null
@@ -224,97 +361,106 @@ export type Database = {
           },
         ]
       }
-      discussion_forums: {
+      faq_items: {
         Row: {
-          author_id: string | null
-          content: string
-          created_at: string | null
+          answer: string
+          category: string | null
+          created_at: string
           id: string
-          replies_count: number | null
-          subject_id: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          views_count: number | null
+          is_published: boolean | null
+          order_index: number | null
+          question: string
+          updated_at: string
         }
         Insert: {
-          author_id?: string | null
-          content: string
-          created_at?: string | null
+          answer: string
+          category?: string | null
+          created_at?: string
           id?: string
-          replies_count?: number | null
-          subject_id?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          views_count?: number | null
+          is_published?: boolean | null
+          order_index?: number | null
+          question: string
+          updated_at?: string
         }
         Update: {
-          author_id?: string | null
-          content?: string
-          created_at?: string | null
+          answer?: string
+          category?: string | null
+          created_at?: string
           id?: string
-          replies_count?: number | null
-          subject_id?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          views_count?: number | null
+          is_published?: boolean | null
+          order_index?: number | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      learning_streaks: {
+        Row: {
+          current_streak: number | null
+          id: string
+          last_activity_date: string | null
+          longest_streak: number | null
+          student_id: string
+        }
+        Insert: {
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          student_id: string
+        }
+        Update: {
+          current_streak?: number | null
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number | null
+          student_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "discussion_forums_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
+            foreignKeyName: "learning_streaks_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      forum_replies: {
+      legal_documents: {
         Row: {
-          author_id: string | null
           content: string
-          created_at: string | null
-          forum_id: string | null
+          created_at: string
+          document_type: string
+          effective_date: string
           id: string
-          parent_reply_id: string | null
-          updated_at: string | null
+          is_current: boolean | null
+          title: string
+          updated_at: string
+          version: string
         }
         Insert: {
-          author_id?: string | null
           content: string
-          created_at?: string | null
-          forum_id?: string | null
+          created_at?: string
+          document_type: string
+          effective_date?: string
           id?: string
-          parent_reply_id?: string | null
-          updated_at?: string | null
+          is_current?: boolean | null
+          title: string
+          updated_at?: string
+          version?: string
         }
         Update: {
-          author_id?: string | null
           content?: string
-          created_at?: string | null
-          forum_id?: string | null
+          created_at?: string
+          document_type?: string
+          effective_date?: string
           id?: string
-          parent_reply_id?: string | null
-          updated_at?: string | null
+          is_current?: boolean | null
+          title?: string
+          updated_at?: string
+          version?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "forum_replies_forum_id_fkey"
-            columns: ["forum_id"]
-            isOneToOne: false
-            referencedRelation: "discussion_forums"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "forum_replies_parent_reply_id_fkey"
-            columns: ["parent_reply_id"]
-            isOneToOne: false
-            referencedRelation: "forum_replies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       lesson_bookings: {
         Row: {
@@ -326,7 +472,7 @@ export type Database = {
           notes: string | null
           payment_amount: number | null
           payment_status: string | null
-          status: Database["public"]["Enums"]["session_status"] | null
+          status: Database["public"]["Enums"]["lesson_status"] | null
           student_id: string
           subject: string | null
           teacher_id: string
@@ -341,7 +487,7 @@ export type Database = {
           notes?: string | null
           payment_amount?: number | null
           payment_status?: string | null
-          status?: Database["public"]["Enums"]["session_status"] | null
+          status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id: string
           subject?: string | null
           teacher_id: string
@@ -356,7 +502,7 @@ export type Database = {
           notes?: string | null
           payment_amount?: number | null
           payment_status?: string | null
-          status?: Database["public"]["Enums"]["session_status"] | null
+          status?: Database["public"]["Enums"]["lesson_status"] | null
           student_id?: string
           subject?: string | null
           teacher_id?: string
@@ -379,41 +525,140 @@ export type Database = {
           },
         ]
       }
+      live_course_enrollments: {
+        Row: {
+          course_id: string
+          enrolled_at: string
+          id: string
+          payment_status: string | null
+          student_id: string
+        }
+        Insert: {
+          course_id: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string | null
+          student_id: string
+        }
+        Update: {
+          course_id?: string
+          enrolled_at?: string
+          id?: string
+          payment_status?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "live_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          max_participants: number | null
+          meeting_id: string | null
+          meeting_url: string | null
+          price: number
+          start_time: string
+          status: string | null
+          subject: string
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          max_participants?: number | null
+          meeting_id?: string | null
+          meeting_url?: string | null
+          price?: number
+          start_time: string
+          status?: string | null
+          subject: string
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          max_participants?: number | null
+          meeting_id?: string | null
+          meeting_url?: string | null
+          price?: number
+          start_time?: string
+          status?: string | null
+          subject?: string
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
           created_at: string | null
           id: string
-          is_read: boolean | null
-          recipient_id: string | null
-          sender_id: string | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
-          is_read?: boolean | null
-          recipient_id?: string | null
-          sender_id?: string | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
-          is_read?: boolean | null
-          recipient_id?: string | null
-          sender_id?: string | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
-          age_group: string | null
           audiences: string[] | null
-          availability_status: string | null
+          availability_status:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
           avatar_url: string | null
           bio: string | null
-          created_at: string
+          created_at: string | null
           education: string[] | null
           email: string
           experience: string | null
@@ -421,25 +666,22 @@ export type Database = {
           gender: string | null
           hourly_rate: number | null
           id: string
-          is_fallback: boolean | null
           languages: string[] | null
           last_name: string | null
-          learning_level: string | null
           location: string | null
-          phone: string | null
           preferred_language: string | null
           role: Database["public"]["Enums"]["user_role"]
           subjects: string[] | null
-          time_zone: string | null
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
-          age_group?: string | null
           audiences?: string[] | null
-          availability_status?: string | null
+          availability_status?:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string
+          created_at?: string | null
           education?: string[] | null
           email: string
           experience?: string | null
@@ -447,25 +689,22 @@ export type Database = {
           gender?: string | null
           hourly_rate?: number | null
           id: string
-          is_fallback?: boolean | null
           languages?: string[] | null
           last_name?: string | null
-          learning_level?: string | null
           location?: string | null
-          phone?: string | null
           preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
-          time_zone?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
-          age_group?: string | null
           audiences?: string[] | null
-          availability_status?: string | null
+          availability_status?:
+            | Database["public"]["Enums"]["availability_status"]
+            | null
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string
+          created_at?: string | null
           education?: string[] | null
           email?: string
           experience?: string | null
@@ -473,17 +712,13 @@ export type Database = {
           gender?: string | null
           hourly_rate?: number | null
           id?: string
-          is_fallback?: boolean | null
           languages?: string[] | null
           last_name?: string | null
-          learning_level?: string | null
           location?: string | null
-          phone?: string | null
           preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
-          time_zone?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -491,14 +726,13 @@ export type Database = {
         Row: {
           bio: string | null
           contact_email: string | null
-          contact_phone: string | null
           created_at: string
           experience_years: number | null
           id: string
           image_url: string | null
-          is_active: boolean | null
-          location: string | null
+          languages: string[] | null
           name: string
+          phone: string | null
           specialties: string[] | null
           title: string | null
           updated_at: string
@@ -506,14 +740,13 @@ export type Database = {
         Insert: {
           bio?: string | null
           contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
           image_url?: string | null
-          is_active?: boolean | null
-          location?: string | null
+          languages?: string[] | null
           name: string
+          phone?: string | null
           specialties?: string[] | null
           title?: string | null
           updated_at?: string
@@ -521,236 +754,304 @@ export type Database = {
         Update: {
           bio?: string | null
           contact_email?: string | null
-          contact_phone?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
           image_url?: string | null
-          is_active?: boolean | null
-          location?: string | null
+          languages?: string[] | null
           name?: string
+          phone?: string | null
           specialties?: string[] | null
           title?: string | null
           updated_at?: string
         }
         Relationships: []
       }
-      reviews: {
+      resources: {
         Row: {
-          comment: string | null
-          created_at: string | null
+          author: string | null
+          category: string
+          created_at: string
+          description: string | null
+          download_count: number | null
+          external_url: string | null
+          file_url: string | null
           id: string
-          rating: number | null
-          session_id: string | null
-          student_id: string | null
-          teacher_id: string | null
+          is_featured: boolean | null
+          resource_type: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
         }
         Insert: {
-          comment?: string | null
-          created_at?: string | null
+          author?: string | null
+          category: string
+          created_at?: string
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
           id?: string
-          rating?: number | null
-          session_id?: string | null
-          student_id?: string | null
-          teacher_id?: string | null
+          is_featured?: boolean | null
+          resource_type?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
         }
         Update: {
-          comment?: string | null
-          created_at?: string | null
+          author?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          download_count?: number | null
+          external_url?: string | null
+          file_url?: string | null
           id?: string
-          rating?: number | null
-          session_id?: string | null
-          student_id?: string | null
-          teacher_id?: string | null
+          is_featured?: boolean | null
+          resource_type?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_milestones: {
+        Row: {
+          achieved_at: string
+          id: string
+          milestone_id: string
+          student_id: string
+        }
+        Insert: {
+          achieved_at?: string
+          id?: string
+          milestone_id: string
+          student_id: string
+        }
+        Update: {
+          achieved_at?: string
+          id?: string
+          milestone_id?: string
+          student_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "reviews_session_id_fkey"
-            columns: ["session_id"]
+            foreignKeyName: "student_milestones_milestone_id_fkey"
+            columns: ["milestone_id"]
             isOneToOne: false
-            referencedRelation: "study_sessions"
+            referencedRelation: "course_milestones"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reviews_teacher_id_fkey"
+            foreignKeyName: "student_milestones_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_teachers: {
+        Row: {
+          created_at: string
+          id: string
+          student_id: string
+          subject: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          student_id: string
+          subject: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          student_id?: string
+          subject?: string
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_teachers_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_teachers_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
-            referencedRelation: "teachers"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      study_group_members: {
+      study_hours: {
         Row: {
-          group_id: string | null
           id: string
-          joined_at: string | null
-          member_id: string | null
+          last_session_date: string | null
+          total_minutes: number
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          group_id?: string | null
           id?: string
-          joined_at?: string | null
-          member_id?: string | null
+          last_session_date?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          group_id?: string | null
           id?: string
-          joined_at?: string | null
-          member_id?: string | null
+          last_session_date?: string | null
+          total_minutes?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "study_group_members_group_id_fkey"
-            columns: ["group_id"]
-            isOneToOne: false
-            referencedRelation: "study_groups"
+            foreignKeyName: "study_hours_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      study_groups: {
+      study_partner_matches: {
         Row: {
-          created_at: string | null
-          current_participants: number | null
-          description: string | null
-          facilitator_id: string | null
+          created_at: string
           id: string
-          is_active: boolean | null
-          max_participants: number | null
-          name: string
-          schedule: Json | null
-          subject_id: string | null
-          updated_at: string | null
+          matched_at: string | null
+          partner_id: string
+          requester_id: string
+          status: string | null
+          subjects: string[]
         }
         Insert: {
-          created_at?: string | null
-          current_participants?: number | null
-          description?: string | null
-          facilitator_id?: string | null
+          created_at?: string
           id?: string
-          is_active?: boolean | null
-          max_participants?: number | null
-          name: string
-          schedule?: Json | null
-          subject_id?: string | null
-          updated_at?: string | null
+          matched_at?: string | null
+          partner_id: string
+          requester_id: string
+          status?: string | null
+          subjects?: string[]
         }
         Update: {
-          created_at?: string | null
-          current_participants?: number | null
-          description?: string | null
-          facilitator_id?: string | null
+          created_at?: string
           id?: string
-          is_active?: boolean | null
-          max_participants?: number | null
-          name?: string
-          schedule?: Json | null
-          subject_id?: string | null
-          updated_at?: string | null
+          matched_at?: string | null
+          partner_id?: string
+          requester_id?: string
+          status?: string | null
+          subjects?: string[]
+        }
+        Relationships: []
+      }
+      study_partner_requests: {
+        Row: {
+          availability: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          preferred_level: string | null
+          study_goals: string | null
+          subjects: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preferred_level?: string | null
+          study_goals?: string | null
+          subjects?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          preferred_level?: string | null
+          study_goals?: string | null
+          subjects?: string[]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "study_groups_subject_id_fkey"
-            columns: ["subject_id"]
+            foreignKeyName: "study_partner_requests_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "subjects"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       study_sessions: {
         Row: {
-          created_at: string | null
+          created_at: string
           duration_minutes: number | null
+          ended_at: string | null
           id: string
-          meeting_url: string | null
-          notes: string | null
-          price: number | null
-          scheduled_at: string | null
-          session_type: string | null
-          status: string | null
-          student_id: string | null
-          subject_id: string | null
-          teacher_id: string | null
-          updated_at: string | null
+          room_id: string
+          started_at: string
+          status: string
+          student_id: string
+          subject: string | null
+          teacher_id: string
+          updated_at: string
         }
         Insert: {
-          created_at?: string | null
+          created_at?: string
           duration_minutes?: number | null
+          ended_at?: string | null
           id?: string
-          meeting_url?: string | null
-          notes?: string | null
-          price?: number | null
-          scheduled_at?: string | null
-          session_type?: string | null
-          status?: string | null
-          student_id?: string | null
-          subject_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
+          room_id: string
+          started_at?: string
+          status?: string
+          student_id: string
+          subject?: string | null
+          teacher_id: string
+          updated_at?: string
         }
         Update: {
-          created_at?: string | null
+          created_at?: string
           duration_minutes?: number | null
+          ended_at?: string | null
           id?: string
-          meeting_url?: string | null
-          notes?: string | null
-          price?: number | null
-          scheduled_at?: string | null
-          session_type?: string | null
-          status?: string | null
-          student_id?: string | null
-          subject_id?: string | null
-          teacher_id?: string | null
-          updated_at?: string | null
+          room_id?: string
+          started_at?: string
+          status?: string
+          student_id?: string
+          subject?: string | null
+          teacher_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "study_sessions_subject_id_fkey"
-            columns: ["subject_id"]
+            foreignKeyName: "study_sessions_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
-            referencedRelation: "subjects"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "study_sessions_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
-            referencedRelation: "teachers"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
-      }
-      subjects: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          hebrew_name: string | null
-          icon: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          hebrew_name?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          category?: string | null
-          created_at?: string | null
-          description?: string | null
-          hebrew_name?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
       }
       support_tickets: {
         Row: {
@@ -789,85 +1090,154 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
+        Relationships: []
+      }
+      teacher_availability: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean | null
+          start_time: string
+          teacher_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean | null
+          start_time: string
+          teacher_id: string
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean | null
+          start_time?: string
+          teacher_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "support_tickets_assigned_to_fkey"
-            columns: ["assigned_to"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "support_tickets_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "teacher_availability_teacher_id_fkey"
+            columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      teachers: {
+      teacher_payouts: {
         Row: {
-          availability: Json | null
-          certifications: string[] | null
-          created_at: string | null
-          experience_years: number | null
-          hourly_rate: number | null
+          amount: number
+          created_at: string
           id: string
-          is_verified: boolean | null
-          profile_id: string | null
-          rating: number | null
-          specializations: string[] | null
-          teaching_languages: string[] | null
-          total_reviews: number | null
-          updated_at: string | null
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          teacher_id: string
         }
         Insert: {
-          availability?: Json | null
-          certifications?: string[] | null
-          created_at?: string | null
-          experience_years?: number | null
-          hourly_rate?: number | null
+          amount: number
+          created_at?: string
           id?: string
-          is_verified?: boolean | null
-          profile_id?: string | null
-          rating?: number | null
-          specializations?: string[] | null
-          teaching_languages?: string[] | null
-          total_reviews?: number | null
-          updated_at?: string | null
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          teacher_id: string
         }
         Update: {
-          availability?: Json | null
-          certifications?: string[] | null
-          created_at?: string | null
-          experience_years?: number | null
-          hourly_rate?: number | null
+          amount?: number
+          created_at?: string
           id?: string
-          is_verified?: boolean | null
-          profile_id?: string | null
-          rating?: number | null
-          specializations?: string[] | null
-          teaching_languages?: string[] | null
-          total_reviews?: number | null
-          updated_at?: string | null
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          teacher_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "teacher_payouts_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teacher_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          hourly_rate: number
+          id: string
+          is_active: boolean
+          subject: string
+          teacher_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hourly_rate: number
+          id?: string
+          is_active?: boolean
+          subject: string
+          teacher_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hourly_rate?: number
+          id?: string
+          is_active?: boolean
+          subject?: string
+          teacher_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_services_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_role: {
+      get_current_user_gender: {
         Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["user_role"]
+        Returns: string
+      }
+      get_current_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_profile: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_user_gender: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
     }
     Enums: {
-      message_type: "text" | "meeting_request" | "meeting_confirmation"
-      session_status: "scheduled" | "active" | "completed" | "cancelled"
-      user_role: "student" | "teacher" | "admin"
+      availability_status: "available" | "busy" | "offline"
+      lesson_status: "scheduled" | "completed" | "cancelled"
+      user_role: "teacher" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -983,9 +1353,9 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      message_type: ["text", "meeting_request", "meeting_confirmation"],
-      session_status: ["scheduled", "active", "completed", "cancelled"],
-      user_role: ["student", "teacher", "admin"],
+      availability_status: ["available", "busy", "offline"],
+      lesson_status: ["scheduled", "completed", "cancelled"],
+      user_role: ["teacher", "student"],
     },
   },
 } as const

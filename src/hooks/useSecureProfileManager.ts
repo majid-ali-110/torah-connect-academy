@@ -77,20 +77,13 @@ export const useSecureProfileManager = () => {
         sanitizedUpdates.location = sanitizeText(sanitizedUpdates.location);
       }
 
-      // Convert to format expected by Supabase - remove incompatible fields
-      const { is_fallback, ...supabaseUpdates } = sanitizedUpdates;
-      
-      // Handle role field specifically - only pass roles that Supabase expects
-      if (supabaseUpdates.role === 'admin') {
-        // For admin role, we might want to handle this differently
-        // For now, let's not update the role in Supabase if it's admin
-        delete supabaseUpdates.role;
-      }
+      // Convert to format expected by Supabase
+      const supabaseUpdates = { ...sanitizedUpdates };
 
       // Ensure user can only update their own profile
       const { error } = await supabase
         .from('profiles')
-        .update(supabaseUpdates as any)
+        .update(supabaseUpdates)
         .eq('id', user.id);
 
       if (error) throw error;
