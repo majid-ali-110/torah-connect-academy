@@ -27,7 +27,7 @@ const RabbisDirectory = () => {
   const [rabbis, setRabbis] = useState<Rabbi[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,7 +58,7 @@ const RabbisDirectory = () => {
   const filteredRabbis = rabbis.filter(rabbi => {
     const matchesSearch = rabbi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          rabbi.specialties.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesSpecialty = !selectedSpecialty || rabbi.specialties.includes(selectedSpecialty);
+    const matchesSpecialty = selectedSpecialty === 'all' || rabbi.specialties.includes(selectedSpecialty);
     return matchesSearch && matchesSpecialty;
   });
 
@@ -95,7 +95,7 @@ const RabbisDirectory = () => {
               <SelectValue placeholder="Filter by specialty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Specialties</SelectItem>
+              <SelectItem value="all">All Specialties</SelectItem>
               {allSpecialties.map(specialty => (
                 <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
               ))}

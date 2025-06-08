@@ -31,7 +31,7 @@ const OnlineBeitMidrash = () => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedLevel, setSelectedLevel] = useState<string>('');
+  const [selectedLevel, setSelectedLevel] = useState<string>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const OnlineBeitMidrash = () => {
     const matchesSearch = session.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          session.teacher_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          session.subject?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = !selectedLevel || session.level === selectedLevel;
+    const matchesLevel = selectedLevel === 'all' || session.level === selectedLevel;
     return matchesSearch && matchesLevel;
   });
 
@@ -113,7 +113,7 @@ const OnlineBeitMidrash = () => {
               <SelectValue placeholder="Filter by level" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Levels</SelectItem>
+              <SelectItem value="all">All Levels</SelectItem>
               <SelectItem value="beginner">Beginner</SelectItem>
               <SelectItem value="intermediate">Intermediate</SelectItem>
               <SelectItem value="advanced">Advanced</SelectItem>
