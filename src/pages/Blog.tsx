@@ -22,11 +22,7 @@ interface BlogPost {
   published: boolean;
   published_at?: string;
   created_at: string;
-  profiles?: {
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-  };
+  author_name?: string;
 }
 
 const Blog = () => {
@@ -49,20 +45,29 @@ const Blog = () => {
     try {
       const { data, error } = await supabase
         .from('blog_posts')
-        .select(`
-          *,
-          profiles!blog_posts_author_id_fkey(
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('published', true)
         .order('published_at', { ascending: false });
 
       if (error) throw error;
 
-      setBlogPosts(data || []);
+      // Fetch author information separately
+      const postsWithAuthors = await Promise.all(
+        (data || []).map(async (post) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', post.author_id)
+            .single();
+
+          return {
+            ...post,
+            author_name: profile ? `${profile.first_name} ${profile.last_name}` : 'Unknown Author'
+          };
+        })
+      );
+
+      setBlogPosts(postsWithAuthors);
     } catch (error) {
       console.error('Error fetching blog posts:', error);
     } finally {
@@ -186,12 +191,10 @@ const Blog = () => {
                         </p>
                       )}
                       <div className="flex items-center text-sm text-gray-500 space-x-4">
-                        {post.profiles && (
-                          <div className="flex items-center">
-                            <User className="h-4 w-4 mr-1" />
-                            {post.profiles.first_name} {post.profiles.last_name}
-                          </div>
-                        )}
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 mr-1" />
+                          {post.author_name}
+                        </div>
                         <div className="flex items-center">
                           <Calendar className="h-4 w-4 mr-1" />
                           {new Date(post.published_at || post.created_at).toLocaleDateString()}

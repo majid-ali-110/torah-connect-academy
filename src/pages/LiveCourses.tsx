@@ -27,11 +27,7 @@ interface LiveCourse {
   status: string;
   price: number;
   created_at: string;
-  profiles?: {
-    first_name: string;
-    last_name: string;
-    avatar_url?: string;
-  };
+  teacher_name?: string;
   enrollment_count?: number;
   is_enrolled?: boolean;
 }
@@ -61,14 +57,7 @@ const LiveCourses = () => {
       
       let query = supabase
         .from('live_courses')
-        .select(`
-          *,
-          profiles!live_courses_teacher_id_fkey(
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('status', 'scheduled')
         .gte('start_time', new Date().toISOString())
         .order('start_time', { ascending: true });
@@ -80,9 +69,16 @@ const LiveCourses = () => {
         throw error;
       }
 
-      // Get enrollment counts and user enrollment status
-      const coursesWithEnrollments = await Promise.all(
+      // Get teacher names and enrollment data separately
+      const coursesWithData = await Promise.all(
         (coursesData || []).map(async (course) => {
+          // Get teacher name
+          const { data: teacher } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', course.teacher_id)
+            .single();
+
           // Count enrollments
           const { count } = await supabase
             .from('live_course_enrollments')
@@ -105,14 +101,15 @@ const LiveCourses = () => {
 
           return {
             ...course,
+            teacher_name: teacher ? `${teacher.first_name} ${teacher.last_name}` : 'Unknown Teacher',
             enrollment_count: count || 0,
             is_enrolled: isEnrolled
           };
         })
       );
 
-      console.log('Fetched courses with enrollments:', coursesWithEnrollments);
-      setCourses(coursesWithEnrollments);
+      console.log('Fetched courses with data:', coursesWithData);
+      setCourses(coursesWithData);
     } catch (error) {
       console.error('Error fetching live courses:', error);
       toast({
@@ -294,9 +291,9 @@ const LiveCourses = () => {
                       {course.enrollment_count}/{course.max_participants} enrolled
                     </div>
                     
-                    {course.profiles && (
+                    {course.teacher_name && (
                       <div className="text-sm text-gray-600">
-                        Teacher: {course.profiles.first_name} {course.profiles.last_name}
+                        Teacher: {course.teacher_name}
                       </div>
                     )}
 
