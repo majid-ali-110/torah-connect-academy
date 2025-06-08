@@ -6,7 +6,7 @@ export interface Profile {
   email: string;
   first_name?: string;
   last_name?: string;
-  role: 'teacher' | 'student' | 'admin';
+  role: 'teacher' | 'student';
   avatar_url?: string;
   bio?: string;
   subjects?: string[];

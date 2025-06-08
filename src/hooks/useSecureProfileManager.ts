@@ -77,13 +77,10 @@ export const useSecureProfileManager = () => {
         sanitizedUpdates.location = sanitizeText(sanitizedUpdates.location);
       }
 
-      // Convert to format expected by Supabase
-      const supabaseUpdates = { ...sanitizedUpdates };
-
       // Ensure user can only update their own profile
       const { error } = await supabase
         .from('profiles')
-        .update(supabaseUpdates)
+        .update(sanitizedUpdates)
         .eq('id', user.id);
 
       if (error) throw error;

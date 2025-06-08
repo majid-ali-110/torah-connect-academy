@@ -35,7 +35,7 @@ const Chat = () => {
           <div className="w-1/3 border-r border-gray-200">
             <ConversationsList
               currentUserId={user.id}
-              userRole={profile.role as 'student' | 'teacher'}
+              userRole={profile.role}
               onSelectConversation={setSelectedConversation}
               selectedConversation={selectedConversation}
             />
@@ -47,7 +47,7 @@ const Chat = () => {
               <ChatWindow
                 conversationId={selectedConversation}
                 currentUserId={user.id}
-                userRole={profile.role as 'student' | 'teacher'}
+                userRole={profile.role}
               />
             ) : (
               <div className="h-full flex items-center justify-center text-gray-500">

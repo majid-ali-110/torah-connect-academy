@@ -5,7 +5,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requireRole?: 'teacher' | 'student' | 'admin';
+  requireRole?: 'teacher' | 'student';
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }) => {
@@ -43,16 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
   // If a specific role is required and user has a profile, check role match
   if (requireRole && profile && profile.role !== requireRole) {
     console.log('ProtectedRoute: Role mismatch', { required: requireRole, actual: profile.role });
-    let redirectPath = '/dashboard';
-    
-    if (profile.role === 'teacher') {
-      redirectPath = '/dashboard/teacher';
-    } else if (profile.role === 'student') {
-      redirectPath = '/dashboard/student';
-    } else if (profile.role === 'admin') {
-      redirectPath = '/dashboard/admin';
-    }
-    
+    const redirectPath = profile.role === 'teacher' ? '/dashboard/teacher' : '/dashboard/student';
     return <Navigate to={redirectPath} replace />;
   }
 
