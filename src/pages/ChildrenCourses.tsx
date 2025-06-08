@@ -22,10 +22,8 @@ interface Course {
     last_name: string;
     gender: string;
     audiences: string[];
+    hourly_rate?: number;
   } | null;
-  teacher_services: {
-    hourly_rate: number;
-  }[] | null;
 }
 
 const ChildrenCourses = () => {
@@ -63,7 +61,8 @@ const ChildrenCourses = () => {
             first_name,
             last_name,
             gender,
-            audiences
+            audiences,
+            hourly_rate
           )
         `)
         .eq('is_active', true);
@@ -71,17 +70,6 @@ const ChildrenCourses = () => {
       if (error) {
         console.error('Error fetching courses:', error);
         return;
-      }
-
-      // Fetch teacher services separately to avoid query issues
-      const courseIds = data?.map(course => course.teacher_id) || [];
-      const { data: servicesData, error: servicesError } = await supabase
-        .from('teacher_services')
-        .select('teacher_id, hourly_rate')
-        .in('teacher_id', courseIds);
-
-      if (servicesError) {
-        console.error('Error fetching teacher services:', servicesError);
       }
       
       // Filter courses that are suitable for children and match gender requirements
@@ -103,14 +91,8 @@ const ChildrenCourses = () => {
         return true;
       }) || [];
 
-      // Combine courses with teacher services
-      const coursesWithServices = childrenCompatibleCourses.map(course => ({
-        ...course,
-        teacher_services: servicesData?.filter(service => service.teacher_id === course.teacher_id) || []
-      }));
-
-      console.log('Fetched children-compatible courses:', coursesWithServices.length, 'courses');
-      setCourses(coursesWithServices);
+      console.log('Fetched children-compatible courses:', childrenCompatibleCourses.length, 'courses');
+      setCourses(childrenCompatibleCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
@@ -160,7 +142,7 @@ const ChildrenCourses = () => {
     instructor: `${course.teacher?.first_name || ''} ${course.teacher?.last_name || ''}`.trim(),
     rating: 4.5, // Default rating
     enrolled: 0, // Default enrolled count
-    price: course.teacher_services?.[0]?.hourly_rate || course.price || 0,
+    price: course.teacher?.hourly_rate || course.price || 0,
     image: '/placeholder.svg', // Default image
     level: 'Beginner' as const // Default level
   }));

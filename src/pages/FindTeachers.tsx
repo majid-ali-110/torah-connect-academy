@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
-interface TeacherWithServices {
+interface TeacherProfile {
   id: string;
   first_name: string;
   last_name: string;
@@ -23,18 +24,13 @@ interface TeacherWithServices {
   avatar_url?: string;
   availability_status: 'available' | 'busy' | 'offline';
   gender: string;
-  services: {
-    id: string;
-    subject: string;
-    description: string;
-    hourly_rate: number;
-  }[];
+  hourly_rate?: number;
 }
 
 const FindTeachers = () => {
   const { profile } = useAuth();
-  const [teachers, setTeachers] = useState<TeacherWithServices[]>([]);
-  const [filteredTeachers, setFilteredTeachers] = useState<TeacherWithServices[]>([]);
+  const [teachers, setTeachers] = useState<TeacherProfile[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<TeacherProfile[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('all');
   const [languageFilter, setLanguageFilter] = useState('all');
@@ -55,43 +51,18 @@ const FindTeachers = () => {
     try {
       console.log('Current user gender:', profile?.gender);
       
-      // Fetch teachers with active services
+      // Fetch teacher profiles
       let query = supabase
         .from('profiles')
-        .select(`
-          *,
-          teacher_services!inner(
-            id,
-            subject,
-            description,
-            hourly_rate
-          )
-        `)
-        .eq('role', 'teacher')
-        .eq('teacher_services.is_active', true);
+        .select('*')
+        .eq('role', 'teacher');
 
       const { data, error } = await query;
 
       if (error) throw error;
       
-      // Transform the data to group services by teacher
-      const teachersWithServices = data?.reduce((acc: TeacherWithServices[], teacher) => {
-        const existingTeacher = acc.find(t => t.id === teacher.id);
-        
-        if (existingTeacher) {
-          existingTeacher.services.push(...teacher.teacher_services);
-        } else {
-          acc.push({
-            ...teacher,
-            services: teacher.teacher_services || []
-          });
-        }
-        
-        return acc;
-      }, []) || [];
-
       // Apply gender-based filtering
-      const genderFilteredTeachers = teachersWithServices.filter(teacher => {
+      const genderFilteredTeachers = data?.filter(teacher => {
         if (!profile?.gender || !teacher.gender) return true;
         
         // If user is male, show male teachers for men and children
@@ -111,7 +82,7 @@ const FindTeachers = () => {
         }
         
         return true;
-      });
+      }) || [];
 
       console.log('Fetched gender-filtered teachers:', genderFilteredTeachers.length, 'teachers');
       setTeachers(genderFilteredTeachers);
@@ -129,17 +100,13 @@ const FindTeachers = () => {
       filtered = filtered.filter(teacher =>
         `${teacher.first_name} ${teacher.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
         teacher.bio?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        teacher.services.some(service => 
-          service.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          service.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        teacher.subjects?.some(subject => subject.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
     if (subjectFilter && subjectFilter !== 'all') {
       filtered = filtered.filter(teacher =>
-        teacher.subjects?.includes(subjectFilter) ||
-        teacher.services.some(service => service.subject.toLowerCase().includes(subjectFilter.toLowerCase()))
+        teacher.subjects?.includes(subjectFilter)
       );
     }
 
@@ -161,14 +128,6 @@ const FindTeachers = () => {
   const getUniqueValues = (field: 'subjects' | 'languages' | 'audiences') => {
     const values = teachers.flatMap(teacher => teacher[field] as string[] || []);
     return [...new Set(values)];
-  };
-
-  const getUniqueSubjects = () => {
-    const profileSubjects = teachers.flatMap(teacher => teacher.subjects || []);
-    const serviceSubjects = teachers.flatMap(teacher => 
-      teacher.services.map(service => service.subject)
-    );
-    return [...new Set([...profileSubjects, ...serviceSubjects])];
   };
 
   const getFilteredAudiences = () => {
@@ -255,7 +214,7 @@ const FindTeachers = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Subjects</SelectItem>
-              {getUniqueSubjects().map(subject => (
+              {getUniqueValues('subjects').map(subject => (
                 <SelectItem key={subject} value={subject}>{subject}</SelectItem>
               ))}
             </SelectContent>
@@ -315,9 +274,9 @@ const FindTeachers = () => {
                     <div>
                       <h3 className="font-bold text-lg">{teacher.first_name} {teacher.last_name}</h3>
                       <p className="text-sm text-gray-600">{teacher.location}</p>
-                      {teacher.services.length > 0 && (
+                      {teacher.hourly_rate && (
                         <p className="text-sm font-medium text-torah-600">
-                          From ${Math.min(...teacher.services.map(s => s.hourly_rate))}/hour
+                          ${teacher.hourly_rate}/hour
                         </p>
                       )}
                     </div>
@@ -326,19 +285,21 @@ const FindTeachers = () => {
                   <p className="text-gray-700 text-sm mb-4 line-clamp-3">{teacher.bio}</p>
                   
                   <div className="space-y-2">
-                    <div>
-                      <p className="text-xs font-medium text-gray-500 mb-1">Services:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {teacher.services.slice(0, 3).map(service => (
-                          <Badge key={service.id} variant="secondary" className="text-xs bg-torah-100 text-torah-700">
-                            {service.subject} (${service.hourly_rate}/hr)
-                          </Badge>
-                        ))}
-                        {teacher.services.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">+{teacher.services.length - 3}</Badge>
-                        )}
+                    {teacher.subjects && teacher.subjects.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 mb-1">Subjects:</p>
+                        <div className="flex flex-wrap gap-1">
+                          {teacher.subjects.slice(0, 3).map(subject => (
+                            <Badge key={subject} variant="secondary" className="text-xs bg-torah-100 text-torah-700">
+                              {subject}
+                            </Badge>
+                          ))}
+                          {teacher.subjects.length > 3 && (
+                            <Badge variant="secondary" className="text-xs">+{teacher.subjects.length - 3}</Badge>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     
                     {teacher.languages && teacher.languages.length > 0 && (
                       <div>

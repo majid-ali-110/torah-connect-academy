@@ -13,7 +13,7 @@ interface User {
   first_name: string;
   last_name: string;
   avatar_url?: string;
-  role: 'student' | 'teacher';
+  role: 'student' | 'teacher' | 'admin';
   subjects?: string[];
 }
 
@@ -21,7 +21,7 @@ interface NewChatModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUserId: string;
-  userRole: 'student' | 'teacher';
+  userRole: 'student' | 'teacher' | 'admin';
   onConversationCreated: (conversationId: string) => void;
 }
 
