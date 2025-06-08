@@ -22,7 +22,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/rabbanim" className="text-gray-600 hover:text-torah-600">{t('footer.rabbis_directory')}</Link></li>
               <li><Link to="/eleves" className="text-gray-600 hover:text-torah-600">{t('footer.students_section')}</Link></li>
-              <li><Link to="/femmes" className="text-gray-600 hover:text-torah-600">{t('footer.women_section')}</Link></li>
+              <li><Link to="/women-courses" className="text-gray-600 hover:text-torah-600">{t('footer.women_section')}</Link></li>
               <li><Link to="/beit-hamidrash" className="text-gray-600 hover:text-torah-600">{t('footer.online_beit_midrash')}</Link></li>
             </ul>
           </div>
@@ -34,6 +34,7 @@ const Footer = () => {
               <li><Link to="/blog" className="text-gray-600 hover:text-torah-600">{t('footer.blog')}</Link></li>
               <li><Link to="/contact" className="text-gray-600 hover:text-torah-600">{t('footer.contact')}</Link></li>
               <li><Link to="/support" className="text-gray-600 hover:text-torah-600">{t('footer.tech_support')}</Link></li>
+              <li><Link to="/resources" className="text-gray-600 hover:text-torah-600">Resources</Link></li>
             </ul>
           </div>
           

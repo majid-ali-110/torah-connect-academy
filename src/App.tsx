@@ -24,6 +24,16 @@ import Payment from "@/pages/Payment";
 import SearchResults from "@/pages/SearchResults";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import RabbisDirectory from "@/pages/RabbisDirectory";
+import ChildrenSection from "@/pages/ChildrenSection";
+import OnlineBeitMidrash from "@/pages/OnlineBeitMidrash";
+import Resources from "@/pages/Resources";
+import Blog from "@/pages/Blog";
+import Contact from "@/pages/Contact";
+import TechnicalSupport from "@/pages/TechnicalSupport";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
+import Cookies from "@/pages/Cookies";
 
 const queryClient = new QueryClient();
 
@@ -126,6 +136,49 @@ const App = () => (
                 path="/search" 
                 element={<Layout><SearchResults /></Layout>} 
               />
+              
+              {/* New Routes */}
+              <Route 
+                path="/rabbanim" 
+                element={<Layout><RabbisDirectory /></Layout>} 
+              />
+              <Route 
+                path="/eleves" 
+                element={<Layout><ChildrenSection /></Layout>} 
+              />
+              <Route 
+                path="/beit-hamidrash" 
+                element={<Layout><OnlineBeitMidrash /></Layout>} 
+              />
+              <Route 
+                path="/resources" 
+                element={<Layout><Resources /></Layout>} 
+              />
+              <Route 
+                path="/blog" 
+                element={<Layout><Blog /></Layout>} 
+              />
+              <Route 
+                path="/contact" 
+                element={<Layout><Contact /></Layout>} 
+              />
+              <Route 
+                path="/support" 
+                element={<Layout><TechnicalSupport /></Layout>} 
+              />
+              <Route 
+                path="/conditions" 
+                element={<Layout><Terms /></Layout>} 
+              />
+              <Route 
+                path="/privacy" 
+                element={<Layout><Privacy /></Layout>} 
+              />
+              <Route 
+                path="/cookies" 
+                element={<Layout><Cookies /></Layout>} 
+              />
+              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
