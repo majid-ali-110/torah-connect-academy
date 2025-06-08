@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -12,76 +11,62 @@ import { Separator } from '@/components/ui/separator';
 import { Search, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
-// Mock teacher data (would come from API in a real app)
-const mockTeachers = [
-  {
-    id: 1,
-    name: 'Rabbi David',
-    subjects: ['Torah', 'Talmud', 'Hebrew'],
-    audiences: ['Adults', 'Children'],
-    languages: ['English', 'Hebrew'],
-    hourlyRate: 40,
-    rating: 4.9,
-    reviewCount: 124,
-    availability: 'Mon - Thu',
-    image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-  },
-  {
-    id: 2,
-    name: 'Sarah Cohen',
-    subjects: ['Torah', 'Jewish History', 'Holidays'],
-    audiences: ['Women', 'Children'],
-    languages: ['English', 'French'],
-    hourlyRate: 35,
-    rating: 4.8,
-    reviewCount: 89,
-    availability: 'Tue - Fri',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-  },
-  {
-    id: 3,
-    name: 'Rabbi Moshe',
-    subjects: ['Talmud', 'Kabbalah', 'Ethics'],
-    audiences: ['Adults', 'Seniors'],
-    languages: ['English', 'Hebrew', 'Yiddish'],
-    hourlyRate: 45,
-    rating: 5.0,
-    reviewCount: 156,
-    availability: 'Sun - Thu',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-  },
-  {
-    id: 4,
-    name: 'Leah Goldstein',
-    subjects: ['Women in Judaism', 'Torah', 'Holidays'],
-    audiences: ['Women'],
-    languages: ['English', 'Hebrew'],
-    hourlyRate: 38,
-    rating: 4.7,
-    reviewCount: 72,
-    availability: 'Mon, Wed, Thu',
-    image: 'https://images.unsplash.com/photo-1499952127939-9bbf5af6c51c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=60'
-  },
-];
+interface TeacherWithServices {
+  id: string;
+  first_name: string;
+  last_name: string;
+  bio: string;
+  subjects: string[];
+  languages: string[];
+  audiences: string[];
+  location: string;
+  experience: string;
+  avatar_url?: string;
+  availability_status: string;
+  gender: string;
+  hourly_rate?: number;
+}
 
 // Filter panel component
 const FilterPanel = ({ 
   isOpen, 
   toggleOpen, 
   filters, 
-  setFilters 
+  setFilters,
+  teachers 
 }: { 
   isOpen: boolean, 
   toggleOpen: () => void, 
   filters: any, 
-  setFilters: (filters: any) => void 
+  setFilters: (filters: any) => void,
+  teachers: TeacherWithServices[]
 }) => {
   const isMobile = useIsMobile();
+  const { profile } = useAuth();
   
-  const subjectOptions = ['Torah', 'Talmud', 'Hebrew', 'Jewish History', 'Holidays', 'Kabbalah', 'Ethics'];
-  const audienceOptions = ['Adults', 'Children', 'Women', 'Seniors'];
-  const languageOptions = ['English', 'Hebrew', 'French', 'Yiddish'];
+  const subjectOptions = [...new Set(teachers.flatMap(teacher => teacher.subjects || []))];
+  
+  const getFilteredAudiences = () => {
+    const allAudiences = [...new Set(teachers.flatMap(teacher => teacher.audiences || []))];
+    
+    if (profile?.gender === 'male') {
+      return allAudiences.filter(audience => 
+        ['men', 'adults', 'children'].includes(audience.toLowerCase())
+      );
+    } else if (profile?.gender === 'female') {
+      return allAudiences.filter(audience => 
+        ['women', 'adults', 'children'].includes(audience.toLowerCase())
+      );
+    }
+    
+    return allAudiences;
+  };
+  
+  const languageOptions = [...new Set(teachers.flatMap(teacher => teacher.languages || []))];
   
   const handleFilterChange = (category: string, value: string) => {
     setFilters({
@@ -147,7 +132,7 @@ const FilterPanel = ({
               <div>
                 <h3 className="font-semibold mb-3">Audience</h3>
                 <div className="space-y-2">
-                  {audienceOptions.map((audience) => (
+                  {getFilteredAudiences().map((audience) => (
                     <div key={audience} className="flex items-center">
                       <Checkbox 
                         id={`audience-${audience}`} 
@@ -185,28 +170,6 @@ const FilterPanel = ({
                 </div>
               </div>
 
-              <Separator />
-
-              {/* Availability Filter - simplified for this example */}
-              <div>
-                <h3 className="font-semibold mb-3">Availability</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-                    <div key={day} className="flex items-center">
-                      <Checkbox 
-                        id={`day-${day}`} 
-                        checked={filters.days?.[day] || false}
-                        onCheckedChange={() => handleFilterChange('days', day)}
-                        className="mr-2 data-[state=checked]:bg-torah-500"
-                      />
-                      <label htmlFor={`day-${day}`} className="text-sm cursor-pointer">
-                        {day}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
               <Button 
                 onClick={() => setFilters({})} 
                 variant="outline" 
@@ -223,7 +186,7 @@ const FilterPanel = ({
 };
 
 // Teacher card component
-const TeacherCard = ({ teacher }: { teacher: any }) => {
+const TeacherCard = ({ teacher }: { teacher: TeacherWithServices }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -235,40 +198,47 @@ const TeacherCard = ({ teacher }: { teacher: any }) => {
           <div className="flex flex-col md:flex-row">
             <div className="p-4 md:p-6 flex-shrink-0">
               <Avatar className="w-20 h-20 rounded-lg">
-                <AvatarImage src={teacher.image} alt={teacher.name} />
-                <AvatarFallback>{teacher.name.charAt(0)}</AvatarFallback>
+                <AvatarImage src={teacher.avatar_url} alt={`${teacher.first_name} ${teacher.last_name}`} />
+                <AvatarFallback>{teacher.first_name?.[0]}{teacher.last_name?.[0]}</AvatarFallback>
               </Avatar>
             </div>
             <div className="p-4 md:p-6 flex-grow">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-lg">{teacher.name}</h3>
+                  <h3 className="font-bold text-lg">{teacher.first_name} {teacher.last_name}</h3>
                   <div className="text-sm text-muted-foreground mb-2">
-                    Available: {teacher.availability}
+                    {teacher.location}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold text-torah-600">${teacher.hourlyRate}/hr</div>
-                  <div className="text-sm flex items-center justify-end">
-                    <span className="text-yellow-500">★</span> 
-                    <span className="ml-1">{teacher.rating} ({teacher.reviewCount})</span>
-                  </div>
+                  {teacher.hourly_rate && (
+                    <div className="font-semibold text-torah-600">
+                      ${teacher.hourly_rate}/hr
+                    </div>
+                  )}
                 </div>
               </div>
               
+              <p className="text-gray-700 text-sm mb-4 line-clamp-3">{teacher.bio}</p>
+              
               <div className="mt-2 space-y-2">
                 <div className="flex flex-wrap gap-1">
-                  {teacher.subjects.map((subject: string) => (
-                    <Badge key={subject} variant="secondary" className="bg-torah-100 text-torah-700">{subject}</Badge>
+                  {teacher.subjects?.slice(0, 3).map((subject) => (
+                    <Badge key={subject} variant="secondary" className="bg-torah-100 text-torah-700">
+                      {subject}
+                    </Badge>
                   ))}
+                  {teacher.subjects && teacher.subjects.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">+{teacher.subjects.length - 3}</Badge>
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {teacher.audiences.map((audience: string) => (
+                  {teacher.audiences?.map((audience: string) => (
                     <Badge key={audience} variant="outline" className="text-gray-600">{audience}</Badge>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-1">
-                  {teacher.languages.map((language: string) => (
+                  {teacher.languages?.map((language: string) => (
                     <Badge key={language} variant="outline" className="text-blue-600 border-blue-200">{language}</Badge>
                   ))}
                 </div>
@@ -282,9 +252,9 @@ const TeacherCard = ({ teacher }: { teacher: any }) => {
             >
               <Button 
                 className="w-full bg-torah-500 hover:bg-torah-600"
-                onClick={() => window.location.href = `/teachers/${teacher.id}`}
+                asChild
               >
-                Book Lesson
+                <Link to={`/teacher/${teacher.id}`}>View Profile</Link>
               </Button>
             </motion.div>
           </div>
@@ -298,87 +268,187 @@ const SearchResults = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('q') || '';
   const [filters, setFilters] = useState({});
-  const [filteredTeachers, setFilteredTeachers] = useState(mockTeachers);
+  const [teachers, setTeachers] = useState<TeacherWithServices[]>([]);
+  const [filteredTeachers, setFilteredTeachers] = useState<TeacherWithServices[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const isMobile = useIsMobile();
+  const { profile } = useAuth();
+
+  useEffect(() => {
+    if (profile) {
+      fetchTeachers();
+    }
+  }, [profile]);
+
+  const fetchTeachers = async () => {
+    try {
+      console.log('Current user gender:', profile?.gender);
+      
+      // Fetch teachers from profiles table
+      let query = supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'teacher');
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      
+      // Apply gender-based filtering
+      const genderFilteredTeachers = data?.filter(teacher => {
+        if (!profile?.gender || !teacher.gender) return true;
+        
+        // If user is male, show male teachers for men and children
+        if (profile.gender === 'male') {
+          return teacher.gender === 'male' && 
+                 (teacher.audiences?.includes('men') || 
+                  teacher.audiences?.includes('adults') || 
+                  teacher.audiences?.includes('children'));
+        }
+        
+        // If user is female, show female teachers for women and children
+        if (profile.gender === 'female') {
+          return teacher.gender === 'female' && 
+                 (teacher.audiences?.includes('women') || 
+                  teacher.audiences?.includes('adults') || 
+                  teacher.audiences?.includes('children'));
+        }
+        
+        return true;
+      }) || [];
+
+      console.log('Fetched gender-filtered teachers:', genderFilteredTeachers.length, 'teachers');
+      setTeachers(genderFilteredTeachers);
+    } catch (error) {
+      console.error('Error fetching teachers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter teachers based on search query and filters
   useEffect(() => {
-    let results = mockTeachers;
+    let results = teachers;
     
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       results = results.filter(teacher => 
-        teacher.name.toLowerCase().includes(query) ||
-        teacher.subjects.some(subj => subj.toLowerCase().includes(query))
+        `${teacher.first_name} ${teacher.last_name}`.toLowerCase().includes(query) ||
+        teacher.bio?.toLowerCase().includes(query) ||
+        teacher.subjects?.some(subject => 
+          subject.toLowerCase().includes(query)
+        )
       );
     }
     
-    // Apply other filters (subjects, audiences, languages, days)
+    // Apply other filters (subjects, audiences, languages)
     Object.entries(filters).forEach(([filterType, selectedValues]) => {
       if (Object.values(selectedValues).some(v => v)) {
         results = results.filter(teacher => {
-          const teacherValues = teacher[filterType.toLowerCase()];
-          if (!teacherValues) return true;
-          
-          return Object.entries(selectedValues).some(([value, isSelected]) => {
-            return isSelected && teacherValues.includes(value);
-          });
+          if (filterType === 'subjects') {
+            return Object.entries(selectedValues).some(([value, isSelected]) => {
+              return isSelected && teacher.subjects?.includes(value);
+            });
+          } else if (filterType === 'audiences') {
+            return Object.entries(selectedValues).some(([value, isSelected]) => {
+              return isSelected && teacher.audiences?.includes(value);
+            });
+          } else if (filterType === 'languages') {
+            return Object.entries(selectedValues).some(([value, isSelected]) => {
+              return isSelected && teacher.languages?.includes(value);
+            });
+          }
+          return true;
         });
       }
     });
     
     setFilteredTeachers(results);
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, teachers]);
 
-  return (
-      <div className="container mx-auto py-8 px-4">
-        <h1 className="text-3xl font-bold mb-8">
-          {searchQuery ? `Search results for "${searchQuery}"` : 'All Teachers'}
-        </h1>
-        
-        <div className="mb-6">
-          <div className="relative">
-            <Input 
-              type="text" 
-              placeholder="Refine your search..." 
-              defaultValue={searchQuery}
-              className="pl-10"
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          </div>
-        </div>
-        
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Filters */}
-          <div className={`${isMobile ? 'w-full' : 'w-80 flex-shrink-0'}`}>
-            <FilterPanel 
-              isOpen={isFilterOpen} 
-              toggleOpen={() => setIsFilterOpen(!isFilterOpen)} 
-              filters={filters} 
-              setFilters={setFilters} 
-            />
-          </div>
-          
-          {/* Results */}
-          <div className="flex-grow">
-            {filteredTeachers.length === 0 ? (
-              <div className="text-center py-12">
-                <h3 className="text-xl font-semibold mb-2">No teachers found</h3>
-                <p className="text-gray-600">Try adjusting your filters or search query</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
-                {filteredTeachers.map(teacher => (
-                  <TeacherCard key={teacher.id} teacher={teacher} />
-                ))}
-              </div>
-            )}
-          </div>
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                    <div className="space-y-2">
+                      <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 bg-gray-200 rounded"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          ))}
         </div>
       </div>
-    
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-3xl font-bold mb-8">
+        {searchQuery ? `Search results for "${searchQuery}"` : 'All Teachers'}
+      </h1>
+      
+      {profile?.gender && (
+        <div className="text-sm text-gray-600 mb-4">
+          Showing {profile.gender} teachers for {profile.gender === 'male' ? 'men and children' : 'women and children'}
+        </div>
+      )}
+      
+      <div className="mb-6">
+        <div className="relative">
+          <Input 
+            type="text" 
+            placeholder="Refine your search..." 
+            defaultValue={searchQuery}
+            className="pl-10"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+        </div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Filters */}
+        <div className={`${isMobile ? 'w-full' : 'w-80 flex-shrink-0'}`}>
+          <FilterPanel 
+            isOpen={isFilterOpen} 
+            toggleOpen={() => setIsFilterOpen(!isFilterOpen)} 
+            filters={filters} 
+            setFilters={setFilters}
+            teachers={teachers}
+          />
+        </div>
+        
+        {/* Results */}
+        <div className="flex-grow">
+          {filteredTeachers.length === 0 ? (
+            <div className="text-center py-12">
+              <h3 className="text-xl font-semibold mb-2">No teachers found</h3>
+              <p className="text-gray-600">Try adjusting your filters or search query</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-6">
+              {filteredTeachers.map(teacher => (
+                <TeacherCard key={teacher.id} teacher={teacher} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 };
 

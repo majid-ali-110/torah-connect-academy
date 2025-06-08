@@ -27,17 +27,19 @@ const StudyHoursTracker: React.FC = () => {
     if (!user) return;
 
     try {
+      // Calculate total minutes from completed sessions
       const { data, error } = await supabase
-        .from('study_hours')
-        .select('total_minutes, last_session_date')
-        .eq('user_id', user.id)
-        .single();
+        .from('study_sessions')
+        .select('duration_minutes, created_at')
+        .or(`teacher_id.eq.${user.id},student_id.eq.${user.id}`)
+        .eq('status', 'completed');
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
-      }
+      if (error) throw error;
 
-      setStudyHours(data || { total_minutes: 0, last_session_date: null });
+      const totalMinutes = data?.reduce((sum, session) => sum + (session.duration_minutes || 0), 0) || 0;
+      const lastSessionDate = data && data.length > 0 ? data[data.length - 1]?.created_at : null;
+
+      setStudyHours({ total_minutes: totalMinutes, last_session_date: lastSessionDate });
     } catch (error) {
       console.error('Error fetching study hours:', error);
       setStudyHours({ total_minutes: 0, last_session_date: null });
@@ -52,10 +54,9 @@ const StudyHoursTracker: React.FC = () => {
         .from('study_sessions')
         .select(`
           id,
-          started_at,
-          ended_at,
+          scheduled_at,
           duration_minutes,
-          subject,
+          session_type,
           status,
           teacher_id,
           student_id,
@@ -64,7 +65,7 @@ const StudyHoursTracker: React.FC = () => {
         `)
         .or(`teacher_id.eq.${user.id},student_id.eq.${user.id}`)
         .eq('status', 'completed')
-        .order('ended_at', { ascending: false })
+        .order('scheduled_at', { ascending: false })
         .limit(5);
 
       if (error) throw error;
@@ -154,15 +155,15 @@ const StudyHoursTracker: React.FC = () => {
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div>
-                    <h4 className="font-medium">{session.subject || 'General Study'}</h4>
+                    <h4 className="font-medium">{session.session_type || 'General Study'}</h4>
                     <p className="text-sm text-gray-600">
                       with {session.teacher_id === user?.id 
-                        ? `${session.student.first_name} ${session.student.last_name}` 
-                        : `${session.teacher.first_name} ${session.teacher.last_name}`
+                        ? `${session.student?.first_name} ${session.student?.last_name}` 
+                        : `${session.teacher?.first_name} ${session.teacher?.last_name}`
                       }
                     </p>
                     <p className="text-xs text-gray-500">
-                      {formatDate(session.ended_at)}
+                      {session.scheduled_at ? formatDate(session.scheduled_at) : 'No date'}
                     </p>
                   </div>
                   <div className="text-right">

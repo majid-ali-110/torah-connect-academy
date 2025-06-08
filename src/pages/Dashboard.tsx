@@ -35,6 +35,9 @@ const Dashboard = () => {
     } else if (profile.role === 'teacher') {
       console.log('Dashboard: Teacher role detected, redirecting to /dashboard/teacher');
       return <Navigate to="/dashboard/teacher" replace />;
+    } else if (profile.role === 'admin') {
+      console.log('Dashboard: Admin role detected, redirecting to /dashboard/admin');
+      return <Navigate to="/dashboard/admin" replace />;
     }
   }
 

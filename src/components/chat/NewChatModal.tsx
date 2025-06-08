@@ -13,7 +13,7 @@ interface User {
   first_name: string;
   last_name: string;
   avatar_url?: string;
-  role: 'student' | 'teacher';
+  role: 'student' | 'teacher' | 'admin';
   subjects?: string[];
 }
 
@@ -21,7 +21,7 @@ interface NewChatModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentUserId: string;
-  userRole: 'student' | 'teacher';
+  userRole: 'student' | 'teacher' | 'admin';
   onConversationCreated: (conversationId: string) => void;
 }
 
@@ -59,6 +59,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
       setUsers(data || []);
     } catch (error) {
       console.error('Error fetching users:', error);
+      setUsers([]);
     } finally {
       setLoading(false);
     }
@@ -68,7 +69,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
     setCreating(true);
     try {
       // Check if conversation already exists
-      const { data: existingConv } = await (supabase as any)
+      const { data: existingConv } = await supabase
         .from('conversations')
         .select('id')
         .or(
@@ -82,7 +83,7 @@ const NewChatModal: React.FC<NewChatModalProps> = ({
       }
 
       // Create new conversation
-      const { data: newConv, error } = await (supabase as any)
+      const { data: newConv, error } = await supabase
         .from('conversations')
         .insert([{
           student_id: userRole === 'student' ? currentUserId : otherUserId,

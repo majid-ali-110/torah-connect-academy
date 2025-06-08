@@ -64,11 +64,11 @@ export const useProfileManager = () => {
             setProfile(fallbackProfile);
           } else {
             console.log('ProfileManager: Profile created successfully:', createdProfile);
-            setProfile(createdProfile);
+            setProfile(createdProfile as Profile);
           }
         } else if (profileData) {
           console.log('ProfileManager: Profile fetched successfully:', profileData);
-          setProfile(profileData);
+          setProfile(profileData as Profile);
         } else if (error) {
           console.error('ProfileManager: Error fetching profile:', error);
           setProfile(fallbackProfile);
@@ -94,9 +94,20 @@ export const useProfileManager = () => {
   const updateProfile = useCallback(async (user: User | null, updates: Partial<Profile>) => {
     if (!user) return;
     
+    // Convert our Profile type to match Supabase expected format
+    // Remove any fields that don't exist in Supabase or have incompatible types
+    const { is_fallback, ...supabaseUpdates } = updates;
+    
+    // Handle role field specifically - only pass roles that Supabase expects
+    if (supabaseUpdates.role === 'admin') {
+      // For admin role, we might want to handle this differently
+      // For now, let's not update the role in Supabase if it's admin
+      delete supabaseUpdates.role;
+    }
+    
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(supabaseUpdates as any)
       .eq('id', user.id);
     
     if (!error && profile) {
