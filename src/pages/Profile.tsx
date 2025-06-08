@@ -27,7 +27,7 @@ const Profile = () => {
     bio: profile?.bio || '',
     location: profile?.location || '',
     gender: profile?.gender || '',
-    preferred_language: profile?.preferred_language || 'fr',
+    preferred_language: profile?.preferred_language || 'en',
     subjects: profile?.subjects || [],
     languages: profile?.languages || [],
     hourly_rate: profile?.hourly_rate || 0,
@@ -92,16 +92,21 @@ const Profile = () => {
     try {
       await updateProfile(formData);
       
+      // Update app language if preferred language changed
+      if (formData.preferred_language !== language) {
+        await setLanguage(formData.preferred_language);
+      }
+      
       setIsEditing(false);
       toast({
-        title: "Profil mis à jour",
-        description: "Votre profil a été mis à jour avec succès.",
+        title: "Profile updated",
+        description: "Your profile has been successfully updated.",
       });
     } catch (error) {
       console.error('Error updating profile:', error);
       toast({
-        title: "Erreur",
-        description: "Échec de la mise à jour du profil. Veuillez réessayer.",
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -116,7 +121,7 @@ const Profile = () => {
       bio: profile?.bio || '',
       location: profile?.location || '',
       gender: profile?.gender || '',
-      preferred_language: profile?.preferred_language || 'fr',
+      preferred_language: profile?.preferred_language || 'en',
       subjects: profile?.subjects || [],
       languages: profile?.languages || [],
       hourly_rate: profile?.hourly_rate || 0,
@@ -142,12 +147,12 @@ const Profile = () => {
                 <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
                   {profile?.first_name && profile?.last_name 
                     ? `${profile.first_name} ${profile.last_name}`
-                    : 'Profil Utilisateur'
+                    : 'User Profile'
                   }
                 </h1>
                 <p className="text-muted-foreground text-sm sm:text-base truncate">{profile?.email}</p>
                 <Badge variant="outline" className="mt-2 bg-torah-50 text-torah-700 border-torah-200">
-                  {profile?.role === 'teacher' ? 'Professeur' : 'Étudiant'}
+                  {profile?.role === 'teacher' ? 'Teacher' : 'Student'}
                 </Badge>
               </div>
             </div>
@@ -161,7 +166,7 @@ const Profile = () => {
                   size="lg"
                 >
                   <User className="w-4 h-4 mr-2" />
-                  Modifier le Profil
+                  Edit Profile
                 </Button>
               ) : (
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -171,7 +176,7 @@ const Profile = () => {
                     className="w-full sm:w-auto"
                     size="lg"
                   >
-                    Annuler
+                    Cancel
                   </Button>
                   <Button 
                     onClick={handleSave} 
@@ -180,7 +185,7 @@ const Profile = () => {
                     size="lg"
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               )}
@@ -195,13 +200,13 @@ const Profile = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center text-lg">
                 <User className="w-5 h-5 mr-2 text-torah-600" />
-                Informations Personnelles
+                Personal Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="first_name" className="text-sm font-medium">Prénom</Label>
+                  <Label htmlFor="first_name" className="text-sm font-medium">First Name</Label>
                   {isEditing ? (
                     <Input
                       id="first_name"
@@ -211,12 +216,12 @@ const Profile = () => {
                     />
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                      {profile?.first_name || 'Non défini'}
+                      {profile?.first_name || 'Not set'}
                     </p>
                   )}
                 </div>
                 <div>
-                  <Label htmlFor="last_name" className="text-sm font-medium">Nom</Label>
+                  <Label htmlFor="last_name" className="text-sm font-medium">Last Name</Label>
                   {isEditing ? (
                     <Input
                       id="last_name"
@@ -226,64 +231,64 @@ const Profile = () => {
                     />
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                      {profile?.last_name || 'Non défini'}
+                      {profile?.last_name || 'Not set'}
                     </p>
                   )}
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="gender" className="text-sm font-medium">Genre</Label>
+                <Label htmlFor="gender" className="text-sm font-medium">Gender</Label>
                 {isEditing ? (
                   <Select value={formData.gender} onValueChange={(value) => handleInputChange('gender', value)}>
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner le genre" />
+                      <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="male">Homme</SelectItem>
-                      <SelectItem value="female">Femme</SelectItem>
-                      <SelectItem value="other">Autre</SelectItem>
-                      <SelectItem value="prefer_not_to_say">Préfère ne pas dire</SelectItem>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
                   <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                    {profile?.gender || 'Non défini'}
+                    {profile?.gender || 'Not set'}
                   </p>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="location" className="text-sm font-medium">Localisation</Label>
+                <Label htmlFor="location" className="text-sm font-medium">Location</Label>
                 {isEditing ? (
                   <Input
                     id="location"
                     value={formData.location}
                     onChange={(e) => handleInputChange('location', e.target.value)}
-                    placeholder="Ville, Pays"
+                    placeholder="City, Country"
                     className="mt-1"
                   />
                 ) : (
                   <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                    {profile?.location || 'Non défini'}
+                    {profile?.location || 'Not set'}
                   </p>
                 )}
               </div>
 
               <div>
-                <Label htmlFor="bio" className="text-sm font-medium">Biographie</Label>
+                <Label htmlFor="bio" className="text-sm font-medium">Bio</Label>
                 {isEditing ? (
                   <Textarea
                     id="bio"
                     value={formData.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
-                    placeholder="Parlez-nous de vous..."
+                    placeholder="Tell us about yourself..."
                     rows={3}
                     className="mt-1"
                   />
                 ) : (
                   <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded min-h-[60px]">
-                    {profile?.bio || 'Aucune biographie ajoutée'}
+                    {profile?.bio || 'No bio added yet'}
                   </p>
                 )}
               </div>
@@ -295,13 +300,38 @@ const Profile = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center text-lg">
                 <Globe className="w-5 h-5 mr-2 text-torah-600" />
-                Préférences
+                Preferences
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="preferred_language" className="text-sm font-medium">Preferred Language</Label>
+                {isEditing ? (
+                  <Select 
+                    value={formData.preferred_language} 
+                    onValueChange={(value) => handleInputChange('preferred_language', value)}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English</SelectItem>
+                      <SelectItem value="fr">Français</SelectItem>
+                      <SelectItem value="de">Deutsch</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+                    {profile?.preferred_language === 'en' ? 'English' : 
+                     profile?.preferred_language === 'fr' ? 'Français' : 
+                     profile?.preferred_language === 'de' ? 'Deutsch' : 'English'}
+                  </p>
+                )}
+              </div>
+
               {profile?.role === 'teacher' && (
                 <div>
-                  <Label htmlFor="hourly_rate" className="text-sm font-medium">Tarif Horaire (€)</Label>
+                  <Label htmlFor="hourly_rate" className="text-sm font-medium">Hourly Rate ($)</Label>
                   {isEditing ? (
                     <Input
                       id="hourly_rate"
@@ -313,7 +343,7 @@ const Profile = () => {
                     />
                   ) : (
                     <p className="mt-1 text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                      {profile?.hourly_rate || 0}€/heure
+                      ${profile?.hourly_rate || 0}/hour
                     </p>
                   )}
                 </div>
@@ -326,7 +356,7 @@ const Profile = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center text-lg">
                 <BookOpen className="w-5 h-5 mr-2 text-torah-600" />
-                Matières
+                Subjects
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -345,7 +375,7 @@ const Profile = () => {
                   </Badge>
                 ))}
                 {formData.subjects.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Aucune matière ajoutée</p>
+                  <p className="text-sm text-muted-foreground">No subjects added yet</p>
                 )}
               </div>
               {isEditing && (
@@ -353,7 +383,7 @@ const Profile = () => {
                   <Input
                     value={newSubject}
                     onChange={(e) => setNewSubject(e.target.value)}
-                    placeholder="Ajouter une matière..."
+                    placeholder="Add a subject..."
                     onKeyPress={(e) => e.key === 'Enter' && addSubject()}
                     className="flex-1"
                   />
@@ -370,7 +400,7 @@ const Profile = () => {
             <CardHeader className="pb-4">
               <CardTitle className="flex items-center text-lg">
                 <Globe className="w-5 h-5 mr-2 text-torah-600" />
-                Langues
+                Languages
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -389,7 +419,7 @@ const Profile = () => {
                   </Badge>
                 ))}
                 {formData.languages.length === 0 && (
-                  <p className="text-sm text-muted-foreground">Aucune langue ajoutée</p>
+                  <p className="text-sm text-muted-foreground">No languages added yet</p>
                 )}
               </div>
               {isEditing && (
@@ -397,7 +427,7 @@ const Profile = () => {
                   <Input
                     value={newLanguage}
                     onChange={(e) => setNewLanguage(e.target.value)}
-                    placeholder="Ajouter une langue..."
+                    placeholder="Add a language..."
                     onKeyPress={(e) => e.key === 'Enter' && addLanguage()}
                     className="flex-1"
                   />

@@ -26,8 +26,8 @@ const WomenCourses = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <CoursePageHeader
-        title="Cours pour Femmes"
-        description="Découvrez nos cours spécialement conçus pour les femmes"
+        title={getPageTitle()}
+        description={getPageDescription()}
         userGender={profile?.gender}
       />
 

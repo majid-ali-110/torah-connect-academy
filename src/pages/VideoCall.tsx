@@ -50,7 +50,7 @@ const VideoCall: React.FC = () => {
           roomId: roomId,
           teacherId: profile?.role === 'teacher' ? user.id : '',
           studentId: profile?.role === 'student' ? user.id : '',
-          subject: 'Session Générale'
+          subject: 'General Session'
         });
       }
     } catch (error) {
@@ -76,10 +76,10 @@ const VideoCall: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Réunion non trouvée</h1>
+          <h1 className="text-2xl font-bold mb-4">Meeting not found</h1>
           <Button onClick={() => navigate('/dashboard')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour au Tableau de Bord
+            Back to Dashboard
           </Button>
         </div>
       </div>
@@ -96,7 +96,7 @@ const VideoCall: React.FC = () => {
             className="mb-4"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour au Tableau de Bord
+            Back to Dashboard
           </Button>
         </div>
 
