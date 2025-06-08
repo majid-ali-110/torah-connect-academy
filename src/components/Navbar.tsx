@@ -44,7 +44,7 @@ const Navbar = () => {
               {t('nav.home')}
             </Link>
             
-            <Link to="/search" className="text-gray-700 hover:text-torah-600 transition-colors">
+            <Link to="/find-teachers" className="text-gray-700 hover:text-torah-600 transition-colors">
               {t('nav.teachers')}
             </Link>
             
