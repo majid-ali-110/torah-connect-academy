@@ -31,7 +31,7 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
     setLoading(true);
     try {
-      // First, check if the course exists
+      // D'abord, vérifier si le cours existe
       const { data: liveClass, error: fetchError } = await supabase
         .from('live_classes')
         .select(`
@@ -46,14 +46,14 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
       if (fetchError || !liveClass) {
         toast({
-          title: 'Invalid Course Key',
-          description: 'The course key you entered does not exist. Please check and try again.',
+          title: 'Clé de Cours Invalide',
+          description: 'La clé de cours que vous avez saisie n\'existe pas. Veuillez vérifier et réessayer.',
           variant: 'destructive'
         });
         return;
       }
 
-      // Check if student is already enrolled
+      // Vérifier si l'étudiant est déjà inscrit
       const { data: existingEnrollment } = await supabase
         .from('class_enrollments')
         .select('id')
@@ -63,14 +63,14 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
       if (existingEnrollment) {
         toast({
-          title: 'Already Enrolled',
-          description: 'You are already enrolled in this live class.',
+          title: 'Déjà Inscrit',
+          description: 'Vous êtes déjà inscrit à ce cours en direct.',
           variant: 'destructive'
         });
         return;
       }
 
-      // Check current enrollment count
+      // Vérifier le nombre d'inscriptions actuelles
       const { count: currentEnrollments } = await supabase
         .from('class_enrollments')
         .select('*', { count: 'exact' })
@@ -78,14 +78,14 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
       if (currentEnrollments && currentEnrollments >= liveClass.max_participants) {
         toast({
-          title: 'Class Full',
-          description: 'This live class has reached its maximum capacity.',
+          title: 'Cours Complet',
+          description: 'Ce cours en direct a atteint sa capacité maximale.',
           variant: 'destructive'
         });
         return;
       }
 
-      // Enroll the student
+      // Inscrire l'étudiant
       const { error: enrollError } = await supabase
         .from('class_enrollments')
         .insert({
@@ -95,8 +95,8 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
       if (enrollError) {
         toast({
-          title: 'Error',
-          description: 'Failed to join the live class. Please try again.',
+          title: 'Erreur',
+          description: 'Échec de l\'inscription au cours en direct. Veuillez réessayer.',
           variant: 'destructive'
         });
         return;
@@ -105,17 +105,17 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
       const teacherName = `${liveClass.profiles?.first_name || ''} ${liveClass.profiles?.last_name || ''}`.trim();
       
       toast({
-        title: 'Successfully Joined!',
-        description: `You've joined "${liveClass.title}" by ${teacherName}`,
+        title: 'Inscription Réussie !',
+        description: `Vous avez rejoint "${liveClass.title}" par ${teacherName}`,
       });
 
       setCourseKey('');
       onClassJoined();
     } catch (error) {
-      console.error('Error joining live class:', error);
+      console.error('Erreur lors de l\'inscription au cours en direct:', error);
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred.',
+        title: 'Erreur',
+        description: 'Une erreur inattendue s\'est produite.',
         variant: 'destructive'
       });
     } finally {
@@ -129,23 +129,23 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center">
             <KeyRound className="mr-2 h-5 w-5" />
-            Join Live Class
+            Rejoindre un Cours en Direct
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <Label htmlFor="courseKey">Course Key *</Label>
+            <Label htmlFor="courseKey">Clé de Cours *</Label>
             <Input
               id="courseKey"
               value={courseKey}
               onChange={(e) => setCourseKey(e.target.value)}
-              placeholder="Enter the course key provided by your teacher"
+              placeholder="Entrez la clé de cours fournie par votre professeur"
               className="mt-1"
               required
             />
             <p className="text-sm text-gray-600 mt-2">
-              Course keys are usually 8 characters long (e.g., ABC123XY)
+              Les clés de cours font généralement 8 caractères (ex: ABC123XY)
             </p>
           </div>
 
@@ -153,11 +153,11 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
             <div className="flex items-start">
               <Users className="mr-2 h-5 w-5 text-green-600 mt-0.5" />
               <div>
-                <p className="text-sm text-green-800 font-medium">How to get a course key:</p>
+                <p className="text-sm text-green-800 font-medium">Comment obtenir une clé de cours :</p>
                 <ul className="text-sm text-green-700 mt-1 list-disc list-inside">
-                  <li>Ask your teacher for the course key</li>
-                  <li>Check class announcements or emails</li>
-                  <li>Look for it in your course materials</li>
+                  <li>Demandez la clé de cours à votre professeur</li>
+                  <li>Vérifiez les annonces de classe ou les emails</li>
+                  <li>Cherchez-la dans vos matériels de cours</li>
                 </ul>
               </div>
             </div>
@@ -165,14 +165,14 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
 
           <div className="flex justify-end space-x-3">
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Annuler
             </Button>
             <Button 
               type="submit" 
               disabled={loading || !courseKey.trim()}
               className="bg-torah-500 hover:bg-torah-600"
             >
-              {loading ? 'Joining...' : 'Join Class'}
+              {loading ? 'Inscription...' : 'Rejoindre le Cours'}
             </Button>
           </div>
         </form>
