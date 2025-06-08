@@ -45,7 +45,7 @@ const Navbar = () => {
             </Link>
             
             <Link to="/find-teachers" className="text-gray-700 hover:text-torah-600 transition-colors">
-              {t('nav.teachers')}
+              Find Teachers
             </Link>
             
             <Link to="/find-partner" className="text-gray-700 hover:text-torah-600 transition-colors">
