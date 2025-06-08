@@ -21,10 +21,10 @@ interface Course {
     last_name: string;
     gender: string;
     audiences: string[];
-  };
+  } | null;
   teacher_services: {
     hourly_rate: number;
-  }[];
+  }[] | null;
 }
 
 const WomenCourses = () => {
@@ -88,7 +88,7 @@ const WomenCourses = () => {
       }) || [];
 
       console.log('Fetched gender-compatible courses:', genderCompatibleCourses.length, 'courses');
-      setCourses(genderCompatibleCourses);
+      setCourses(genderCompatibleCourses as Course[]);
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {

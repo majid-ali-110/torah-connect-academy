@@ -22,10 +22,10 @@ interface Course {
     last_name: string;
     gender: string;
     audiences: string[];
-  };
+  } | null;
   teacher_services: {
     hourly_rate: number;
-  }[];
+  }[] | null;
 }
 
 const ChildrenCourses = () => {
@@ -95,7 +95,7 @@ const ChildrenCourses = () => {
       }) || [];
 
       console.log('Fetched children-compatible courses:', childrenCompatibleCourses.length, 'courses');
-      setCourses(childrenCompatibleCourses);
+      setCourses(childrenCompatibleCourses as Course[]);
     } catch (error) {
       console.error('Error fetching courses:', error);
     } finally {
