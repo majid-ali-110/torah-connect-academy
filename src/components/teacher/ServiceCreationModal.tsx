@@ -1,151 +1,102 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ServiceCreationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  teacherId: string;
-  onServiceCreated: () => void;
+  onServiceCreated?: () => void;
 }
 
-const ServiceCreationModal: React.FC<ServiceCreationModalProps> = ({
-  isOpen,
-  onClose,
-  teacherId,
-  onServiceCreated
-}) => {
+const ServiceCreationModal: React.FC<ServiceCreationModalProps> = ({ onServiceCreated }) => {
+  const { user } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     subject: '',
     audience: '',
+    age_range: '',
     price: '',
-    maxStudents: '10',
-    ageRange: ''
+    max_students: '10'
   });
-  const [subjects, setSubjects] = useState<string[]>([]);
-  const [audiences, setAudiences] = useState<string[]>([]);
-  const [submitting, setSubmitting] = useState(false);
 
-  const availableSubjects = [
-    'Torah Study', 'Talmud', 'Hebrew Language', 'Jewish History', 
-    'Halacha', 'Mishnah', 'Gemara', 'Jewish Philosophy', 'Prayer Services'
+  const subjects = [
+    'Torah Study', 'Talmud', 'Mishnah', 'Hebrew Language', 'Jewish History',
+    'Jewish Philosophy', 'Kabbalah', 'Jewish Law (Halakha)', 'Prayer Services',
+    'Jewish Holidays', 'Lifecycle Events', 'Ethics and Morality'
   ];
 
-  const availableAudiences = [
-    'Children', 'Teenagers', 'Adults', 'Seniors', 'Beginners', 
-    'Intermediate', 'Advanced', 'Women Only', 'Men Only'
-  ];
-
-  const addSubject = (subject: string) => {
-    if (subject && !subjects.includes(subject)) {
-      setSubjects([...subjects, subject]);
-    }
-  };
-
-  const removeSubject = (subject: string) => {
-    setSubjects(subjects.filter(s => s !== subject));
-  };
-
-  const addAudience = (audience: string) => {
-    if (audience && !audiences.includes(audience)) {
-      setAudiences([...audiences, audience]);
-    }
-  };
-
-  const removeAudience = (audience: string) => {
-    setAudiences(audiences.filter(a => a !== audience));
-  };
+  const audiences = ['men', 'women', 'children'];
+  const ageRanges = ['5-10', '11-15', '16-20', '21-30', '31-40', '41-50', '50+'];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.description || subjects.length === 0 || audiences.length === 0) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
+    if (!user) {
+      toast.error('Please log in to create a service');
       return;
     }
 
-    setSubmitting(true);
+    if (!formData.title || !formData.subject || !formData.audience || !formData.price) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       const { error } = await supabase
         .from('courses')
         .insert([{
-          teacher_id: teacherId,
+          teacher_id: user.id,
           title: formData.title,
           description: formData.description,
-          subject: subjects[0], // Primary subject
-          audience: audiences[0], // Primary audience
-          price: parseInt(formData.price) * 100, // Convert to cents
-          max_students: parseInt(formData.maxStudents),
-          age_range: formData.ageRange || null,
-          is_active: true
+          subject: formData.subject,
+          audience: formData.audience,
+          age_range: formData.age_range || null,
+          price: parseInt(formData.price),
+          max_students: parseInt(formData.max_students)
         }]);
 
       if (error) throw error;
 
-      // Also update teacher profile with subjects and audiences
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          subjects: [...new Set([...subjects])],
-          audiences: [...new Set([...audiences])]
-        })
-        .eq('id', teacherId);
-
-      if (profileError) {
-        console.error('Error updating profile:', profileError);
-      }
-
-      toast({
-        title: "Service Created",
-        description: "Your teaching service has been created successfully.",
-      });
-
-      onServiceCreated();
-      onClose();
-      
-      // Reset form
+      toast.success('Service created successfully!');
+      setIsOpen(false);
       setFormData({
         title: '',
         description: '',
         subject: '',
         audience: '',
+        age_range: '',
         price: '',
-        maxStudents: '10',
-        ageRange: ''
+        max_students: '10'
       });
-      setSubjects([]);
-      setAudiences([]);
+      onServiceCreated?.();
     } catch (error) {
       console.error('Error creating service:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create service. Please try again.",
-        variant: "destructive"
-      });
+      toast.error('Failed to create service. Please try again.');
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-torah-500 hover:bg-torah-600 text-white">
+          <Plus className="h-4 w-4 mr-2" />
+          Create New Service
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create Teaching Service</DialogTitle>
+          <DialogTitle>Create New Teaching Service</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -156,80 +107,81 @@ const ServiceCreationModal: React.FC<ServiceCreationModalProps> = ({
             <Input
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="e.g., Introduction to Torah Study"
+              placeholder="e.g., Beginner Torah Study"
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description *
+              Description
             </label>
             <Textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Describe your teaching service, methodology, and what students will learn..."
-              rows={4}
-              required
+              placeholder="Describe your teaching service..."
+              rows={3}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Subjects * (Select multiple)
+              Subject *
             </label>
-            <Select value="" onValueChange={addSubject}>
+            <Select value={formData.subject} onValueChange={(value) => setFormData({ ...formData, subject: value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Add subjects" />
+                <SelectValue placeholder="Select subject" />
               </SelectTrigger>
               <SelectContent>
-                {availableSubjects.map((subject) => (
+                {subjects.map((subject) => (
                   <SelectItem key={subject} value={subject}>
                     {subject}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {subjects.map((subject) => (
-                <Badge key={subject} variant="secondary" className="flex items-center gap-1">
-                  {subject}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => removeSubject(subject)} />
-                </Badge>
-              ))}
-            </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Target Audience * (Select multiple)
+              Target Audience *
             </label>
-            <Select value="" onValueChange={addAudience}>
+            <Select value={formData.audience} onValueChange={(value) => setFormData({ ...formData, audience: value })}>
               <SelectTrigger>
-                <SelectValue placeholder="Add target audiences" />
+                <SelectValue placeholder="Select audience" />
               </SelectTrigger>
               <SelectContent>
-                {availableAudiences.map((audience) => (
+                {audiences.map((audience) => (
                   <SelectItem key={audience} value={audience}>
-                    {audience}
+                    {audience.charAt(0).toUpperCase() + audience.slice(1)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {audiences.map((audience) => (
-                <Badge key={audience} variant="secondary" className="flex items-center gap-1">
-                  {audience}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => removeAudience(audience)} />
-                </Badge>
-              ))}
-            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Age Range
+            </label>
+            <Select value={formData.age_range} onValueChange={(value) => setFormData({ ...formData, age_range: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select age range (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                {ageRanges.map((range) => (
+                  <SelectItem key={range} value={range}>
+                    {range}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price per Hour ($) *
+                Price per Hour *
               </label>
               <Input
                 type="number"
@@ -247,40 +199,29 @@ const ServiceCreationModal: React.FC<ServiceCreationModalProps> = ({
               </label>
               <Input
                 type="number"
-                value={formData.maxStudents}
-                onChange={(e) => setFormData({ ...formData, maxStudents: e.target.value })}
+                value={formData.max_students}
+                onChange={(e) => setFormData({ ...formData, max_students: e.target.value })}
                 min="1"
                 max="50"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Age Range (Optional)
-            </label>
-            <Input
-              value={formData.ageRange}
-              onChange={(e) => setFormData({ ...formData, ageRange: e.target.value })}
-              placeholder="e.g., 18-65, 13+, All ages"
-            />
-          </div>
-
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-3">
             <Button
               type="button"
               variant="outline"
-              onClick={onClose}
+              onClick={() => setIsOpen(false)}
               className="flex-1"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={submitting}
+              disabled={isSubmitting}
               className="flex-1 bg-torah-500 hover:bg-torah-600"
             >
-              {submitting ? 'Creating...' : 'Create Service'}
+              {isSubmitting ? 'Creating...' : 'Create Service'}
             </Button>
           </div>
         </form>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar, Clock, User, Video } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 interface MeetingSchedulerProps {
@@ -39,11 +39,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.date || !formData.time || !formData.subject) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields.",
-        variant: "destructive"
-      });
+      toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -96,10 +92,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);
 
-      toast({
-        title: "Meeting Scheduled",
-        description: "Your meeting request has been sent successfully.",
-      });
+      toast.success('Meeting scheduled successfully!');
 
       // If it's a video call and the meeting is now, start immediately
       if (formData.isVideoCall) {
@@ -127,11 +120,7 @@ const MeetingScheduler: React.FC<MeetingSchedulerProps> = ({
       });
     } catch (error) {
       console.error('Error scheduling meeting:', error);
-      toast({
-        title: "Error",
-        description: "Failed to schedule meeting. Please try again.",
-        variant: "destructive"
-      });
+      toast.error('Failed to schedule meeting. Please try again.');
     } finally {
       setSubmitting(false);
     }
