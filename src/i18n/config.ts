@@ -384,8 +384,9 @@ i18n
   .use(initReactI18next)
   .init({
     debug: false,
-    fallbackLng: 'en',
-    supportedLngs: ['en', 'fr', 'de'],
+    fallbackLng: 'fr',
+    lng: 'fr',
+    supportedLngs: ['fr'],
     
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],

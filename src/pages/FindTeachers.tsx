@@ -31,7 +31,7 @@ const FindTeachers = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Find Your Torah Teacher</h1>
+          <h1 className="text-3xl font-bold">Trouvez Votre Professeur de Torah</h1>
           <div className="text-sm text-gray-600">
             {getPageDescription()}
           </div>

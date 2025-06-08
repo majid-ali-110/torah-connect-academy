@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { User, LogOut, Settings, Shield, Video, Menu, X } from 'lucide-react';
-import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,9 +26,9 @@ const Navbar = () => {
 
   const navigationLinks = [
     { to: "/", label: t('nav.home') },
-    { to: "/find-teachers", label: "Find Teachers" },
-    { to: "/find-partner", label: "Study Partners" },
-    { to: "/live-courses", label: "Live Courses", icon: Video },
+    { to: "/find-teachers", label: "Trouver des Professeurs" },
+    { to: "/find-partner", label: "Partenaires d'Étude" },
+    { to: "/live-courses", label: "Cours en Direct", icon: Video },
     { to: "/chat", label: "Messages" },
     ...(user ? [{ to: "/dashboard", label: t('nav.dashboard') }] : [])
   ];
@@ -66,12 +65,8 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Right side - Language selector and Auth */}
+          {/* Right side - Auth only */}
           <div className="flex items-center space-x-2 md:space-x-4">
-            <div className="hidden sm:block">
-              <LanguageSelector />
-            </div>
-            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -99,18 +94,18 @@ const Navbar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <span>Profil</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>Paramètres</span>
                   </DropdownMenuItem>
                   {profile?.role === 'admin' && (
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard/admin" className="cursor-pointer">
                         <Shield className="mr-2 h-4 w-4" />
-                        <span>Admin Panel</span>
+                        <span>Panneau Admin</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -164,10 +159,6 @@ const Navbar = () => {
                     {link.label}
                   </Link>
                 ))}
-                
-                <div className="sm:hidden pt-4 border-t border-gray-200">
-                  <LanguageSelector />
-                </div>
                 
                 {!user && (
                   <div className="sm:hidden flex flex-col space-y-2 pt-4 border-t border-gray-200">
