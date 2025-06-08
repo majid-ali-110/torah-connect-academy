@@ -18,8 +18,23 @@ const Chat = () => {
     );
   }
 
+  // Allow access to chat page even without authentication for public demo
+  // In production, you might want to require authentication
   if (!user || !profile) {
-    return <Navigate to="/auth" replace />;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center py-12"
+        >
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Messages</h1>
+          <p className="text-gray-600 mb-8">Please log in to access your messages</p>
+          <Navigate to="/auth" replace />
+        </motion.div>
+      </div>
+    );
   }
 
   return (

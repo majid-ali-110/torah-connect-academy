@@ -52,11 +52,9 @@ const Navbar = () => {
               Study Partners
             </Link>
 
-            {user && (
-              <Link to="/chat" className="text-gray-700 hover:text-torah-600 transition-colors">
-                Messages
-              </Link>
-            )}
+            <Link to="/chat" className="text-gray-700 hover:text-torah-600 transition-colors">
+              Messages
+            </Link>
             
             {user && (
               <Link to="/dashboard" className="text-gray-700 hover:text-torah-600 transition-colors">
