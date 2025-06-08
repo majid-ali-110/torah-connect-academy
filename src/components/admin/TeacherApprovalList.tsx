@@ -32,7 +32,16 @@ const TeacherApprovalList: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTeachers(data || []);
+      
+      // Transform the data to match our Profile interface
+      const transformedTeachers = (data || []).map(teacher => ({
+        ...teacher,
+        availability_status: teacher.availability_status as 'available' | 'busy' | 'offline' | undefined,
+        approval_status: teacher.approval_status as 'pending' | 'approved' | 'rejected' | undefined,
+        role: teacher.role as 'teacher' | 'student' | 'admin'
+      })) as Profile[];
+      
+      setTeachers(transformedTeachers);
     } catch (error) {
       console.error('Error fetching pending teachers:', error);
       toast({

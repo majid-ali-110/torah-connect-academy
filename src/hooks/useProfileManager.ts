@@ -8,6 +8,7 @@ export const useProfileManager = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
 
   const createFallbackProfile = useCallback((user: User): Profile => {
+    const now = new Date().toISOString();
     return {
       id: user.id,
       email: user.email!,
@@ -16,7 +17,9 @@ export const useProfileManager = () => {
       role: user.user_metadata?.role || 'student',
       gender: user.user_metadata?.gender || '',
       preferred_language: 'en',
-      is_fallback: true
+      is_fallback: true,
+      created_at: now,
+      updated_at: now
     };
   }, []);
 

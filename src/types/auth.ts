@@ -23,6 +23,10 @@ export interface Profile {
   approval_status?: 'pending' | 'approved' | 'rejected';
   approved_by?: string;
   approved_at?: string;
+  age_group?: string;
+  learning_level?: string;
+  phone?: string;
+  time_zone?: string;
   created_at: string;
   updated_at: string;
 }
