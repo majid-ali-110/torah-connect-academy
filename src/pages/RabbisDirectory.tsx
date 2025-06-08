@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '@/components/Layout';
@@ -6,52 +5,33 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Star, Users } from 'lucide-react';
-
-const dummyRabbis = [
-  {
-    id: '1',
-    name: 'Rabbi David Cohen',
-    title: 'Community Rabbi',
-    location: 'New York, NY',
-    specialties: ['Halacha', 'Talmud', 'Family Law'],
-    rating: 4.9,
-    students: 45,
-    image: '/placeholder.svg',
-    bio: 'Expert in Jewish law with 20+ years of experience in community leadership.'
-  },
-  {
-    id: '2',
-    name: 'Rabbi Sarah Goldstein',
-    title: 'Educational Director',
-    location: 'Los Angeles, CA',
-    specialties: ['Torah Study', 'Women\'s Issues', 'Education'],
-    rating: 4.8,
-    students: 32,
-    image: '/placeholder.svg',
-    bio: 'Dedicated educator specializing in Jewish women\'s studies and community outreach.'
-  },
-  {
-    id: '3',
-    name: 'Rabbi Michael Levy',
-    title: 'Spiritual Leader',
-    location: 'Chicago, IL',
-    specialties: ['Kabbalah', 'Spirituality', 'Meditation'],
-    rating: 4.7,
-    students: 28,
-    image: '/placeholder.svg',
-    bio: 'Spiritual guide focusing on Jewish mysticism and meditation practices.'
-  }
-];
+import { Search, MapPin, Star } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
 const RabbisDirectory = () => {
   const { t } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
-  const [rabbis, setRabbis] = useState(dummyRabbis);
+  const [rabbis, setRabbis] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRabbis = async () => {
+      setLoading(true);
+      const { data, error } = await supabase.from('rabbis').select('*');
+      if (error) {
+        console.error('Error fetching rabbis:', error);
+      } else {
+        setRabbis(data);
+      }
+      setLoading(false);
+    };
+
+    fetchRabbis();
+  }, []);
 
   const filteredRabbis = rabbis.filter(rabbi =>
     rabbi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rabbi.specialties.some(specialty => 
+    rabbi.specialties.some(specialty =>
       specialty.toLowerCase().includes(searchTerm.toLowerCase())
     ) ||
     rabbi.location.toLowerCase().includes(searchTerm.toLowerCase())
@@ -86,45 +66,49 @@ const RabbisDirectory = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRabbis.map((rabbi) => (
-              <Card key={rabbi.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="text-center">
-                  <img
-                    src={rabbi.image}
-                    alt={rabbi.name}
-                    className="w-20 h-20 rounded-full mx-auto mb-4"
-                  />
-                  <CardTitle className="text-xl">{rabbi.name}</CardTitle>
-                  <p className="text-gray-600">{rabbi.title}</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      {rabbi.location}
+          {loading ? (
+            <p className="text-center text-gray-500">Loading rabbis...</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRabbis.map((rabbi) => (
+                <Card key={rabbi.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="text-center">
+                    <img
+                      src={rabbi.image || '/placeholder.svg'}
+                      alt={rabbi.name}
+                      className="w-20 h-20 rounded-full mx-auto mb-4"
+                    />
+                    <CardTitle className="text-xl">{rabbi.name}</CardTitle>
+                    <p className="text-gray-600">{rabbi.title}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        {rabbi.location}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <Star className="h-4 w-4 mr-2 text-yellow-500" />
+                        {rabbi.rating} ({rabbi.students} students)
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {rabbi.specialties.map((specialty, index) => (
+                          <span
+                            key={index}
+                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                          >
+                            {specialty}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-600">{rabbi.bio}</p>
+                      <Button className="w-full">Contact Rabbi</Button>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <Star className="h-4 w-4 mr-2 text-yellow-500" />
-                      {rabbi.rating} ({rabbi.students} students)
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {rabbi.specialties.map((specialty, index) => (
-                        <span
-                          key={index}
-                          className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-sm text-gray-600">{rabbi.bio}</p>
-                    <Button className="w-full">Contact Rabbi</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </motion.div>
       </div>
     </Layout>
