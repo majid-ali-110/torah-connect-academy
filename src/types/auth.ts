@@ -20,6 +20,11 @@ export interface Profile {
   gender?: string;
   preferred_language?: string;
   is_fallback?: boolean;
+  approval_status?: 'pending' | 'approved' | 'rejected';
+  approved_by?: string;
+  approved_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AuthContextType {

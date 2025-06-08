@@ -51,6 +51,48 @@ export type Database = {
           },
         ]
       }
+      admin_approvals: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          teacher_id: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          teacher_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          teacher_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_approvals_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_approvals_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -93,6 +135,42 @@ export type Database = {
           {
             foreignKeyName: "chat_messages_sender_id_fkey"
             columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_enrollments: {
+        Row: {
+          class_id: string
+          enrolled_at: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          enrolled_at?: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          enrolled_at?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_enrollments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "class_enrollments_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -379,6 +457,56 @@ export type Database = {
           },
         ]
       }
+      live_classes: {
+        Row: {
+          course_key: string
+          created_at: string
+          description: string | null
+          duration_minutes: number
+          id: string
+          max_participants: number
+          meeting_link: string
+          scheduled_at: string
+          teacher_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          course_key: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          max_participants?: number
+          meeting_link: string
+          scheduled_at: string
+          teacher_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          course_key?: string
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          max_participants?: number
+          meeting_link?: string
+          scheduled_at?: string
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_classes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -409,6 +537,9 @@ export type Database = {
       profiles: {
         Row: {
           age_group: string | null
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
           audiences: string[] | null
           availability_status: string | null
           avatar_url: string | null
@@ -435,6 +566,9 @@ export type Database = {
         }
         Insert: {
           age_group?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           audiences?: string[] | null
           availability_status?: string | null
           avatar_url?: string | null
@@ -461,6 +595,9 @@ export type Database = {
         }
         Update: {
           age_group?: string | null
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
           audiences?: string[] | null
           availability_status?: string | null
           avatar_url?: string | null
@@ -485,7 +622,15 @@ export type Database = {
           time_zone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       rabbis: {
         Row: {
