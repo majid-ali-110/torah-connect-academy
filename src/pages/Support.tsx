@@ -130,10 +130,7 @@ const Support = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button variant="outline" className="w-full justify-start">
-                    <Book className="h-4 w-4 mr-2" />
-                    User Guide & Documentation
-                  </Button>
+                
                   <Button variant="outline" className="w-full justify-start">
                     <HelpCircle className="h-4 w-4 mr-2" />
                     Video Tutorials
