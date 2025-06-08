@@ -3,8 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const FeatureBlock = ({ 
   icon: Icon, 
@@ -54,6 +52,7 @@ const FeatureBlock = ({
           </motion.div>
         </div>
         
+        {/* Background ripple effect */}
         <motion.div 
           className="absolute w-0 h-0 rounded-full bg-white/10"
           initial={{ scale: 0, x: "50%", y: "50%" }}
@@ -67,9 +66,6 @@ const FeatureBlock = ({
 };
 
 const FeatureBlocks = () => {
-  const { profile } = useAuth();
-  const { t } = useLanguage();
-
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -85,39 +81,6 @@ const FeatureBlocks = () => {
     show: { opacity: 1, y: 0 }
   };
 
-  // Determine gender-specific learning section
-  const getGenderSpecificSection = () => {
-    if (!profile) {
-      return {
-        title: t('features.children_learning') || "Children's Learning",
-        link: "/children-courses",
-        description: t('features.children_description') || "Specialized Torah education designed for children of all ages"
-      };
-    }
-    
-    if (profile.gender === 'male') {
-      return {
-        title: t('features.male_studies') || "Male Studies",
-        link: "/male-courses",
-        description: t('features.male_description') || "Torah learning opportunities specifically tailored for men"
-      };
-    } else if (profile.gender === 'female') {
-      return {
-        title: t('features.female_studies') || "Female Studies", 
-        link: "/women-courses",
-        description: t('features.female_description') || "Torah learning opportunities specifically tailored for women"
-      };
-    }
-    
-    return {
-      title: t('features.children_learning') || "Children's Learning",
-      link: "/children-courses", 
-      description: t('features.children_description') || "Specialized Torah education designed for children of all ages"
-    };
-  };
-
-  const genderSpecificSection = getGenderSpecificSection();
-
   return (
     <div className="container mx-auto px-4 py-16">
       <motion.div
@@ -126,12 +89,8 @@ const FeatureBlocks = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        <h2 className="text-3xl font-bold mb-2 text-center">
-          {t('features.explore_services') || 'Explore Our Services'}
-        </h2>
-        <p className="text-gray-600 mb-10 text-center max-w-2xl mx-auto">
-          {t('features.explore_description') || 'Find the perfect learning experience tailored to your needs and preferences'}
-        </p>
+        <h2 className="text-3xl font-bold mb-2 text-center">Explore Our Services</h2>
+        <p className="text-gray-600 mb-10 text-center max-w-2xl mx-auto">Find the perfect learning experience tailored to your needs and preferences</p>
       </motion.div>
 
       <motion.div 
@@ -144,40 +103,40 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Calendar} 
-            title={genderSpecificSection.title}
-            link={genderSpecificSection.link}
+            title="Children's Learning" 
+            link="/children-courses" 
             bgColor="bg-red-400"
-            description={genderSpecificSection.description}
+            description="Specialized Torah education designed for children of all ages"
           />
         </motion.div>
         
         <motion.div variants={item}>
           <FeatureBlock 
             icon={CalendarDays} 
-            title={t('features.women_studies') || "Women's Studies"}
+            title="Women's Studies" 
             link="/women-courses" 
             bgColor="bg-pink-400"
-            description={t('features.women_description') || "Torah learning opportunities specifically tailored for women"}
+            description="Torah learning opportunities specifically tailored for women"
           />
         </motion.div>
         
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Video} 
-            title={t('features.live_courses') || "Live Courses"}
+            title="Live Courses" 
             link="/live-courses" 
             bgColor="bg-yellow-400"
-            description={t('features.live_description') || "Join our interactive live Torah sessions with renowned teachers"}
+            description="Join our interactive live Torah sessions with renowned teachers"
           />
         </motion.div>
         
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Users} 
-            title={t('features.sos_partner') || "SOS Partner"}
-            link="/find-partner" 
+            title="SOS Partner" 
+            link="/sos-havrouta" 
             bgColor="bg-teal-400"
-            description={t('features.sos_description') || "Get matched with a study partner right away for immediate learning"}
+            description="Get matched with a study partner right away for immediate learning"
           />
         </motion.div>
       </motion.div>

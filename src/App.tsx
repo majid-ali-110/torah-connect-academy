@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,20 +18,10 @@ import Chat from "@/pages/Chat";
 import VideoCall from "@/pages/VideoCall";
 import ChildrenCourses from "@/pages/ChildrenCourses";
 import WomenCourses from "@/pages/WomenCourses";
-import LiveCourses from "@/pages/LiveCourses";
 import FindPartner from "@/pages/FindPartner";
 import Classroom from "@/pages/Classroom";
 import Payment from "@/pages/Payment";
 import SearchResults from "@/pages/SearchResults";
-import RabbisDirectory from "@/pages/RabbisDirectory";
-import FAQ from "@/pages/FAQ";
-import Blog from "@/pages/Blog";
-import Contact from "@/pages/Contact";
-import Support from "@/pages/Support";
-import BeitMidrash from "@/pages/BeitMidrash";
-import Terms from "@/pages/Terms";
-import Privacy from "@/pages/Privacy";
-import Cookies from "@/pages/Cookies";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -136,51 +125,6 @@ const App = () => (
               <Route 
                 path="/search" 
                 element={<Layout><SearchResults /></Layout>} 
-              />
-              {/* New pages */}
-              <Route 
-                path="/rabbanim" 
-                element={<RabbisDirectory />} 
-              />
-              <Route 
-                path="/eleves" 
-                element={<Layout><ChildrenCourses /></Layout>} 
-              />
-              <Route 
-                path="/femmes" 
-                element={<Layout><WomenCourses /></Layout>} 
-              />
-              <Route 
-                path="/beit-hamidrash" 
-                element={<BeitMidrash />} 
-              />
-              <Route 
-                path="/faq" 
-                element={<FAQ />} 
-              />
-              <Route 
-                path="/blog" 
-                element={<Blog />} 
-              />
-              <Route 
-                path="/contact" 
-                element={<Contact />} 
-              />
-              <Route 
-                path="/support" 
-                element={<Support />} 
-              />
-              <Route 
-                path="/conditions" 
-                element={<Terms />} 
-              />
-              <Route 
-                path="/privacy" 
-                element={<Privacy />} 
-              />
-              <Route 
-                path="/cookies" 
-                element={<Cookies />} 
               />
               <Route path="*" element={<NotFound />} />
             </Routes>

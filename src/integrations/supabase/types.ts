@@ -9,51 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      blog_posts: {
-        Row: {
-          author_id: string
-          category: string
-          content: string
-          created_at: string
-          excerpt: string | null
-          id: string
-          image_url: string | null
-          published: boolean | null
-          published_at: string | null
-          slug: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_id: string
-          category: string
-          content: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          image_url?: string | null
-          published?: boolean | null
-          published_at?: string | null
-          slug: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_id?: string
-          category?: string
-          content?: string
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          image_url?: string | null
-          published?: boolean | null
-          published_at?: string | null
-          slug?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       chat_messages: {
         Row: {
           content: string
@@ -101,36 +56,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      contact_submissions: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          status: string | null
-          subject: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          status?: string | null
-          subject: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          status?: string | null
-          subject?: string
-        }
-        Relationships: []
       }
       conversations: {
         Row: {
@@ -307,39 +232,6 @@ export type Database = {
           },
         ]
       }
-      faq_items: {
-        Row: {
-          answer: string
-          category: string | null
-          created_at: string
-          id: string
-          is_published: boolean | null
-          order_index: number | null
-          question: string
-          updated_at: string
-        }
-        Insert: {
-          answer: string
-          category?: string | null
-          created_at?: string
-          id?: string
-          is_published?: boolean | null
-          order_index?: number | null
-          question: string
-          updated_at?: string
-        }
-        Update: {
-          answer?: string
-          category?: string | null
-          created_at?: string
-          id?: string
-          is_published?: boolean | null
-          order_index?: number | null
-          question?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       learning_streaks: {
         Row: {
           current_streak: number | null
@@ -434,89 +326,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      live_course_enrollments: {
-        Row: {
-          course_id: string
-          enrolled_at: string
-          id: string
-          payment_status: string | null
-          student_id: string
-        }
-        Insert: {
-          course_id: string
-          enrolled_at?: string
-          id?: string
-          payment_status?: string | null
-          student_id: string
-        }
-        Update: {
-          course_id?: string
-          enrolled_at?: string
-          id?: string
-          payment_status?: string | null
-          student_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "live_course_enrollments_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "live_courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      live_courses: {
-        Row: {
-          created_at: string
-          description: string | null
-          duration_minutes: number
-          id: string
-          max_participants: number | null
-          meeting_id: string | null
-          meeting_url: string | null
-          price: number
-          start_time: string
-          status: string | null
-          subject: string
-          teacher_id: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number
-          id?: string
-          max_participants?: number | null
-          meeting_id?: string | null
-          meeting_url?: string | null
-          price?: number
-          start_time: string
-          status?: string | null
-          subject: string
-          teacher_id: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          description?: string | null
-          duration_minutes?: number
-          id?: string
-          max_participants?: number | null
-          meeting_id?: string | null
-          meeting_url?: string | null
-          price?: number
-          start_time?: string
-          status?: string | null
-          subject?: string
-          teacher_id?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       messages: {
         Row: {
@@ -739,36 +548,6 @@ export type Database = {
           },
         ]
       }
-      study_partner_matches: {
-        Row: {
-          created_at: string
-          id: string
-          matched_at: string | null
-          partner_id: string
-          requester_id: string
-          status: string | null
-          subjects: string[]
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          matched_at?: string | null
-          partner_id: string
-          requester_id: string
-          status?: string | null
-          subjects?: string[]
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          matched_at?: string | null
-          partner_id?: string
-          requester_id?: string
-          status?: string | null
-          subjects?: string[]
-        }
-        Relationships: []
-      }
       study_partner_requests: {
         Row: {
           availability: string | null
@@ -869,45 +648,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      support_tickets: {
-        Row: {
-          assigned_to: string | null
-          created_at: string
-          description: string
-          email: string
-          id: string
-          priority: string | null
-          status: string | null
-          subject: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          assigned_to?: string | null
-          created_at?: string
-          description: string
-          email: string
-          id?: string
-          priority?: string | null
-          status?: string | null
-          subject: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          assigned_to?: string | null
-          created_at?: string
-          description?: string
-          email?: string
-          id?: string
-          priority?: string | null
-          status?: string | null
-          subject?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
       }
       teacher_availability: {
         Row: {
