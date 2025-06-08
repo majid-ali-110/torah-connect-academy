@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Layout from '@/components/Layout';
@@ -6,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Search, MapPin, Star } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/integrations/supabase/client';
 
 const RabbisDirectory = () => {
   const { t } = useLanguage();
@@ -21,7 +22,7 @@ const RabbisDirectory = () => {
       if (error) {
         console.error('Error fetching rabbis:', error);
       } else {
-        setRabbis(data);
+        setRabbis(data || []);
       }
       setLoading(false);
     };
@@ -30,11 +31,11 @@ const RabbisDirectory = () => {
   }, []);
 
   const filteredRabbis = rabbis.filter(rabbi =>
-    rabbi.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rabbi.specialties.some(specialty =>
+    rabbi.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    rabbi.specialties?.some(specialty =>
       specialty.toLowerCase().includes(searchTerm.toLowerCase())
     ) ||
-    rabbi.location.toLowerCase().includes(searchTerm.toLowerCase())
+    rabbi.location?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -74,7 +75,7 @@ const RabbisDirectory = () => {
                 <Card key={rabbi.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="text-center">
                     <img
-                      src={rabbi.image || '/placeholder.svg'}
+                      src={rabbi.image_url || '/placeholder.svg'}
                       alt={rabbi.name}
                       className="w-20 h-20 rounded-full mx-auto mb-4"
                     />
@@ -83,25 +84,33 @@ const RabbisDirectory = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="h-4 w-4 mr-2" />
-                        {rabbi.location}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Star className="h-4 w-4 mr-2 text-yellow-500" />
-                        {rabbi.rating} ({rabbi.students} students)
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {rabbi.specialties.map((specialty, index) => (
-                          <span
-                            key={index}
-                            className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                          >
-                            {specialty}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="text-sm text-gray-600">{rabbi.bio}</p>
+                      {rabbi.location && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <MapPin className="h-4 w-4 mr-2" />
+                          {rabbi.location}
+                        </div>
+                      )}
+                      {rabbi.experience_years && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <Star className="h-4 w-4 mr-2 text-yellow-500" />
+                          {rabbi.experience_years} years experience
+                        </div>
+                      )}
+                      {rabbi.specialties && rabbi.specialties.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {rabbi.specialties.map((specialty, index) => (
+                            <span
+                              key={index}
+                              className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
+                            >
+                              {specialty}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      {rabbi.bio && (
+                        <p className="text-sm text-gray-600">{rabbi.bio}</p>
+                      )}
                       <Button className="w-full">Contact Rabbi</Button>
                     </div>
                   </CardContent>
