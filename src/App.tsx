@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,18 +23,17 @@ import FindPartner from "@/pages/FindPartner";
 import Classroom from "@/pages/Classroom";
 import Payment from "@/pages/Payment";
 import SearchResults from "@/pages/SearchResults";
-import NotFound from "@/pages/NotFound";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import RabbisDirectory from "@/pages/RabbisDirectory";
-import ChildrenSection from "@/pages/ChildrenSection";
-import OnlineBeitMidrash from "@/pages/OnlineBeitMidrash";
-import Resources from "@/pages/Resources";
+import FAQ from "@/pages/FAQ";
 import Blog from "@/pages/Blog";
 import Contact from "@/pages/Contact";
-import TechnicalSupport from "@/pages/TechnicalSupport";
+import Support from "@/pages/Support";
+import BeitMidrash from "@/pages/BeitMidrash";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
 import Cookies from "@/pages/Cookies";
+import NotFound from "@/pages/NotFound";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -136,49 +136,51 @@ const App = () => (
                 path="/search" 
                 element={<Layout><SearchResults /></Layout>} 
               />
-              
-              {/* New Routes */}
+              {/* New pages */}
               <Route 
                 path="/rabbanim" 
-                element={<Layout><RabbisDirectory /></Layout>} 
+                element={<RabbisDirectory />} 
               />
               <Route 
                 path="/eleves" 
-                element={<Layout><ChildrenSection /></Layout>} 
+                element={<Layout><ChildrenCourses /></Layout>} 
+              />
+              <Route 
+                path="/femmes" 
+                element={<Layout><WomenCourses /></Layout>} 
               />
               <Route 
                 path="/beit-hamidrash" 
-                element={<Layout><OnlineBeitMidrash /></Layout>} 
+                element={<BeitMidrash />} 
               />
               <Route 
-                path="/resources" 
-                element={<Layout><Resources /></Layout>} 
+                path="/faq" 
+                element={<FAQ />} 
               />
               <Route 
                 path="/blog" 
-                element={<Layout><Blog /></Layout>} 
+                element={<Blog />} 
               />
               <Route 
                 path="/contact" 
-                element={<Layout><Contact /></Layout>} 
+                element={<Contact />} 
               />
               <Route 
                 path="/support" 
-                element={<Layout><TechnicalSupport /></Layout>} 
+                element={<Support />} 
               />
               <Route 
                 path="/conditions" 
-                element={<Layout><Terms /></Layout>} 
+                element={<Terms />} 
               />
               <Route 
                 path="/privacy" 
-                element={<Layout><Privacy /></Layout>} 
+                element={<Privacy />} 
               />
               <Route 
                 path="/cookies" 
-                element={<Layout><Cookies /></Layout>} 
+                element={<Cookies />} 
               />
-              
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

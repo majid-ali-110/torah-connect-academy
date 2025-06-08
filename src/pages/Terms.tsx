@@ -1,112 +1,126 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import Layout from '@/components/Layout';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, FileText } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
-
-interface LegalDocument {
-  id: string;
-  title: string;
-  content: string;
-  version: string;
-  effective_date: string;
-  updated_at: string;
-}
 
 const Terms = () => {
-  const [document, setDocument] = useState<LegalDocument | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    fetchTerms();
-  }, []);
-
-  const fetchTerms = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('legal_documents')
-        .select('*')
-        .eq('document_type', 'terms')
-        .eq('is_current', true)
-        .single();
-
-      if (error) throw error;
-      setDocument(data);
-    } catch (error) {
-      console.error('Error fetching terms:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load terms of service',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-torah-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading terms of service...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="container mx-auto px-4 max-w-4xl">
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold mb-4">Terms of Service</h1>
-          <p className="text-gray-600">
-            Please read these terms carefully before using our platform.
-          </p>
-        </motion.div>
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              Terms of Use
+            </h1>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Please read these terms carefully before using our platform
+            </p>
+          </div>
 
-        {document && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div className="max-w-4xl mx-auto">
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <FileText className="h-6 w-6 mr-2 text-torah-600" />
-                  {document.title}
-                </CardTitle>
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Effective: {format(new Date(document.effective_date), 'MMMM dd, yyyy')}
+              <CardContent className="p-8">
+                <div className="space-y-8">
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      By accessing and using TorahLearn, you accept and agree to be bound by the terms and provision of this agreement. 
+                      If you do not agree to abide by the above, please do not use this service.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      TorahLearn provides an online platform for Torah study, connecting students with qualified teachers and offering 
+                      various educational resources. Our service includes video lessons, study materials, and community features.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">3. User Responsibilities</h2>
+                    <ul className="list-disc list-inside text-gray-700 space-y-2">
+                      <li>Provide accurate and complete information when creating an account</li>
+                      <li>Maintain the confidentiality of your account credentials</li>
+                      <li>Use the service in accordance with all applicable laws and regulations</li>
+                      <li>Respect other users and maintain appropriate conduct during sessions</li>
+                      <li>Not share or distribute copyrighted content without permission</li>
+                    </ul>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">4. Payment and Billing</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      Payment for services is required in advance. All fees are non-refundable except as required by law. 
+                      We reserve the right to change our pricing structure at any time with appropriate notice.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">5. Intellectual Property</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      All content provided through our platform, including but not limited to text, graphics, logos, and software, 
+                      is the property of TorahLearn or its content suppliers and is protected by copyright laws.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">6. Privacy Policy</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      Your privacy is important to us. Please review our Privacy Policy, which also governs your use of the service, 
+                      to understand our practices.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">7. Limitation of Liability</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      TorahLearn shall not be liable for any indirect, incidental, special, consequential, or punitive damages, 
+                      including without limitation, loss of profits, data, use, goodwill, or other intangible losses.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">8. Termination</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, 
+                      including without limitation if you breach the Terms.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">9. Changes to Terms</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      We reserve the right, at our sole discretion, to modify or replace these Terms at any time. 
+                      If a revision is material, we will try to provide at least 30 days notice prior to any new terms taking effect.
+                    </p>
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-semibold mb-4">10. Contact Information</h2>
+                    <p className="text-gray-700 leading-relaxed">
+                      If you have any questions about these Terms, please contact us at legal@torahlearn.com.
+                    </p>
+                  </section>
+
+                  <div className="text-sm text-gray-500 mt-8 pt-8 border-t">
+                    Last updated: January 8, 2025
                   </div>
-                  <div>Version: {document.version}</div>
-                  <div>Last Updated: {format(new Date(document.updated_at), 'MMMM dd, yyyy')}</div>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div 
-                  className="prose prose-gray max-w-none"
-                  dangerouslySetInnerHTML={{ __html: document.content.replace(/\n/g, '<br />') }}
-                />
               </CardContent>
             </Card>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
