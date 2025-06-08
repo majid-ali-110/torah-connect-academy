@@ -7,7 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
-import { User, LogOut, Settings, Shield } from 'lucide-react';
+import { User, LogOut, Settings, Shield, Video } from 'lucide-react';
 import LanguageSelector from './LanguageSelector';
 
 const Navbar = () => {
@@ -50,6 +50,11 @@ const Navbar = () => {
             
             <Link to="/find-partner" className="text-gray-700 hover:text-torah-600 transition-colors">
               Study Partners
+            </Link>
+
+            <Link to="/live-courses" className="text-gray-700 hover:text-torah-600 transition-colors flex items-center">
+              <Video className="mr-1 h-4 w-4" />
+              Live Courses
             </Link>
 
             <Link to="/chat" className="text-gray-700 hover:text-torah-600 transition-colors">

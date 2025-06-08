@@ -20,6 +20,7 @@ import VideoCall from "@/pages/VideoCall";
 import ChildrenCourses from "@/pages/ChildrenCourses";
 import WomenCourses from "@/pages/WomenCourses";
 import FindPartner from "@/pages/FindPartner";
+import LiveCourses from "@/pages/LiveCourses";
 import Classroom from "@/pages/Classroom";
 import Payment from "@/pages/Payment";
 import SearchResults from "@/pages/SearchResults";
@@ -115,6 +116,14 @@ const App = () => (
               <Route 
                 path="/find-partner" 
                 element={<Layout><FindPartner /></Layout>} 
+              />
+              <Route 
+                path="/live-courses" 
+                element={
+                  <ProtectedRoute>
+                    <LiveCourses />
+                  </ProtectedRoute>
+                } 
               />
               <Route 
                 path="/classroom/:id" 
