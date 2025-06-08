@@ -64,11 +64,11 @@ export const useProfileManager = () => {
             setProfile(fallbackProfile);
           } else {
             console.log('ProfileManager: Profile created successfully:', createdProfile);
-            setProfile(createdProfile);
+            setProfile(createdProfile as Profile);
           }
         } else if (profileData) {
           console.log('ProfileManager: Profile fetched successfully:', profileData);
-          setProfile(profileData);
+          setProfile(profileData as Profile);
         } else if (error) {
           console.error('ProfileManager: Error fetching profile:', error);
           setProfile(fallbackProfile);
@@ -94,9 +94,12 @@ export const useProfileManager = () => {
   const updateProfile = useCallback(async (user: User | null, updates: Partial<Profile>) => {
     if (!user) return;
     
+    // Convert our Profile type to match Supabase expected format
+    const supabaseUpdates = { ...updates };
+    
     const { error } = await supabase
       .from('profiles')
-      .update(updates)
+      .update(supabaseUpdates)
       .eq('id', user.id);
     
     if (!error && profile) {
