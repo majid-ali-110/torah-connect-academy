@@ -11,6 +11,25 @@ import { Search, Filter, Users, MessageCircle, Heart } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import StudyPartnerCard from '@/components/partner/StudyPartnerCard';
 
+interface StudyPartnerWithProfile {
+  id: string;
+  user_id: string;
+  subjects: string[];
+  study_goals: string;
+  availability: string;
+  preferred_level: string;
+  created_at: string;
+  profile: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    avatar_url?: string;
+    location?: string;
+    languages?: string[];
+    gender: string;
+  };
+}
+
 interface StudyPartner {
   id: string;
   name: string;
@@ -27,7 +46,7 @@ interface StudyPartner {
 const FindPartner = () => {
   const { t } = useLanguage();
   const { profile } = useAuth();
-  const [studyPartners, setStudyPartners] = useState<any[]>([]);
+  const [studyPartners, setStudyPartners] = useState<StudyPartnerWithProfile[]>([]);
   const [filteredPartners, setFilteredPartners] = useState<StudyPartner[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
@@ -48,28 +67,27 @@ const FindPartner = () => {
     try {
       console.log('Current user gender:', profile?.gender);
       
-      // Since we don't have a study_partner_requests table, let's use profiles
-      // Filter by same gender and exclude current user
+      // Fetch active study partner requests with profiles, filtered by same gender
       let query = supabase
-        .from('profiles')
+        .from('study_partner_requests')
         .select(`
-          id,
-          first_name,
-          last_name,
-          avatar_url,
-          location,
-          languages,
-          gender,
-          subjects,
-          bio,
-          learning_level
+          *,
+          profile:profiles!inner(
+            id,
+            first_name,
+            last_name,
+            avatar_url,
+            location,
+            languages,
+            gender
+          )
         `)
-        .eq('role', 'student')
-        .neq('id', profile?.id); // Exclude current user
+        .eq('is_active', true)
+        .neq('user_id', profile?.id); // Exclude current user's own requests
 
       // Apply gender filter - only show partners of same gender
       if (profile?.gender) {
-        query = query.eq('gender', profile.gender);
+        query = query.eq('profile.gender', profile.gender);
       }
 
       const { data, error } = await query;
@@ -89,15 +107,15 @@ const FindPartner = () => {
     // Transform data to match the StudyPartner interface
     const transformedPartners: StudyPartner[] = studyPartners.map(partner => ({
       id: partner.id,
-      name: `${partner.first_name} ${partner.last_name}`,
+      name: `${partner.profile.first_name} ${partner.profile.last_name}`,
       subjects: partner.subjects || [],
-      level: partner.learning_level || 'Intermediate',
-      availability: 'Flexible', // Default since we don't have availability data
-      studyGoals: partner.bio || 'Looking for a study partner',
+      level: partner.preferred_level || 'Intermediate',
+      availability: partner.availability || 'Flexible',
+      studyGoals: partner.study_goals || 'Looking for a study partner',
       rating: 4.5, // Default rating since we don't have ratings yet
-      avatar: partner.avatar_url,
-      location: partner.location || 'Not specified',
-      languages: partner.languages || ['English']
+      avatar: partner.profile.avatar_url,
+      location: partner.profile.location || 'Not specified',
+      languages: partner.profile.languages || ['English']
     }));
 
     let filtered = transformedPartners;

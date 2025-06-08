@@ -26,9 +26,14 @@ interface TeacherWithServices {
   location: string;
   experience: string;
   avatar_url?: string;
-  availability_status: string;
+  availability_status: 'available' | 'busy' | 'offline';
   gender: string;
-  hourly_rate?: number;
+  services: {
+    id: string;
+    subject: string;
+    description: string;
+    hourly_rate: number;
+  }[];
 }
 
 // Filter panel component
@@ -48,7 +53,9 @@ const FilterPanel = ({
   const isMobile = useIsMobile();
   const { profile } = useAuth();
   
-  const subjectOptions = [...new Set(teachers.flatMap(teacher => teacher.subjects || []))];
+  const subjectOptions = [...new Set(teachers.flatMap(teacher => 
+    [...(teacher.subjects || []), ...teacher.services.map(s => s.subject)]
+  ))];
   
   const getFilteredAudiences = () => {
     const allAudiences = [...new Set(teachers.flatMap(teacher => teacher.audiences || []))];
@@ -211,9 +218,9 @@ const TeacherCard = ({ teacher }: { teacher: TeacherWithServices }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  {teacher.hourly_rate && (
+                  {teacher.services.length > 0 && (
                     <div className="font-semibold text-torah-600">
-                      ${teacher.hourly_rate}/hr
+                      From ${Math.min(...teacher.services.map(s => s.hourly_rate))}/hr
                     </div>
                   )}
                 </div>
@@ -223,13 +230,13 @@ const TeacherCard = ({ teacher }: { teacher: TeacherWithServices }) => {
               
               <div className="mt-2 space-y-2">
                 <div className="flex flex-wrap gap-1">
-                  {teacher.subjects?.slice(0, 3).map((subject) => (
-                    <Badge key={subject} variant="secondary" className="bg-torah-100 text-torah-700">
-                      {subject}
+                  {teacher.services.slice(0, 3).map((service) => (
+                    <Badge key={service.id} variant="secondary" className="bg-torah-100 text-torah-700">
+                      {service.subject} (${service.hourly_rate}/hr)
                     </Badge>
                   ))}
-                  {teacher.subjects && teacher.subjects.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">+{teacher.subjects.length - 3}</Badge>
+                  {teacher.services.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">+{teacher.services.length - 3}</Badge>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -285,18 +292,43 @@ const SearchResults = () => {
     try {
       console.log('Current user gender:', profile?.gender);
       
-      // Fetch teachers from profiles table
+      // Fetch teachers with active services
       let query = supabase
         .from('profiles')
-        .select('*')
-        .eq('role', 'teacher');
+        .select(`
+          *,
+          teacher_services!inner(
+            id,
+            subject,
+            description,
+            hourly_rate
+          )
+        `)
+        .eq('role', 'teacher')
+        .eq('teacher_services.is_active', true);
 
       const { data, error } = await query;
 
       if (error) throw error;
       
+      // Transform the data to group services by teacher
+      const teachersWithServices = data?.reduce((acc: TeacherWithServices[], teacher) => {
+        const existingTeacher = acc.find(t => t.id === teacher.id);
+        
+        if (existingTeacher) {
+          existingTeacher.services.push(...teacher.teacher_services);
+        } else {
+          acc.push({
+            ...teacher,
+            services: teacher.teacher_services || []
+          });
+        }
+        
+        return acc;
+      }, []) || [];
+
       // Apply gender-based filtering
-      const genderFilteredTeachers = data?.filter(teacher => {
+      const genderFilteredTeachers = teachersWithServices.filter(teacher => {
         if (!profile?.gender || !teacher.gender) return true;
         
         // If user is male, show male teachers for men and children
@@ -316,7 +348,7 @@ const SearchResults = () => {
         }
         
         return true;
-      }) || [];
+      });
 
       console.log('Fetched gender-filtered teachers:', genderFilteredTeachers.length, 'teachers');
       setTeachers(genderFilteredTeachers);
@@ -337,8 +369,9 @@ const SearchResults = () => {
       results = results.filter(teacher => 
         `${teacher.first_name} ${teacher.last_name}`.toLowerCase().includes(query) ||
         teacher.bio?.toLowerCase().includes(query) ||
-        teacher.subjects?.some(subject => 
-          subject.toLowerCase().includes(query)
+        teacher.services.some(service => 
+          service.subject.toLowerCase().includes(query) ||
+          service.description?.toLowerCase().includes(query)
         )
       );
     }
@@ -349,7 +382,10 @@ const SearchResults = () => {
         results = results.filter(teacher => {
           if (filterType === 'subjects') {
             return Object.entries(selectedValues).some(([value, isSelected]) => {
-              return isSelected && teacher.subjects?.includes(value);
+              return isSelected && (
+                teacher.subjects?.includes(value) ||
+                teacher.services.some(service => service.subject.toLowerCase().includes(value.toLowerCase()))
+              );
             });
           } else if (filterType === 'audiences') {
             return Object.entries(selectedValues).some(([value, isSelected]) => {

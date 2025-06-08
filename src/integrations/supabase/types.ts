@@ -9,221 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      admin_actions: {
-        Row: {
-          action_type: string
-          admin_id: string
-          created_at: string
-          details: Json | null
-          id: string
-          target_user_id: string | null
-        }
-        Insert: {
-          action_type: string
-          admin_id: string
-          created_at?: string
-          details?: Json | null
-          id?: string
-          target_user_id?: string | null
-        }
-        Update: {
-          action_type?: string
-          admin_id?: string
-          created_at?: string
-          details?: Json | null
-          id?: string
-          target_user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "admin_actions_admin_id_fkey"
-            columns: ["admin_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "admin_actions_target_user_id_fkey"
-            columns: ["target_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      chat_messages: {
-        Row: {
-          content: string
-          conversation_id: string
-          created_at: string
-          id: string
-          meeting_data: Json | null
-          message_type: Database["public"]["Enums"]["message_type"]
-          read_at: string | null
-          sender_id: string
-        }
-        Insert: {
-          content: string
-          conversation_id: string
-          created_at?: string
-          id?: string
-          meeting_data?: Json | null
-          message_type?: Database["public"]["Enums"]["message_type"]
-          read_at?: string | null
-          sender_id: string
-        }
-        Update: {
-          content?: string
-          conversation_id?: string
-          created_at?: string
-          id?: string
-          meeting_data?: Json | null
-          message_type?: Database["public"]["Enums"]["message_type"]
-          read_at?: string | null
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "chat_messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "conversations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "chat_messages_sender_id_fkey"
-            columns: ["sender_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      contact_submissions: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          status: string | null
-          subject: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          status?: string | null
-          subject: string
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          status?: string | null
-          subject?: string
-        }
-        Relationships: []
-      }
-      conversations: {
-        Row: {
-          created_at: string
-          id: string
-          student_id: string
-          teacher_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          student_id: string
-          teacher_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          student_id?: string
-          teacher_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conversations_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "conversations_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      courses: {
-        Row: {
-          age_range: string | null
-          audience: string
-          created_at: string | null
-          description: string | null
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          max_students: number | null
-          price: number
-          subject: string
-          teacher_id: string
-          title: string
-          updated_at: string | null
-        }
-        Insert: {
-          age_range?: string | null
-          audience: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          max_students?: number | null
-          price: number
-          subject: string
-          teacher_id: string
-          title: string
-          updated_at?: string | null
-        }
-        Update: {
-          age_range?: string | null
-          audience?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          max_students?: number | null
-          price?: number
-          subject?: string
-          teacher_id?: string
-          title?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "courses_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       discussion_forums: {
         Row: {
           author_id: string | null
@@ -263,6 +48,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "discussion_forums_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "discussion_forums_subject_id_fkey"
             columns: ["subject_id"]
             isOneToOne: false
@@ -301,6 +93,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "forum_replies_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "forum_replies_forum_id_fkey"
             columns: ["forum_id"]
             isOneToOne: false
@@ -312,69 +111,6 @@ export type Database = {
             columns: ["parent_reply_id"]
             isOneToOne: false
             referencedRelation: "forum_replies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lesson_bookings: {
-        Row: {
-          created_at: string | null
-          duration_minutes: number | null
-          id: string
-          lesson_date: string
-          lesson_time: string
-          notes: string | null
-          payment_amount: number | null
-          payment_status: string | null
-          status: Database["public"]["Enums"]["session_status"] | null
-          student_id: string
-          subject: string | null
-          teacher_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          duration_minutes?: number | null
-          id?: string
-          lesson_date: string
-          lesson_time: string
-          notes?: string | null
-          payment_amount?: number | null
-          payment_status?: string | null
-          status?: Database["public"]["Enums"]["session_status"] | null
-          student_id: string
-          subject?: string | null
-          teacher_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          duration_minutes?: number | null
-          id?: string
-          lesson_date?: string
-          lesson_time?: string
-          notes?: string | null
-          payment_amount?: number | null
-          payment_status?: string | null
-          status?: Database["public"]["Enums"]["session_status"] | null
-          student_id?: string
-          subject?: string | null
-          teacher_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lesson_bookings_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lesson_bookings_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -404,134 +140,71 @@ export type Database = {
           recipient_id?: string | null
           sender_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
           age_group: string | null
-          audiences: string[] | null
-          availability_status: string | null
           avatar_url: string | null
           bio: string | null
-          created_at: string
-          education: string[] | null
-          email: string
-          experience: string | null
+          created_at: string | null
+          email: string | null
           first_name: string | null
           gender: string | null
-          hourly_rate: number | null
           id: string
-          is_fallback: boolean | null
-          languages: string[] | null
           last_name: string | null
           learning_level: string | null
-          location: string | null
           phone: string | null
           preferred_language: string | null
-          role: Database["public"]["Enums"]["user_role"]
-          subjects: string[] | null
           time_zone: string | null
-          updated_at: string
+          updated_at: string | null
         }
         Insert: {
           age_group?: string | null
-          audiences?: string[] | null
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string
-          education?: string[] | null
-          email: string
-          experience?: string | null
+          created_at?: string | null
+          email?: string | null
           first_name?: string | null
           gender?: string | null
-          hourly_rate?: number | null
           id: string
-          is_fallback?: boolean | null
-          languages?: string[] | null
           last_name?: string | null
           learning_level?: string | null
-          location?: string | null
           phone?: string | null
           preferred_language?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          subjects?: string[] | null
           time_zone?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Update: {
           age_group?: string | null
-          audiences?: string[] | null
-          availability_status?: string | null
           avatar_url?: string | null
           bio?: string | null
-          created_at?: string
-          education?: string[] | null
-          email?: string
-          experience?: string | null
+          created_at?: string | null
+          email?: string | null
           first_name?: string | null
           gender?: string | null
-          hourly_rate?: number | null
           id?: string
-          is_fallback?: boolean | null
-          languages?: string[] | null
           last_name?: string | null
           learning_level?: string | null
-          location?: string | null
           phone?: string | null
           preferred_language?: string | null
-          role?: Database["public"]["Enums"]["user_role"]
-          subjects?: string[] | null
           time_zone?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      rabbis: {
-        Row: {
-          bio: string | null
-          contact_email: string | null
-          contact_phone: string | null
-          created_at: string
-          experience_years: number | null
-          id: string
-          image_url: string | null
-          is_active: boolean | null
-          location: string | null
-          name: string
-          specialties: string[] | null
-          title: string | null
-          updated_at: string
-        }
-        Insert: {
-          bio?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          experience_years?: number | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          location?: string | null
-          name: string
-          specialties?: string[] | null
-          title?: string | null
-          updated_at?: string
-        }
-        Update: {
-          bio?: string | null
-          contact_email?: string | null
-          contact_phone?: string | null
-          created_at?: string
-          experience_years?: number | null
-          id?: string
-          image_url?: string | null
-          is_active?: boolean | null
-          location?: string | null
-          name?: string
-          specialties?: string[] | null
-          title?: string | null
-          updated_at?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -572,6 +245,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reviews_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reviews_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
@@ -605,6 +285,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "study_group_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -650,6 +337,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "study_groups_facilitator_id_fkey"
+            columns: ["facilitator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "study_groups_subject_id_fkey"
             columns: ["subject_id"]
@@ -707,6 +401,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "study_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "study_sessions_subject_id_fkey"
             columns: ["subject_id"]
             isOneToOne: false
@@ -751,60 +452,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      support_tickets: {
-        Row: {
-          assigned_to: string | null
-          created_at: string
-          description: string
-          email: string
-          id: string
-          priority: string | null
-          status: string | null
-          subject: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          assigned_to?: string | null
-          created_at?: string
-          description: string
-          email: string
-          id?: string
-          priority?: string | null
-          status?: string | null
-          subject: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          assigned_to?: string | null
-          created_at?: string
-          description?: string
-          email?: string
-          id?: string
-          priority?: string | null
-          status?: string | null
-          subject?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_tickets_assigned_to_fkey"
-            columns: ["assigned_to"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "support_tickets_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       teachers: {
         Row: {
@@ -852,22 +499,25 @@ export type Database = {
           total_reviews?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "teachers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: Database["public"]["Enums"]["user_role"]
-      }
+      [_ in never]: never
     }
     Enums: {
-      message_type: "text" | "meeting_request" | "meeting_confirmation"
-      session_status: "scheduled" | "active" | "completed" | "cancelled"
-      user_role: "student" | "teacher" | "admin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -982,10 +632,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      message_type: ["text", "meeting_request", "meeting_confirmation"],
-      session_status: ["scheduled", "active", "completed", "cancelled"],
-      user_role: ["student", "teacher", "admin"],
-    },
+    Enums: {},
   },
 } as const
