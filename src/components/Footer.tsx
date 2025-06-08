@@ -1,197 +1,54 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { Heart, BookOpen, Users, Star } from 'lucide-react';
 
 const Footer = () => {
-  const { profile } = useAuth();
   const { t } = useLanguage();
-
-  // Dynamic gender-based section
-  const getGenderSpecificSection = () => {
-    if (profile?.gender === 'female') {
-      return {
-        title: "Section Femmes",
-        link: "/women-courses",
-        icon: <Star className="w-4 h-4" />
-      };
-    } else if (profile?.gender === 'male') {
-      return {
-        title: "Section Hommes", 
-        link: "/men-courses",
-        icon: <Users className="w-4 h-4" />
-      };
-    } else {
-      return {
-        title: "Cours pour Tous",
-        link: "/courses",
-        icon: <BookOpen className="w-4 h-4" />
-      };
-    }
-  };
-
-  const genderSection = getGenderSpecificSection();
-
-  const quickLinks = [
-    { name: t('footer.courses'), path: '/find-teachers' },
-    { name: 'Live Courses', path: '/live-courses' },
-    { name: genderSection.title, path: genderSection.link },
-    { name: t('footer.children'), path: '/children-courses' },
-    { name: t('footer.partners'), path: '/find-partner' }
-  ];
-
-  const handleSectionClick = (e: React.MouseEvent, path: string) => {
-    e.preventDefault();
-    
-    // Scroll to top first for better UX
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Navigate after a short delay
-    setTimeout(() => {
-      window.location.href = path;
-    }, 300);
-  };
-
+  
   return (
-    <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Quick Links */}
+    <footer className="bg-gray-100 py-10 mt-10">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <BookOpen className="w-5 h-5 mr-2" />
-              {t('footer.quickLinks')}
-            </h3>
+            <h3 className="font-bold text-lg mb-4">E-team.torah</h3>
+            <p className="text-gray-600 mb-4">
+              {t('footer.description') || 'Connecting students with Torah teachers worldwide through innovative online learning.'}
+            </p>
+          </div>
+          
+          <div>
+            <h3 className="font-bold text-lg mb-4">{t('footer.quick_links') || 'Quick Links'}</h3>
             <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.path}>
-                  <a
-                    href={link.path}
-                    onClick={(e) => handleSectionClick(e, link.path)}
-                    className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                  >
-                    {link.name}
-                  </a>
-                </li>
-              ))}
+              <li><Link to="/rabbanim" className="text-gray-600 hover:text-torah-600">{t('footer.rabbis_directory') || 'Rabbis Directory'}</Link></li>
+              <li><Link to="/eleves" className="text-gray-600 hover:text-torah-600">{t('footer.students_section') || 'Students Section'}</Link></li>
+              <li><Link to="/femmes" className="text-gray-600 hover:text-torah-600">{t('footer.women_section') || 'Women Section'}</Link></li>
+              <li><Link to="/beit-hamidrash" className="text-gray-600 hover:text-torah-600">{t('footer.online_beit_midrash') || 'Online Beit Midrash'}</Link></li>
             </ul>
           </div>
-
-          {/* Gender-specific Section */}
+          
           <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              {genderSection.icon}
-              <span className="ml-2">{genderSection.title}</span>
-            </h3>
+            <h3 className="font-bold text-lg mb-4">{t('footer.resources') || 'Resources'}</h3>
             <ul className="space-y-2">
-              <li>
-                <a
-                  href={genderSection.link}
-                  onClick={(e) => handleSectionClick(e, genderSection.link)}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  Cours spécialisés
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/find-teachers"
-                  onClick={(e) => handleSectionClick(e, '/find-teachers')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  Trouver un enseignant
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/beit-hamidrash"
-                  onClick={(e) => handleSectionClick(e, '/beit-hamidrash')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  Beit HaMidrash
-                </a>
-              </li>
+              <li><Link to="/faq" className="text-gray-600 hover:text-torah-600">{t('footer.faq') || 'FAQ'}</Link></li>
+              <li><Link to="/blog" className="text-gray-600 hover:text-torah-600">{t('footer.blog') || 'Blog'}</Link></li>
+              <li><Link to="/contact" className="text-gray-600 hover:text-torah-600">{t('footer.contact') || 'Contact'}</Link></li>
+              <li><Link to="/support" className="text-gray-600 hover:text-torah-600">{t('footer.tech_support') || 'Technical Support'}</Link></li>
             </ul>
           </div>
-
-          {/* Support */}
+          
           <div>
-            <h3 className="text-lg font-semibold mb-4 flex items-center">
-              <Heart className="w-5 h-5 mr-2" />
-              {t('footer.support')}
-            </h3>
+            <h3 className="font-bold text-lg mb-4">{t('footer.legal') || 'Legal'}</h3>
             <ul className="space-y-2">
-              <li>
-                <a
-                  href="/faq"
-                  onClick={(e) => handleSectionClick(e, '/faq')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  {t('footer.faq')}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/contact"
-                  onClick={(e) => handleSectionClick(e, '/contact')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  {t('footer.contact')}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/support"
-                  onClick={(e) => handleSectionClick(e, '/support')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  Support
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Legal */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">{t('footer.legal')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="/conditions"
-                  onClick={(e) => handleSectionClick(e, '/conditions')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  {t('footer.terms')}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/privacy"
-                  onClick={(e) => handleSectionClick(e, '/privacy')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  {t('footer.privacy')}
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/cookies"
-                  onClick={(e) => handleSectionClick(e, '/cookies')}
-                  className="text-gray-300 hover:text-white transition-colors duration-200 cursor-pointer"
-                >
-                  {t('footer.cookies')}
-                </a>
-              </li>
+              <li><Link to="/conditions" className="text-gray-600 hover:text-torah-600">{t('footer.terms') || 'Terms of Use'}</Link></li>
+              <li><Link to="/privacy" className="text-gray-600 hover:text-torah-600">{t('footer.privacy') || 'Privacy Policy'}</Link></li>
+              <li><Link to="/cookies" className="text-gray-600 hover:text-torah-600">{t('footer.cookies') || 'Cookie Policy'}</Link></li>
             </ul>
           </div>
         </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-8">
-          <div className="text-center text-gray-400">
-            <p>&copy; 2024 Torah Study Platform. {t('footer.rights')}</p>
-          </div>
+        
+        <div className="border-t border-gray-200 mt-8 pt-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} E-team.torah. {t('footer.rights_reserved') || 'All rights reserved.'}</p>
         </div>
       </div>
     </footer>

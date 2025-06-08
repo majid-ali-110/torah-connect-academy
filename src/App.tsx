@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,7 +35,6 @@ import Privacy from "@/pages/Privacy";
 import Cookies from "@/pages/Cookies";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
-import AdminDashboard from "@/pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -188,14 +188,6 @@ const App = () => (
               <Route 
                 path="/cookies" 
                 element={<Cookies />} 
-              />
-              <Route 
-                path="/dashboard/admin" 
-                element={
-                  <ProtectedRoute requireRole="admin">
-                    <Layout><AdminDashboard /></Layout>
-                  </ProtectedRoute>
-                } 
               />
               <Route path="*" element={<NotFound />} />
             </Routes>
