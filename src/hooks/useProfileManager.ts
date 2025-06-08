@@ -33,7 +33,7 @@ export const useProfileManager = () => {
         console.log('ProfileManager: Profile fetch timeout, using fallback');
         setProfile(fallbackProfile);
         setLoading(false);
-      }, 5000);
+      }, 10000); // Increased timeout
 
       try {
         const { data: profileData, error } = await supabase
@@ -44,7 +44,14 @@ export const useProfileManager = () => {
 
         clearTimeout(timeoutId);
 
-        if (error && error.code === 'PGRST116') {
+        if (error && error.code !== 'PGRST116') {
+          console.error('ProfileManager: Error fetching profile:', error);
+          setProfile(fallbackProfile);
+          setLoading(false);
+          return;
+        }
+
+        if (!profileData) {
           console.log('ProfileManager: Profile not found, creating new profile');
           const newProfile = {
             id: user.id,
@@ -60,24 +67,20 @@ export const useProfileManager = () => {
             .from('profiles')
             .insert([newProfile])
             .select()
-            .single();
+            .maybeSingle();
 
           if (createError) {
             console.error('ProfileManager: Error creating profile:', createError);
             setProfile(fallbackProfile);
-          } else {
+          } else if (createdProfile) {
             console.log('ProfileManager: Profile created successfully:', createdProfile);
             setProfile(createdProfile as Profile);
+          } else {
+            setProfile(fallbackProfile);
           }
-        } else if (profileData) {
+        } else {
           console.log('ProfileManager: Profile fetched successfully:', profileData);
           setProfile(profileData as Profile);
-        } else if (error) {
-          console.error('ProfileManager: Error fetching profile:', error);
-          setProfile(fallbackProfile);
-        } else {
-          console.log('ProfileManager: No profile found, using fallback');
-          setProfile(fallbackProfile);
         }
       } catch (innerError) {
         clearTimeout(timeoutId);
@@ -97,24 +100,22 @@ export const useProfileManager = () => {
   const updateProfile = useCallback(async (user: User | null, updates: Partial<Profile>) => {
     if (!user) return;
     
-    // Convert our Profile type to match Supabase expected format
-    // Remove any fields that don't exist in Supabase or have incompatible types
-    const { is_fallback, ...supabaseUpdates } = updates;
-    
-    // Handle role field specifically - only pass roles that Supabase expects
-    if (supabaseUpdates.role === 'admin') {
-      // For admin role, we might want to handle this differently
-      // For now, let's not update the role in Supabase if it's admin
-      delete supabaseUpdates.role;
-    }
-    
-    const { error } = await supabase
-      .from('profiles')
-      .update(supabaseUpdates as any)
-      .eq('id', user.id);
-    
-    if (!error && profile) {
-      setProfile({ ...profile, ...updates });
+    try {
+      // Remove fields that don't exist in Supabase or have incompatible types
+      const { is_fallback, ...supabaseUpdates } = updates;
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(supabaseUpdates as any)
+        .eq('id', user.id);
+      
+      if (!error && profile) {
+        setProfile({ ...profile, ...updates });
+      } else if (error) {
+        console.error('ProfileManager: Error updating profile:', error);
+      }
+    } catch (error) {
+      console.error('ProfileManager: Error in updateProfile:', error);
     }
   }, [profile]);
 

@@ -25,8 +25,11 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
   if (loading) {
     console.log('ProtectedRoute: Still loading, showing spinner');
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-torah-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-torah-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
       </div>
     );
   }
@@ -37,11 +40,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
     return <Navigate to="/auth" replace state={{ from: location }} />;
   }
 
-  // User is authenticated - allow access even without profile
-  console.log('ProtectedRoute: User authenticated, checking role requirements');
-
-  // If a specific role is required and user has a profile, check role match
-  if (requireRole && profile && profile.role !== requireRole) {
+  // User is authenticated - check role requirements if profile exists
+  if (requireRole && profile?.role && profile.role !== requireRole) {
     console.log('ProtectedRoute: Role mismatch', { required: requireRole, actual: profile.role });
     let redirectPath = '/dashboard';
     
@@ -56,7 +56,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireRole }
     return <Navigate to={redirectPath} replace />;
   }
 
-  // If a specific role is required but profile is still loading/missing, redirect to general dashboard
+  // If a specific role is required but profile is missing/loading, wait or redirect to general dashboard
   if (requireRole && !profile) {
     console.log('ProtectedRoute: Role required but no profile exists, redirecting to general dashboard');
     return <Navigate to="/dashboard" replace />;

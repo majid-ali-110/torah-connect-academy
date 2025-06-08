@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           return;
         }
 
-        if (session) {
+        if (session?.user) {
           setSession(session);
           setUser(session.user);
           await fetchOrCreateProfile(session.user, setLoading);
@@ -59,13 +59,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       async (event, session) => {
         console.log('AuthProvider: Auth state change', { event, sessionExists: !!session, userId: session?.user?.id });
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-          await fetchOrCreateProfile(session.user, setLoading);
-        } else if (event === 'SIGNED_OUT') {
-          setProfile(null);
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+            await fetchOrCreateProfile(session.user, setLoading);
+          } else if (event === 'SIGNED_OUT') {
+            setProfile(null);
+            setLoading(false);
+          } else {
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('AuthProvider: Error in auth state change:', error);
           setLoading(false);
         }
       }
@@ -103,36 +110,59 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, userData: any) => {
     setLoading(true);
     
-    const result = await signUpWithPassword(email, password, userData);
-    
-    if (result.error) {
+    try {
+      const result = await signUpWithPassword(email, password, userData);
+      
+      if (result.error) {
+        setLoading(false);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AuthProvider: Error during sign up:', error);
       setLoading(false);
+      return { data: { user: null, session: null }, error };
     }
-    
-    return result;
   };
 
   const signInWithGoogle = async () => {
     setLoading(true);
     
-    const result = await signInWithGoogleOAuth();
-    
-    if (result.error) {
+    try {
+      const result = await signInWithGoogleOAuth();
+      
+      if (result.error) {
+        setLoading(false);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AuthProvider: Error during Google sign in:', error);
       setLoading(false);
+      return { data: { user: null, session: null }, error };
     }
-    
-    return result;
   };
 
   const signOut = async () => {
-    setLoading(true);
-    await signOutUser();
-    setProfile(null);
-    setLoading(false);
+    try {
+      setLoading(true);
+      await signOutUser();
+      setProfile(null);
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('AuthProvider: Error during sign out:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateProfile = async (updates: Partial<Profile>) => {
-    await updateUserProfile(user, updates);
+    try {
+      await updateUserProfile(user, updates);
+    } catch (error) {
+      console.error('AuthProvider: Error updating profile:', error);
+    }
   };
 
   const value = {

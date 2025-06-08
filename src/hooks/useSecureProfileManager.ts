@@ -1,10 +1,10 @@
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Profile } from '@/types/auth';
 import { toast } from 'sonner';
 import { sanitizeText } from '@/utils/inputSanitization';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useSecureProfileManager = () => {
   const { user, profile, updateProfile } = useAuth();
@@ -77,15 +77,8 @@ export const useSecureProfileManager = () => {
         sanitizedUpdates.location = sanitizeText(sanitizedUpdates.location);
       }
 
-      // Convert to format expected by Supabase - remove incompatible fields
+      // Remove incompatible fields for Supabase
       const { is_fallback, ...supabaseUpdates } = sanitizedUpdates;
-      
-      // Handle role field specifically - only pass roles that Supabase expects
-      if (supabaseUpdates.role === 'admin') {
-        // For admin role, we might want to handle this differently
-        // For now, let's not update the role in Supabase if it's admin
-        delete supabaseUpdates.role;
-      }
 
       // Ensure user can only update their own profile
       const { error } = await supabase
@@ -118,15 +111,15 @@ export const useSecureProfileManager = () => {
     try {
       setLoading(true);
       
-      // Note: This would typically be handled by a secure backend endpoint
-      // For now, we'll just update the profile to mark it as inactive
+      // Mark profile as deleted rather than actually deleting
       const { error } = await supabase
         .from('profiles')
         .update({ 
           first_name: '[DELETED]',
           last_name: '[DELETED]',
           bio: null,
-          avatar_url: null
+          avatar_url: null,
+          email: '[DELETED]'
         })
         .eq('id', user.id);
 
