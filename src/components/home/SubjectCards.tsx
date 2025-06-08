@@ -20,17 +20,19 @@ const SubjectCard: React.FC<SubjectCardProps> = ({ title, teacherCount, icon, li
   return (
     <Link 
       to={link} 
-      className="flex items-center justify-between p-6 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white group"
+      className="flex items-center justify-between p-4 sm:p-6 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white group"
     >
-      <div className="flex items-center">
-        <div className="text-2xl mr-4">{icon}</div>
-        <div>
-          <h3 className="font-semibold text-lg group-hover:text-torah-600 transition-colors">{title}</h3>
-          <p className="text-gray-500">{teacherCount} teachers</p>
+      <div className="flex items-center min-w-0 flex-1">
+        <div className="text-xl sm:text-2xl mr-3 sm:mr-4 flex-shrink-0">{icon}</div>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-base sm:text-lg group-hover:text-torah-600 transition-colors truncate">
+            {title}
+          </h3>
+          <p className="text-gray-500 text-sm sm:text-base">{teacherCount} teachers</p>
         </div>
       </div>
-      <div className="text-gray-400 group-hover:text-torah-600 transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-gray-400 group-hover:text-torah-600 transition-colors flex-shrink-0 ml-2">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
       </div>
@@ -112,18 +114,20 @@ const SubjectCards = () => {
 
   if (loading) {
     return (
-      <div className="py-16 bg-gray-50">
+      <div className="py-12 sm:py-16 lg:py-20 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">Find a teacher by subject</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12">
+            Find a teacher by subject
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="animate-pulse">
-                <div className="flex items-center justify-between p-6 border rounded-lg shadow-sm bg-white">
+                <div className="flex items-center justify-between p-4 sm:p-6 border rounded-lg shadow-sm bg-white">
                   <div className="flex items-center">
-                    <div className="w-8 h-8 bg-gray-200 rounded mr-4"></div>
+                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gray-200 rounded mr-3 sm:mr-4"></div>
                     <div>
-                      <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      <div className="h-4 sm:h-5 bg-gray-200 rounded w-24 sm:w-32 mb-2"></div>
+                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-24"></div>
                     </div>
                   </div>
                 </div>
@@ -136,11 +140,13 @@ const SubjectCards = () => {
   }
 
   return (
-    <div className="py-16 bg-gray-50">
+    <div className="py-12 sm:py-16 lg:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <h2 className="text-3xl font-bold text-center mb-12">Find a teacher by subject</h2>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12">
+          Find a teacher by subject
+        </h2>
         {subjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {subjects.map((subject, index) => (
               <SubjectCard 
                 key={index}
@@ -153,7 +159,9 @@ const SubjectCards = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No subjects with teachers available at the moment.</p>
+            <p className="text-gray-500 text-base sm:text-lg">
+              No subjects with teachers available at the moment.
+            </p>
           </div>
         )}
       </div>

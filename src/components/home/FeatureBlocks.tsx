@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
@@ -20,33 +21,37 @@ const FeatureBlock = ({
   return (
     <motion.div
       whileHover={{ 
-        scale: 1.05,
+        scale: 1.02,
         boxShadow: "0 20px 30px rgba(0,0,0,0.1)"
       }}
       whileTap={{ scale: 0.98 }}
       transition={{ type: "spring", stiffness: 300 }}
-      className="feature-card"
+      className="feature-card h-full"
     >
       <Link 
         to={link} 
-        className={`${bgColor} rounded-2xl p-6 flex flex-col items-center text-center gap-4 h-full transition-all shadow-md overflow-hidden relative`}
+        className={`${bgColor} rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col items-center text-center gap-3 sm:gap-4 h-full transition-all shadow-md overflow-hidden relative group`}
       >
         <motion.div 
-          className="bg-white/20 p-6 rounded-full relative z-10"
+          className="bg-white/20 p-4 sm:p-6 rounded-full relative z-10"
           whileHover={{ 
             scale: 1.1,
             backgroundColor: "rgba(255,255,255,0.3)" 
           }}
           transition={{ duration: 0.2 }}
         >
-          <Icon className="h-12 w-12 text-white" />
+          <Icon className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 text-white" />
         </motion.div>
-        <h3 className="text-white font-bold text-xl relative z-10">{title}</h3>
-        <p className="text-white/90 text-sm relative z-10">{description}</p>
-        <div className="mt-auto pt-4 relative z-10">
+        <h3 className="text-white font-bold text-lg sm:text-xl lg:text-2xl relative z-10 leading-tight">
+          {title}
+        </h3>
+        <p className="text-white/90 text-xs sm:text-sm lg:text-base relative z-10 leading-relaxed">
+          {description}
+        </p>
+        <div className="mt-auto pt-2 sm:pt-4 relative z-10">
           <motion.div 
-            className="inline-flex items-center justify-center rounded-full bg-white/20 px-4 py-2 text-sm text-white"
-            whileHover={{ backgroundColor: "rgba(255,255,255,0.3)" }}
+            className="inline-flex items-center justify-center rounded-full bg-white/20 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white group-hover:bg-white/30 transition-colors"
+            whileHover={{ backgroundColor: "rgba(255,255,255,0.4)" }}
           >
             Learn more
           </motion.div>
@@ -101,19 +106,24 @@ const FeatureBlocks = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16">
+    <div className="container mx-auto px-4 py-12 sm:py-16 lg:py-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
+        className="text-center mb-8 sm:mb-12 lg:mb-16"
       >
-        <h2 className="text-3xl font-bold mb-2 text-center">Explore Our Services</h2>
-        <p className="text-gray-600 mb-10 text-center max-w-2xl mx-auto">Find the perfect learning experience tailored to your needs and preferences</p>
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
+          Explore Our Services
+        </h2>
+        <p className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto leading-relaxed">
+          Find the perfect learning experience tailored to your needs and preferences
+        </p>
       </motion.div>
 
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
         variants={container}
         initial="hidden"
         whileInView="show"

@@ -80,6 +80,49 @@
     @apply bg-background text-foreground;
     font-family: "Inter", sans-serif;
   }
+  
+  /* Ensure smooth scrolling and proper text rendering */
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Responsive container improvements */
+  .container {
+    @apply w-full mx-auto;
+    max-width: 100%;
+  }
+  
+  @media (min-width: 640px) {
+    .container {
+      max-width: 640px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .container {
+      max-width: 768px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .container {
+      max-width: 1024px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .container {
+      max-width: 1280px;
+    }
+  }
+  
+  @media (min-width: 1536px) {
+    .container {
+      max-width: 1400px;
+    }
+  }
 }
 
 /* Custom 3D Card Flip Styles */
@@ -112,3 +155,37 @@
 .hover\:bg-torah-50:hover { background-color: hsl(var(--torah-50)); }
 .hover\:bg-torah-600:hover { background-color: hsl(var(--torah-600)); }
 .hover\:text-torah-600:hover { color: hsl(var(--torah-600)); }
+
+/* Mobile-first responsive utilities */
+@layer utilities {
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+  
+  .heading-responsive {
+    @apply text-xl sm:text-2xl lg:text-3xl xl:text-4xl;
+  }
+  
+  .spacing-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .gap-responsive {
+    @apply gap-4 sm:gap-6 lg:gap-8;
+  }
+}
+
+/* Improved touch targets for mobile */
+@media (max-width: 768px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Better focus states for accessibility */
+@layer utilities {
+  .focus-visible-custom:focus-visible {
+    @apply outline-none ring-2 ring-torah-500 ring-offset-2;
+  }
+}

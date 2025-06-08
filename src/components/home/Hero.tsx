@@ -31,31 +31,35 @@ const Hero = () => {
   return (
     <div className="relative">
       <motion.div 
-        className="w-full h-[500px] bg-cover bg-center" 
+        className="w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-cover bg-center" 
         style={{ 
           backgroundImage: "url('https://images.unsplash.com/photo-1490633874781-1c63cc424610?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')",
           backgroundPositionY: `calc(50% + ${scrollY * 0.5}px)` // Parallax effect
         }}
       >
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-        <div className="container mx-auto relative h-full flex flex-col md:flex-row items-center justify-between px-4 py-12">
+        <div className="container mx-auto relative h-full flex flex-col lg:flex-row items-center justify-between px-4 py-8 lg:py-12">
           <motion.div 
-            className="text-white mb-8 md:mb-0 md:w-1/2"
+            className="text-white mb-8 lg:mb-0 lg:w-1/2 text-center lg:text-left"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Find Your Perfect Torah Study Partner</h1>
-            <p className="text-xl mb-6">Connect with experienced Torah teachers for personalized learning experiences</p>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 leading-tight">
+              Find Your Perfect Torah Study Partner
+            </h1>
+            <p className="text-lg sm:text-xl lg:text-2xl mb-6 max-w-2xl">
+              Connect with experienced Torah teachers for personalized learning experiences
+            </p>
           </motion.div>
           
           <motion.div 
-            className="md:w-1/3 flex justify-center relative"
+            className="lg:w-1/3 flex justify-center relative"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
+            <div className="w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
               <AspectRatio ratio={1/1}>
                 <img 
                   src="https://images.unsplash.com/photo-1564106888495-95bbc3a331c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80" 
@@ -70,18 +74,20 @@ const Hero = () => {
 
       <div className="container mx-auto px-4 relative">
         <motion.div 
-          className="bg-white rounded-lg shadow-xl p-6 md:p-8 -mt-10 md:-mt-16 relative z-10 max-w-4xl mx-auto"
+          className="bg-white rounded-lg shadow-xl p-4 sm:p-6 lg:p-8 -mt-8 sm:-mt-10 lg:-mt-16 relative z-10 max-w-5xl mx-auto"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <h2 className="text-2xl font-bold mb-4 text-center">Find Teachers or Study Partners</h2>
-          <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 text-center">
+            Find Teachers or Study Partners
+          </h2>
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-grow group">
               <Input 
                 type="text" 
                 placeholder="Search by subject, teacher name, or keywords..." 
-                className="w-full py-6 px-4 bg-white rounded-md text-lg pr-12 transition-all duration-300 border-2 group-hover:border-torah-400 focus-within:border-torah-500 focus-within:ring-2 focus-within:ring-torah-200"
+                className="w-full py-4 sm:py-5 lg:py-6 px-4 bg-white rounded-md text-base sm:text-lg pr-12 transition-all duration-300 border-2 group-hover:border-torah-400 focus-within:border-torah-500 focus-within:ring-2 focus-within:ring-torah-200"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -91,7 +97,7 @@ const Hero = () => {
             </div>
             <Button 
               type="submit"
-              className="bg-torah-500 hover:bg-torah-600 px-8 py-6 text-white rounded-md font-medium flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95"
+              className="bg-torah-500 hover:bg-torah-600 px-6 sm:px-8 py-4 sm:py-5 lg:py-6 text-white rounded-md font-medium flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 text-base sm:text-lg"
             >
               <span>Search</span>
               <ArrowRight className="ml-2 h-5 w-5" />
