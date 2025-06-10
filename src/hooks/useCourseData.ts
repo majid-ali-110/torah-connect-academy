@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -77,7 +78,11 @@ export const useCourseData = () => {
 
       if (error) {
         console.error('Error fetching courses:', error);
-        toast.error('Failed to load courses');
+        toast({
+          title: "Error",
+          description: "Failed to load courses",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -125,7 +130,11 @@ export const useCourseData = () => {
       setCourses(genderCompatibleCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      toast.error('Failed to load courses');
+      toast({
+        title: "Error",
+        description: "Failed to load courses",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
