@@ -292,6 +292,73 @@ export type Database = {
           },
         ]
       }
+      course_sessions: {
+        Row: {
+          course_id: string | null
+          created_at: string | null
+          duration_minutes: number
+          id: string
+          meeting_link: string | null
+          notes: string | null
+          session_date: string
+          session_type: string
+          status: string
+          student_id: string | null
+          teacher_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          session_date: string
+          session_type?: string
+          status?: string
+          student_id?: string | null
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          id?: string
+          meeting_link?: string | null
+          notes?: string | null
+          session_date?: string
+          session_type?: string
+          status?: string
+          student_id?: string | null
+          teacher_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_sessions_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_sessions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           age_range: string | null
@@ -302,11 +369,14 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          is_trial_available: boolean | null
           max_students: number | null
           price: number
+          session_duration_minutes: number | null
           subject: string
           teacher_id: string
           title: string
+          total_sessions: number | null
           updated_at: string | null
         }
         Insert: {
@@ -318,11 +388,14 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_trial_available?: boolean | null
           max_students?: number | null
           price: number
+          session_duration_minutes?: number | null
           subject: string
           teacher_id: string
           title: string
+          total_sessions?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -334,11 +407,14 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_trial_available?: boolean | null
           max_students?: number | null
           price?: number
+          session_duration_minutes?: number | null
           subject?: string
           teacher_id?: string
           title?: string
+          total_sessions?: number | null
           updated_at?: string | null
         }
         Relationships: [
@@ -394,6 +470,59 @@ export type Database = {
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      donations: {
+        Row: {
+          amount: number
+          courses_sponsored: number | null
+          created_at: string | null
+          donation_type: string
+          donor_id: string | null
+          id: string
+          message: string | null
+          status: string
+          stripe_payment_intent_id: string | null
+          tax_receipt_issued: boolean | null
+          tax_receipt_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          courses_sponsored?: number | null
+          created_at?: string | null
+          donation_type: string
+          donor_id?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          tax_receipt_issued?: boolean | null
+          tax_receipt_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          courses_sponsored?: number | null
+          created_at?: string | null
+          donation_type?: string
+          donor_id?: string | null
+          id?: string
+          message?: string | null
+          status?: string
+          stripe_payment_intent_id?: string | null
+          tax_receipt_issued?: boolean | null
+          tax_receipt_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "donations_donor_id_fkey"
+            columns: ["donor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -741,11 +870,13 @@ export type Database = {
           last_name: string | null
           learning_level: string | null
           location: string | null
+          max_trial_lessons: number | null
           phone: string | null
           preferred_language: string | null
           role: Database["public"]["Enums"]["user_role"]
           subjects: string[] | null
           time_zone: string | null
+          trial_lessons_used: number | null
           updated_at: string
         }
         Insert: {
@@ -770,11 +901,13 @@ export type Database = {
           last_name?: string | null
           learning_level?: string | null
           location?: string | null
+          max_trial_lessons?: number | null
           phone?: string | null
           preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
           time_zone?: string | null
+          trial_lessons_used?: number | null
           updated_at?: string
         }
         Update: {
@@ -799,11 +932,13 @@ export type Database = {
           last_name?: string | null
           learning_level?: string | null
           location?: string | null
+          max_trial_lessons?: number | null
           phone?: string | null
           preferred_language?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           subjects?: string[] | null
           time_zone?: string | null
+          trial_lessons_used?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -905,6 +1040,55 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "teachers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sponsored_courses: {
+        Row: {
+          beneficiary_id: string | null
+          course_id: string | null
+          created_at: string | null
+          donation_id: string | null
+          id: string
+          used_at: string | null
+        }
+        Insert: {
+          beneficiary_id?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          donation_id?: string | null
+          id?: string
+          used_at?: string | null
+        }
+        Update: {
+          beneficiary_id?: string | null
+          course_id?: string | null
+          created_at?: string | null
+          donation_id?: string | null
+          id?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sponsored_courses_beneficiary_id_fkey"
+            columns: ["beneficiary_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sponsored_courses_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donations"
             referencedColumns: ["id"]
           },
         ]
@@ -1193,6 +1377,48 @@ export type Database = {
           },
         ]
       }
+      teacher_hours: {
+        Row: {
+          created_at: string | null
+          date_taught: string
+          hours_taught: number
+          id: string
+          session_id: string | null
+          teacher_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_taught: string
+          hours_taught: number
+          id?: string
+          session_id?: string | null
+          teacher_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date_taught?: string
+          hours_taught?: number
+          id?: string
+          session_id?: string | null
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_hours_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "course_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_hours_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teachers: {
         Row: {
           availability: Json | null
@@ -1297,6 +1523,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_sponsored_course: {
+        Args: { user_id: string; course_id: string }
+        Returns: boolean
+      }
+      get_available_sponsored_courses: {
+        Args: { user_id: string }
+        Returns: number
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
