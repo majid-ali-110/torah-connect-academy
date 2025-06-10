@@ -32,7 +32,20 @@ export const useDonations = () => {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setDonations(data || []);
+        
+        // Type-safe mapping of the data
+        const typedDonations: Donation[] = (data || []).map(donation => ({
+          id: donation.id,
+          donor_id: donation.donor_id,
+          amount: donation.amount,
+          donation_type: donation.donation_type as 'single_course' | 'multiple_courses' | 'custom',
+          courses_sponsored: donation.courses_sponsored || 1,
+          status: donation.status as 'pending' | 'completed' | 'failed' | 'refunded',
+          message: donation.message || undefined,
+          created_at: donation.created_at
+        }));
+        
+        setDonations(typedDonations);
       } catch (error) {
         console.error('Error fetching donations:', error);
       } finally {

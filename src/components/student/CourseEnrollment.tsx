@@ -20,6 +20,7 @@ interface Course {
   total_sessions: number;
   max_students: number;
   is_trial_available: boolean;
+  teacher_id: string;
   teacher: {
     first_name: string;
     last_name: string;

@@ -27,6 +27,8 @@ export interface Profile {
   learning_level?: string;
   phone?: string;
   time_zone?: string;
+  trial_lessons_used?: number;
+  max_trial_lessons?: number;
   created_at: string;
   updated_at: string;
 }
