@@ -17,6 +17,8 @@ export const useProfileManager = () => {
       role: user.user_metadata?.role || 'student',
       gender: user.user_metadata?.gender || '',
       preferred_language: 'en',
+      trial_lessons_used: 0,
+      max_trial_lessons: 2,
       is_fallback: true,
       created_at: now,
       updated_at: now
@@ -33,7 +35,7 @@ export const useProfileManager = () => {
         console.log('ProfileManager: Profile fetch timeout, using fallback');
         setProfile(fallbackProfile);
         setLoading(false);
-      }, 10000); // Increased timeout
+      }, 10000);
 
       try {
         const { data: profileData, error } = await supabase
@@ -60,7 +62,9 @@ export const useProfileManager = () => {
             last_name: user.user_metadata?.last_name || '',
             role: user.user_metadata?.role || 'student',
             gender: user.user_metadata?.gender || '',
-            preferred_language: 'en'
+            preferred_language: 'en',
+            trial_lessons_used: 0,
+            max_trial_lessons: 2
           };
 
           const { data: createdProfile, error: createError } = await supabase
@@ -80,7 +84,13 @@ export const useProfileManager = () => {
           }
         } else {
           console.log('ProfileManager: Profile fetched successfully:', profileData);
-          setProfile(profileData as Profile);
+          // Ensure trial fields exist with defaults
+          const profileWithDefaults = {
+            ...profileData,
+            trial_lessons_used: profileData.trial_lessons_used || 0,
+            max_trial_lessons: profileData.max_trial_lessons || 2
+          } as Profile;
+          setProfile(profileWithDefaults);
         }
       } catch (innerError) {
         clearTimeout(timeoutId);
@@ -101,7 +111,6 @@ export const useProfileManager = () => {
     if (!user) return;
     
     try {
-      // Remove fields that don't exist in Supabase or have incompatible types
       const { is_fallback, ...supabaseUpdates } = updates;
       
       const { error } = await supabase

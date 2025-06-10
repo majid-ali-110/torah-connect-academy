@@ -59,7 +59,11 @@ export const useCourseData = () => {
       const { data, error } = await supabase
         .from('courses')
         .select(`
-          *,
+          id,
+          title,
+          description,
+          subject,
+          price,
           teacher:profiles!courses_teacher_id_fkey(
             id,
             first_name,
@@ -73,22 +77,55 @@ export const useCourseData = () => {
 
       if (error) {
         console.error('Error fetching courses:', error);
+        toast.error('Failed to load courses');
         return;
       }
 
-      const genderCompatibleCourses = data?.filter(course => {
+      console.log('Raw course data from database:', data);
+
+      if (!data) {
+        console.log('No course data returned');
+        setCourses([]);
+        return;
+      }
+
+      // Transform the data to match our interface
+      const transformedCourses = data.map(course => ({
+        id: course.id,
+        title: course.title || 'Untitled Course',
+        description: course.description || '',
+        subject: course.subject || 'General',
+        price: course.price || 0,
+        teacher: course.teacher ? {
+          id: course.teacher.id,
+          first_name: course.teacher.first_name || 'Unknown',
+          last_name: course.teacher.last_name || 'Teacher',
+          gender: course.teacher.gender || '',
+          audiences: Array.isArray(course.teacher.audiences) ? course.teacher.audiences : [],
+          hourly_rate: course.teacher.hourly_rate || 0
+        } : null
+      }));
+
+      console.log('Transformed courses:', transformedCourses);
+
+      // Filter courses based on gender compatibility if user has gender specified
+      const genderCompatibleCourses = transformedCourses.filter(course => {
         if (!course.teacher || !profile?.gender) return true;
         
+        // Same gender teachers are always compatible
         if (course.teacher.gender === profile.gender) return true;
+        
+        // Teachers who teach children are compatible with all genders
         if (course.teacher.audiences?.includes('children')) return true;
         
         return false;
-      }) || [];
+      });
 
-      console.log('Fetched gender-compatible courses:', genderCompatibleCourses.length, 'courses');
+      console.log('Gender-compatible courses:', genderCompatibleCourses.length, 'courses');
       setCourses(genderCompatibleCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
+      toast.error('Failed to load courses');
     } finally {
       setLoading(false);
     }

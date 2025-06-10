@@ -22,6 +22,8 @@ interface CourseGridProps {
 }
 
 const CourseGrid: React.FC<CourseGridProps> = ({ courses, loading }) => {
+  console.log('CourseGrid render:', { coursesCount: courses.length, loading });
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -42,19 +44,23 @@ const CourseGrid: React.FC<CourseGridProps> = ({ courses, loading }) => {
         className="text-center py-12"
       >
         <p className="text-gray-500 text-lg">No courses found matching your criteria.</p>
+        <p className="text-gray-400 text-sm mt-2">Try adjusting your filters or check back later.</p>
       </motion.div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {courses.map((course, index) => (
-        <WomenCourseCard
-          key={course.id}
-          course={course}
-          index={index}
-        />
-      ))}
+      {courses.map((course, index) => {
+        console.log('Rendering course:', course.title);
+        return (
+          <WomenCourseCard
+            key={course.id}
+            course={course}
+            index={index}
+          />
+        );
+      })}
     </div>
   );
 };
