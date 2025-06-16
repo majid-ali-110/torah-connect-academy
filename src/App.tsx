@@ -35,6 +35,7 @@ import Privacy from "@/pages/Privacy";
 import Cookies from "@/pages/Cookies";
 import NotFound from "@/pages/NotFound";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import DatabaseStatus from "@/pages/DatabaseStatus";
 
 const queryClient = new QueryClient();
 
@@ -188,6 +189,10 @@ const App = () => (
               <Route 
                 path="/cookies" 
                 element={<Cookies />} 
+              />
+              <Route 
+                path="/database-status" 
+                element={<DatabaseStatus />} 
               />
               <Route path="*" element={<NotFound />} />
             </Routes>

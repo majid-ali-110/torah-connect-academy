@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/components/ui/use-toast';
 
 interface SubjectCardProps {
   title: string;
@@ -43,6 +43,7 @@ const SubjectCard: React.FC<SubjectCardProps> = ({ title, teacherCount, icon, li
 const SubjectCards = () => {
   const [subjects, setSubjects] = useState<SubjectData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchSubjectsWithTeacherCounts();
@@ -50,15 +51,38 @@ const SubjectCards = () => {
 
   const fetchSubjectsWithTeacherCounts = async () => {
     try {
+      console.log('Starting to fetch teachers...');
+      
+      // First, test the database connection
+      const { data: testData, error: testError } = await supabase
+        .from('profiles')
+        .select('id')
+        .limit(1);
+
+      if (testError) {
+        console.error('Database connection test failed:', testError);
+        throw new Error(`Database connection failed: ${testError.message}`);
+      }
+
+      console.log('Database connection successful, fetching teachers...');
+
       // Fetch all profiles with teacher role
       const { data: teachers, error: teachersError } = await supabase
         .from('profiles')
-        .select('subjects')
+        .select('subjects, role')
         .eq('role', 'teacher')
         .not('subjects', 'is', null);
 
       if (teachersError) {
         console.error('Error fetching teachers:', teachersError);
+        throw new Error(`Failed to fetch teachers: ${teachersError.message}`);
+      }
+
+      console.log('Teachers fetched successfully:', teachers?.length || 0);
+
+      if (!teachers || teachers.length === 0) {
+        console.log('No teachers found in the database');
+        setSubjects([]);
         setLoading(false);
         return;
       }
@@ -66,13 +90,15 @@ const SubjectCards = () => {
       // Count teachers by subject
       const subjectCounts: { [key: string]: number } = {};
       
-      teachers?.forEach(teacher => {
+      teachers.forEach(teacher => {
         if (teacher.subjects && Array.isArray(teacher.subjects)) {
           teacher.subjects.forEach(subject => {
             subjectCounts[subject] = (subjectCounts[subject] || 0) + 1;
           });
         }
       });
+
+      console.log('Subject counts:', subjectCounts);
 
       // Map subjects to their display data with icons
       const subjectIconMap: { [key: string]: string } = {
@@ -104,9 +130,16 @@ const SubjectCards = () => {
         .sort((a, b) => b.teacherCount - a.teacherCount)
         .slice(0, 9); // Limit to top 9 subjects
 
+      console.log('Processed subjects:', subjectsArray);
       setSubjects(subjectsArray);
     } catch (error) {
-      console.error('Error fetching subjects:', error);
+      console.error('Error in fetchSubjectsWithTeacherCounts:', error);
+      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+      toast({
+        title: "Error",
+        description: "Failed to load subjects. Please try again later.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -133,6 +166,29 @@ const SubjectCards = () => {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-center mb-8 sm:mb-12">
+            Find a teacher by subject
+          </h2>
+          <div className="text-center py-12">
+            <p className="text-red-500 text-base sm:text-lg">
+              {error}
+            </p>
+            <button 
+              onClick={fetchSubjectsWithTeacherCounts}
+              className="mt-4 px-4 py-2 bg-torah-600 text-white rounded-md hover:bg-torah-700 transition-colors"
+            >
+              Try Again
+            </button>
           </div>
         </div>
       </div>

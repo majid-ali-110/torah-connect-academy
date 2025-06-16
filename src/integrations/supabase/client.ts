@@ -8,4 +8,111 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  },
+  db: {
+    schema: 'public'
+  },
+  global: {
+    headers: {
+      'x-application-name': 'torah-connect-academy'
+    }
+  }
+});
+
+// Test database connection
+export const testDatabaseConnection = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .limit(1);
+
+    if (error) {
+      console.error('Database connection test failed:', error);
+      return false;
+    }
+
+    console.log('Database connection successful');
+    return true;
+  } catch (error) {
+    console.error('Database connection test error:', error);
+    return false;
+  }
+};
+
+// Add retry logic for failed queries
+export const queryWithRetry = async <T>(
+  queryFn: () => Promise<{ data: T | null; error: any }>,
+  maxRetries = 3,
+  delayMs = 1000
+): Promise<{ data: T | null; error: any }> => {
+  let retries = 0;
+  
+  while (retries < maxRetries) {
+    try {
+      const result = await queryFn();
+      
+      if (!result.error) {
+        return result;
+      }
+      
+      console.warn(`Query failed (attempt ${retries + 1}/${maxRetries}):`, result.error);
+      retries++;
+      
+      if (retries < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * retries));
+      }
+    } catch (error) {
+      console.error(`Query error (attempt ${retries + 1}/${maxRetries}):`, error);
+      retries++;
+      
+      if (retries < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delayMs * retries));
+      }
+    }
+  }
+  
+  return { data: null, error: new Error('Max retries exceeded') };
+};
+
+// Add connection status monitoring
+let isConnected = false;
+let connectionCheckInterval: NodeJS.Timeout | null = null;
+
+export const startConnectionMonitoring = () => {
+  if (connectionCheckInterval) {
+    clearInterval(connectionCheckInterval);
+  }
+
+  connectionCheckInterval = setInterval(async () => {
+    const wasConnected = isConnected;
+    isConnected = await testDatabaseConnection();
+
+    if (wasConnected !== isConnected) {
+      console.log(`Database connection status changed: ${isConnected ? 'connected' : 'disconnected'}`);
+      // You can add additional handling here, like showing a notification to the user
+    }
+  }, 30000); // Check every 30 seconds
+};
+
+export const stopConnectionMonitoring = () => {
+  if (connectionCheckInterval) {
+    clearInterval(connectionCheckInterval);
+    connectionCheckInterval = null;
+  }
+};
+
+// Initialize connection monitoring
+startConnectionMonitoring();
+
+// Cleanup on window unload
+if (typeof window !== 'undefined') {
+  window.addEventListener('unload', () => {
+    stopConnectionMonitoring();
+  });
+}
