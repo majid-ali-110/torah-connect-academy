@@ -1,48 +1,102 @@
-
-import { useState, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SecurityEvent {
-  event_type: string;
-  details: Record<string, any>;
-  user_id?: string;
-  ip_address?: string;
-  user_agent?: string;
+  type: 'login_attempt' | 'data_access' | 'suspicious_activity';
+  details: any;
+  timestamp: Date;
 }
 
 export const useSecurityMonitoring = () => {
-  const [isLogging, setIsLogging] = useState(false);
+  const securityEvents = useRef<SecurityEvent[]>([]);
+  const lastActivityTime = useRef<Date>(new Date());
 
-  const logSecurityEvent = useCallback(async (eventType: string, details: Record<string, any>) => {
+  const logSecurityEvent = async (type: SecurityEvent['type'], details: any) => {
+    const event: SecurityEvent = {
+      type,
+      details,
+      timestamp: new Date()
+    };
+    
+    securityEvents.current.push(event);
+    
+    // Keep only last 100 events in memory
+    if (securityEvents.current.length > 100) {
+      securityEvents.current = securityEvents.current.slice(-100);
+    }
+    
+    console.log('Security Event:', event);
+    
+    // Log to Supabase for admin monitoring (if user is authenticated)
     try {
-      setIsLogging(true);
-      
-      // For now, we'll just log to console since we don't have a security_logs table
-      console.log('Security Event:', {
-        event_type: eventType,
-        details,
-        timestamp: new Date().toISOString(),
-        user_id: (await supabase.auth.getUser()).data.user?.id
-      });
-
-      // In a real implementation, you would save this to a security_logs table
-      // await supabase.from('security_logs').insert({
-      //   event_type: eventType,
-      //   details,
-      //   user_id: (await supabase.auth.getUser()).data.user?.id,
-      //   ip_address: await getClientIP(),
-      //   user_agent: navigator.userAgent
-      // });
-
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // You could create a security_logs table and insert here
+        // For now, we'll just log to console
+      }
     } catch (error) {
       console.error('Failed to log security event:', error);
-    } finally {
-      setIsLogging(false);
     }
+  };
+
+  const detectSuspiciousActivity = () => {
+    const now = new Date();
+    const recentEvents = securityEvents.current.filter(
+      event => now.getTime() - event.timestamp.getTime() < 5 * 60 * 1000 // Last 5 minutes
+    );
+    
+    // Detect rapid succession of failed login attempts
+    const failedLogins = recentEvents.filter(
+      event => event.type === 'login_attempt' && !event.details.success
+    );
+    
+    if (failedLogins.length >= 3) {
+      logSecurityEvent('suspicious_activity', {
+        reason: 'Multiple failed login attempts',
+        count: failedLogins.length
+      });
+    }
+  };
+
+  const updateActivity = () => {
+    lastActivityTime.current = new Date();
+  };
+
+  useEffect(() => {
+    const handleUserActivity = () => {
+      updateActivity();
+    };
+
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    // Check for session timeout every minute
+    const timeoutCheck = setInterval(() => {
+      const now = new Date();
+      const timeSinceActivity = now.getTime() - lastActivityTime.current.getTime();
+      
+      // Auto logout after 30 minutes of inactivity
+      if (timeSinceActivity > 30 * 60 * 1000) {
+        logSecurityEvent('suspicious_activity', {
+          reason: 'Session timeout due to inactivity'
+        });
+        supabase.auth.signOut();
+      }
+    }, 60000);
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+      clearInterval(timeoutCheck);
+    };
   }, []);
 
   return {
     logSecurityEvent,
-    isLogging
+    detectSuspiciousActivity,
+    updateActivity
   };
 };

@@ -25,13 +25,13 @@ const SubjectCard: React.FC<SubjectCardProps> = ({ title, teacherCount, icon, li
       <div className="flex items-center min-w-0 flex-1">
         <div className="text-xl sm:text-2xl mr-3 sm:mr-4 flex-shrink-0">{icon}</div>
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-base sm:text-lg group-hover:text-blue-600 transition-colors truncate">
+          <h3 className="font-semibold text-base sm:text-lg group-hover:text-torah-600 transition-colors truncate">
             {title}
           </h3>
           <p className="text-gray-500 text-sm sm:text-base">{teacherCount} teachers</p>
         </div>
       </div>
-      <div className="text-gray-400 group-hover:text-blue-600 transition-colors flex-shrink-0 ml-2">
+      <div className="text-gray-400 group-hover:text-torah-600 transition-colors flex-shrink-0 ml-2">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -50,28 +50,15 @@ const SubjectCards = () => {
 
   const fetchSubjectsWithTeacherCounts = async () => {
     try {
-      // Try to fetch from database first
+      // Fetch all profiles with teacher role
       const { data: teachers, error: teachersError } = await supabase
         .from('profiles')
         .select('subjects')
         .eq('role', 'teacher')
         .not('subjects', 'is', null);
 
-      if (teachersError || !teachers || teachers.length === 0) {
-        console.log('Using sample subject data');
-        // Use sample data if no teachers or database error
-        const sampleSubjects = [
-          { name: 'Torah', teacherCount: 25, icon: '📜' },
-          { name: 'Talmud', teacherCount: 18, icon: '📚' },
-          { name: 'Hebrew Language', teacherCount: 15, icon: '🔤' },
-          { name: 'Jewish History', teacherCount: 12, icon: '🏛️' },
-          { name: 'Halacha', teacherCount: 10, icon: '⚖️' },
-          { name: 'Kabbalah', teacherCount: 8, icon: '✨' },
-          { name: 'Jewish Philosophy', teacherCount: 7, icon: '🔍' },
-          { name: 'Chassidut', teacherCount: 6, icon: '💎' },
-          { name: 'Mishnah', teacherCount: 5, icon: '📖' }
-        ];
-        setSubjects(sampleSubjects);
+      if (teachersError) {
+        console.error('Error fetching teachers:', teachersError);
         setLoading(false);
         return;
       }
@@ -91,11 +78,9 @@ const SubjectCards = () => {
       const subjectIconMap: { [key: string]: string } = {
         'Torah (Tanakh)': '📜',
         'Tanakh': '📜',
-        'Torah': '📜',
         'Talmud': '📚',
         'Mishnah': '📖',
         'Halakha': '⚖️',
-        'Halacha': '⚖️',
         'Jewish Philosophy': '🔍',
         'Jewish History': '🏛️',
         'Kabbalah': '✨',
@@ -122,16 +107,6 @@ const SubjectCards = () => {
       setSubjects(subjectsArray);
     } catch (error) {
       console.error('Error fetching subjects:', error);
-      // Use sample data on error
-      const sampleSubjects = [
-        { name: 'Torah', teacherCount: 25, icon: '📜' },
-        { name: 'Talmud', teacherCount: 18, icon: '📚' },
-        { name: 'Hebrew Language', teacherCount: 15, icon: '🔤' },
-        { name: 'Jewish History', teacherCount: 12, icon: '🏛️' },
-        { name: 'Halacha', teacherCount: 10, icon: '⚖️' },
-        { name: 'Kabbalah', teacherCount: 8, icon: '✨' }
-      ];
-      setSubjects(sampleSubjects);
     } finally {
       setLoading(false);
     }

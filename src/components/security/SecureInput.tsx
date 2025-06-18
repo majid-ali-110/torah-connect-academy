@@ -1,58 +1,83 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { sanitizeInput } from '@/utils/inputValidation';
+import { sanitizeHtml, validateTextLength } from '@/utils/inputValidation';
 
-interface SecureInputProps {
-  id: string;
-  type: string;
-  value: string;
-  onSecureChange: (value: string) => void;
-  placeholder?: string;
-  required?: boolean;
+interface SecureInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  onSecureChange?: (value: string) => void;
   maxLength?: number;
-  className?: string;
+  allowHtml?: boolean;
+  showCharCount?: boolean;
 }
 
 const SecureInput: React.FC<SecureInputProps> = ({
-  id,
-  type,
-  value,
   onSecureChange,
-  placeholder,
-  required = false,
-  maxLength = 255,
-  className
+  maxLength = 1000,
+  allowHtml = false,
+  showCharCount = false,
+  onChange,
+  value = '',
+  ...props
 }) => {
-  const [isDirty, setIsDirty] = useState(false);
+  const [localValue, setLocalValue] = useState(value?.toString() || '');
+  const [isValid, setIsValid] = useState(true);
 
-  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawValue = e.target.value;
+  useEffect(() => {
+    setLocalValue(value?.toString() || '');
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let newValue = e.target.value;
     
-    // Apply length limit
-    if (rawValue.length > maxLength) {
-      return;
+    // Sanitize input if HTML is not allowed
+    if (!allowHtml) {
+      newValue = sanitizeHtml(newValue);
     }
     
-    // Sanitize input
-    const sanitizedValue = sanitizeInput(rawValue);
+    // Validate length
+    const lengthValid = validateTextLength(newValue, maxLength);
+    setIsValid(lengthValid || newValue.length === 0);
     
-    setIsDirty(true);
-    onSecureChange(sanitizedValue);
-  }, [onSecureChange, maxLength]);
+    // Truncate if exceeds max length
+    if (newValue.length > maxLength) {
+      newValue = newValue.substring(0, maxLength);
+    }
+    
+    setLocalValue(newValue);
+    
+    // Call both handlers
+    if (onSecureChange) {
+      onSecureChange(newValue);
+    }
+    
+    if (onChange) {
+      const syntheticEvent = {
+        ...e,
+        target: { ...e.target, value: newValue }
+      };
+      onChange(syntheticEvent);
+    }
+  };
 
   return (
-    <Input
-      id={id}
-      type={type}
-      value={value}
-      onChange={handleChange}
-      placeholder={placeholder}
-      required={required}
-      maxLength={maxLength}
-      className={className}
-      autoComplete={type === 'password' ? 'current-password' : 'on'}
-    />
+    <div className="w-full">
+      <Input
+        {...props}
+        value={localValue}
+        onChange={handleChange}
+        className={`${props.className || ''} ${!isValid ? 'border-red-500' : ''}`}
+      />
+      {showCharCount && (
+        <div className="mt-1 text-xs text-gray-500 text-right">
+          {localValue.length}/{maxLength}
+        </div>
+      )}
+      {!isValid && (
+        <div className="mt-1 text-xs text-red-600">
+          Input exceeds maximum length of {maxLength} characters
+        </div>
+      )}
+    </div>
   );
 };
 
