@@ -767,66 +767,6 @@ export type Database = {
         }
         Relationships: []
       }
-      monthly_teacher_payments: {
-        Row: {
-          admin_amount: number
-          created_at: string | null
-          gross_amount: number
-          hourly_rate: number
-          id: string
-          month_year: string
-          processed_at: string | null
-          processed_by: string | null
-          status: string | null
-          teacher_amount: number
-          teacher_id: string | null
-          total_hours: number
-        }
-        Insert: {
-          admin_amount: number
-          created_at?: string | null
-          gross_amount: number
-          hourly_rate: number
-          id?: string
-          month_year: string
-          processed_at?: string | null
-          processed_by?: string | null
-          status?: string | null
-          teacher_amount: number
-          teacher_id?: string | null
-          total_hours: number
-        }
-        Update: {
-          admin_amount?: number
-          created_at?: string | null
-          gross_amount?: number
-          hourly_rate?: number
-          id?: string
-          month_year?: string
-          processed_at?: string | null
-          processed_by?: string | null
-          status?: string | null
-          teacher_amount?: number
-          teacher_id?: string | null
-          total_hours?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "monthly_teacher_payments_processed_by_fkey"
-            columns: ["processed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "monthly_teacher_payments_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       payment_methods: {
         Row: {
           brand: string | null
@@ -862,60 +802,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
-      }
-      payment_requests: {
-        Row: {
-          amount: number
-          course_id: string | null
-          created_at: string | null
-          currency: string | null
-          email_sent_at: string | null
-          expires_at: string | null
-          id: string
-          status: string | null
-          stripe_session_id: string | null
-          student_id: string | null
-        }
-        Insert: {
-          amount: number
-          course_id?: string | null
-          created_at?: string | null
-          currency?: string | null
-          email_sent_at?: string | null
-          expires_at?: string | null
-          id?: string
-          status?: string | null
-          stripe_session_id?: string | null
-          student_id?: string | null
-        }
-        Update: {
-          amount?: number
-          course_id?: string | null
-          created_at?: string | null
-          currency?: string | null
-          email_sent_at?: string | null
-          expires_at?: string | null
-          id?: string
-          status?: string | null
-          stripe_session_id?: string | null
-          student_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payment_requests_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "payment_requests_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       payments: {
         Row: {
@@ -1533,83 +1419,6 @@ export type Database = {
           },
         ]
       }
-      teacher_salary_settings: {
-        Row: {
-          admin_percentage: number | null
-          created_at: string | null
-          id: string
-          teacher_percentage: number | null
-          updated_at: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          admin_percentage?: number | null
-          created_at?: string | null
-          id?: string
-          teacher_percentage?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          admin_percentage?: number | null
-          created_at?: string | null
-          id?: string
-          teacher_percentage?: number | null
-          updated_at?: string | null
-          updated_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "teacher_salary_settings_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      teacher_subjects: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string | null
-          id: string
-          subject: string
-          teacher_id: string | null
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          subject: string
-          teacher_id?: string | null
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string | null
-          id?: string
-          subject?: string
-          teacher_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "teacher_subjects_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "teacher_subjects_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       teachers: {
         Row: {
           availability: Json | null
@@ -1657,61 +1466,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      trial_sessions: {
-        Row: {
-          course_id: string | null
-          created_at: string | null
-          id: string
-          session_date: string | null
-          status: string | null
-          student_id: string | null
-          subject: string
-          teacher_id: string | null
-        }
-        Insert: {
-          course_id?: string | null
-          created_at?: string | null
-          id?: string
-          session_date?: string | null
-          status?: string | null
-          student_id?: string | null
-          subject: string
-          teacher_id?: string | null
-        }
-        Update: {
-          course_id?: string | null
-          created_at?: string | null
-          id?: string
-          session_date?: string | null
-          status?: string | null
-          student_id?: string | null
-          subject?: string
-          teacher_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "trial_sessions_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trial_sessions_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "trial_sessions_teacher_id_fkey"
-            columns: ["teacher_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       withdrawals: {
         Row: {
@@ -1773,10 +1527,6 @@ export type Database = {
         Args: { user_id: string; course_id: string }
         Returns: boolean
       }
-      calculate_monthly_teacher_payment: {
-        Args: { teacher_id_param: string; month_year_param: string }
-        Returns: Json
-      }
       get_available_sponsored_courses: {
         Args: { user_id: string }
         Returns: number
@@ -1784,10 +1534,6 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: Database["public"]["Enums"]["user_role"]
-      }
-      has_trial_for_subject: {
-        Args: { user_id: string; subject_name: string }
-        Returns: boolean
       }
       is_admin: {
         Args: { user_id?: string }

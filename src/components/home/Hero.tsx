@@ -1,109 +1,104 @@
 
-import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Search, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AspectRatio } from '@/components/ui/aspect-ratio';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { BookOpen, Users, Video, Globe } from 'lucide-react';
 
 const Hero = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [scrollY, setScrollY] = useState(0);
-  const navigate = useNavigate();
-
-  // Handle scroll effect for parallax
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-    }
-  };
-
   return (
-    <div className="relative">
-      <motion.div 
-        className="w-full h-[400px] sm:h-[500px] lg:h-[600px] bg-cover bg-center" 
-        style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1490633874781-1c63cc424610?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')",
-          backgroundPositionY: `calc(50% + ${scrollY * 0.5}px)` // Parallax effect
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-        <div className="container mx-auto relative h-full flex flex-col lg:flex-row items-center justify-between px-4 py-8 lg:py-12">
-          <motion.div 
-            className="text-white mb-8 lg:mb-0 lg:w-1/2 text-center lg:text-left"
-            initial={{ opacity: 0, y: 20 }}
+    <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center">
+      <div className="container mx-auto px-4 py-16 lg:py-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8 }}
+            className="text-center lg:text-left"
           >
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 leading-tight">
-              Find Your Perfect Torah Study Partner
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+              Learn Torah with
+              <span className="text-blue-600 block">Expert Teachers</span>
             </h1>
-            <p className="text-lg sm:text-xl lg:text-2xl mb-6 max-w-2xl">
-              Connect with experienced Torah teachers for personalized learning experiences
+            
+            <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+              Connect with qualified Jewish teachers for personalized Torah study, 
+              Talmud lessons, Hebrew language learning, and spiritual growth.
             </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Link to="/find-teachers">Find a Teacher</Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link to="/auth">Start Learning Today</Link>
+              </Button>
+            </div>
+            
+            <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="flex flex-col items-center">
+                <div className="bg-white rounded-full p-3 shadow-lg mb-2">
+                  <BookOpen className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Torah Study</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-white rounded-full p-3 shadow-lg mb-2">
+                  <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Expert Teachers</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-white rounded-full p-3 shadow-lg mb-2">
+                  <Video className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Live Classes</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="bg-white rounded-full p-3 shadow-lg mb-2">
+                  <Globe className="h-6 w-6 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-gray-700">Global Community</span>
+              </div>
+            </div>
           </motion.div>
           
-          <motion.div 
-            className="lg:w-1/3 flex justify-center relative"
-            initial={{ opacity: 0, scale: 0.8 }}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
           >
-            <div className="w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 rounded-full overflow-hidden border-4 border-white shadow-lg">
-              <AspectRatio ratio={1/1}>
-                <img 
-                  src="https://images.unsplash.com/photo-1564106888495-95bbc3a331c3?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80" 
-                  alt="Franck - Lead Teacher" 
-                  className="w-full h-full object-cover"
-                />
-              </AspectRatio>
+            <div className="bg-white rounded-2xl shadow-2xl p-8">
+              <div className="aspect-video bg-gradient-to-br from-blue-100 to-indigo-200 rounded-xl flex items-center justify-center">
+                <div className="text-center">
+                  <Video className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    Interactive Learning
+                  </h3>
+                  <p className="text-gray-600">
+                    Join thousands of students learning from home
+                  </p>
+                </div>
+              </div>
+              
+              <div className="mt-6 grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">1,000+</div>
+                  <div className="text-sm text-gray-600">Teachers</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">25,000+</div>
+                  <div className="text-sm text-gray-600">Students</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-blue-600">30+</div>
+                  <div className="text-sm text-gray-600">Subjects</div>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
-      </motion.div>
-
-      <div className="container mx-auto px-4 relative">
-        <motion.div 
-          className="bg-white rounded-lg shadow-xl p-4 sm:p-6 lg:p-8 -mt-8 sm:-mt-10 lg:-mt-16 relative z-10 max-w-5xl mx-auto"
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 text-center">
-            Find Teachers or Study Partners
-          </h2>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div className="relative flex-grow group">
-              <Input 
-                type="text" 
-                placeholder="Search by subject, teacher name, or keywords..." 
-                className="w-full py-4 sm:py-5 lg:py-6 px-4 bg-white rounded-md text-base sm:text-lg pr-12 transition-all duration-300 border-2 group-hover:border-torah-400 focus-within:border-torah-500 focus-within:ring-2 focus-within:ring-torah-200"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-            </div>
-            <Button 
-              type="submit"
-              className="bg-torah-500 hover:bg-torah-600 px-6 sm:px-8 py-4 sm:py-5 lg:py-6 text-white rounded-md font-medium flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 text-base sm:text-lg"
-            >
-              <span>Search</span>
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </form>
-        </motion.div>
       </div>
     </div>
   );

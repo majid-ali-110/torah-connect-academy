@@ -2,126 +2,170 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import type { AuthContextType, Profile } from '@/types/auth';
+import { AuthContextType, Profile } from '@/types/auth';
+import { useProfileManager } from '@/hooks/useProfileManager';
+import { 
+  signInWithPassword, 
+  signUpWithPassword, 
+  signInWithGoogleOAuth, 
+  signOutUser 
+} from '@/utils/authOperations';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  const { profile, setProfile, fetchOrCreateProfile, updateProfile: updateUserProfile } = useProfileManager();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    console.log('AuthProvider: Setting up auth listener');
+    
+    const getInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        console.log('AuthProvider: Initial session check', { sessionExists: !!session, error });
+        
+        if (error) {
+          console.error('AuthProvider: Error getting initial session:', error);
+          setLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          setSession(session);
+          setUser(session.user);
+          await fetchOrCreateProfile(session.user, setLoading);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('AuthProvider: Error in getInitialSession:', error);
         setLoading(false);
       }
-    });
+    };
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setLoading(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('AuthProvider: Auth state change', { event, sessionExists: !!session, userId: session?.user?.id });
+        
+        try {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+            await fetchOrCreateProfile(session.user, setLoading);
+          } else if (event === 'SIGNED_OUT') {
+            setProfile(null);
+            setLoading(false);
+          } else {
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('AuthProvider: Error in auth state change:', error);
+          setLoading(false);
+        }
       }
-    });
+    );
 
-    return () => subscription.unsubscribe();
-  }, []);
+    getInitialSession();
 
-  const fetchProfile = async (userId: string) => {
+    return () => {
+      console.log('AuthProvider: Cleaning up auth listener');
+      subscription.unsubscribe();
+    };
+  }, [fetchOrCreateProfile, setProfile]);
+
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
+    
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error('Error fetching profile:', error);
-        setProfile(null);
+      const result = await signInWithPassword(email, password);
+      
+      if (result.data.session && result.data.user) {
+        console.log('AuthProvider: Manually fetching profile after sign in');
+        await fetchOrCreateProfile(result.data.user, setLoading);
       } else {
-        setProfile(data);
+        setLoading(false);
       }
+      
+      return result;
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('AuthProvider: Error during sign in:', error);
+      setLoading(false);
+      return { data: { user: null, session: null }, error };
+    }
+  };
+
+  const signUp = async (email: string, password: string, userData: any) => {
+    setLoading(true);
+    
+    try {
+      const result = await signUpWithPassword(email, password, userData);
+      
+      if (result.error) {
+        setLoading(false);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AuthProvider: Error during sign up:', error);
+      setLoading(false);
+      return { data: { user: null, session: null }, error };
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    
+    try {
+      const result = await signInWithGoogleOAuth();
+      
+      if (result.error) {
+        setLoading(false);
+      }
+      
+      return result;
+    } catch (error) {
+      console.error('AuthProvider: Error during Google sign in:', error);
+      setLoading(false);
+      return { data: { user: null, session: null }, error };
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      setLoading(true);
+      await signOutUser();
       setProfile(null);
+      setUser(null);
+      setSession(null);
+    } catch (error) {
+      console.error('AuthProvider: Error during sign out:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { data, error };
-  };
-
-  const signUp = async (email: string, password: string, userData: any) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: userData,
-        emailRedirectTo: `${window.location.origin}/`
-      }
-    });
-    return { data, error };
-  };
-
-  const signInWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
-    });
-    return { data, error };
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setProfile(null);
-  };
-
   const updateProfile = async (updates: Partial<Profile>) => {
-    if (!user) throw new Error('No user logged in');
-
-    const { error } = await supabase
-      .from('profiles')
-      .update(updates)
-      .eq('id', user.id);
-
-    if (error) throw error;
-
-    // Refresh profile
-    await fetchProfile(user.id);
+    try {
+      await updateUserProfile(user, updates);
+    } catch (error) {
+      console.error('AuthProvider: Error updating profile:', error);
+    }
   };
 
-  const value: AuthContextType = {
+  const value = {
     user,
     session,
     profile,
@@ -133,9 +177,5 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateProfile,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
