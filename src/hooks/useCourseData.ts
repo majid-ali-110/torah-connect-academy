@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface Course {
   id: string;
@@ -34,6 +35,7 @@ interface TransformedCourse {
 
 export const useCourseData = () => {
   const { profile } = useAuth();
+  const { toast } = useToast();
   const [courses, setCourses] = useState<Course[]>([]);
   const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,7 +79,11 @@ export const useCourseData = () => {
 
       if (error) {
         console.error('Error fetching courses:', error);
-        toast.error('Failed to load courses');
+        toast({
+          title: 'Error',
+          description: 'Failed to load courses',
+          variant: 'destructive'
+        });
         return;
       }
 
@@ -125,7 +131,11 @@ export const useCourseData = () => {
       setCourses(genderCompatibleCourses);
     } catch (error) {
       console.error('Error fetching courses:', error);
-      toast.error('Failed to load courses');
+      toast({
+        title: 'Error',
+        description: 'Failed to load courses',
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }

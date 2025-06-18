@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -50,9 +51,14 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
     if (isOpen) fetchCourses();
   }, [isOpen, user]);
 
-  const generateJitsiRoomName = () => {
-    // Use a unique, non-guessable room name
+  const generateCourseKey = () => {
+    // Generate a unique course key
     return `live-${user?.id?.slice(0, 8) || 'user'}-${Date.now().toString(36)}`;
+  };
+
+  const generateMeetingLink = (courseKey: string) => {
+    // Generate Jitsi meeting link
+    return `/live-session/${courseKey}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,31 +70,38 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
     }
     setLoading(true);
     try {
-      const jitsiRoom = generateJitsiRoomName();
+      const courseKey = generateCourseKey();
+      const meetingLink = generateMeetingLink(courseKey);
+      
       const { error } = await supabase
-        .from('live_sessions')
+        .from('live_classes')
         .insert({
-          course_id: formData.course_id,
-          teacher_id: user.id,
           title: formData.title,
           description: formData.description,
+          teacher_id: user.id,
           scheduled_at: formData.scheduled_at,
           duration_minutes: parseInt(formData.duration_minutes),
           max_participants: parseInt(formData.max_participants),
-          jitsi_room: jitsiRoom,
+          course_key: courseKey,
+          meeting_link: meetingLink,
+          is_free: true,
+          price: 0
         });
+      
       if (error) {
         toast({
           title: 'Error',
-          description: 'Failed to create live session. Please try again.',
+          description: 'Failed to create live class. Please try again.',
           variant: 'destructive',
         });
         return;
       }
+      
       toast({
         title: 'Success',
-        description: `Live session created!`,
+        description: `Live class created!`,
       });
+      
       setFormData({
         course_id: '',
         title: '',
@@ -99,7 +112,7 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
       });
       onClassCreated();
     } catch (error) {
-      console.error('Error creating live session:', error);
+      console.error('Error creating live class:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred.',
@@ -233,7 +246,7 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
           </div>
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> After creating the session, a unique Jitsi video room will be generated for you and your students. Only enrolled students will be able to join.
+              <strong>Note:</strong> After creating the session, a unique Jitsi video room will be generated for you and your students. Students can join using the course key.
             </p>
           </div>
           <div className="flex justify-end space-x-3">
@@ -245,7 +258,7 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
               disabled={loading}
               className="bg-torah-500 hover:bg-torah-600"
             >
-              {loading ? 'Creating...' : 'Create Live Session'}
+              {loading ? 'Creating...' : 'Create Live Class'}
             </Button>
           </div>
         </form>

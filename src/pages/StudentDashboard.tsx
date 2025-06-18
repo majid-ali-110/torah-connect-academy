@@ -11,18 +11,14 @@ import { Button } from '@/components/ui/button';
 import { BookOpen, Gift, Heart, Calendar, Video, Clock, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface LiveSession {
+interface LiveClass {
   id: string;
   title: string;
   description: string | null;
   scheduled_at: string;
   duration_minutes: number;
   max_participants: number;
-  course: {
-    id: string;
-    title: string;
-    subject: string;
-  };
+  course_key: string;
   teacher: {
     id: string;
     first_name: string;
@@ -33,20 +29,20 @@ interface LiveSession {
 const StudentDashboard = () => {
   const { user, profile, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('courses');
-  const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [liveClasses, setLiveClasses] = useState<LiveClass[]>([]);
+  const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [showJoinModal, setShowJoinModal] = useState(false);
 
   useEffect(() => {
     if (activeTab === 'live-sessions') {
-      fetchLiveSessions();
+      fetchLiveClasses();
     }
   }, [activeTab]);
 
-  const fetchLiveSessions = async () => {
+  const fetchLiveClasses = async () => {
     try {
       const { data, error } = await supabase
-        .from('live_sessions')
+        .from('live_classes')
         .select(`
           id,
           title,
@@ -54,12 +50,8 @@ const StudentDashboard = () => {
           scheduled_at,
           duration_minutes,
           max_participants,
-          course:courses(
-            id,
-            title,
-            subject
-          ),
-          teacher:profiles!live_sessions_teacher_id_fkey(
+          course_key,
+          teacher:profiles!live_classes_teacher_id_fkey(
             id,
             first_name,
             last_name
@@ -69,20 +61,20 @@ const StudentDashboard = () => {
         .order('scheduled_at', { ascending: true });
 
       if (error) throw error;
-      setLiveSessions(data || []);
+      setLiveClasses(data || []);
     } catch (error) {
-      console.error('Error fetching live sessions:', error);
+      console.error('Error fetching live classes:', error);
     }
   };
 
-  const handleJoinSession = (sessionId: string) => {
-    setSelectedSessionId(sessionId);
+  const handleJoinClass = (classId: string) => {
+    setSelectedClassId(classId);
     setShowJoinModal(true);
   };
 
   const handleCloseJoinModal = () => {
     setShowJoinModal(false);
-    setSelectedSessionId(null);
+    setSelectedClassId(null);
   };
 
   if (loading) {
@@ -126,7 +118,7 @@ const StudentDashboard = () => {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="courses">Browse Courses</TabsTrigger>
             <TabsTrigger value="my-courses">My Courses</TabsTrigger>
-            <TabsTrigger value="live-sessions">Live Sessions</TabsTrigger>
+            <TabsTrigger value="live-sessions">Live Classes</TabsTrigger>
             <TabsTrigger value="donate">Support Others</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
@@ -183,9 +175,9 @@ const StudentDashboard = () => {
 
           <TabsContent value="live-sessions" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Available Live Sessions</h2>
+              <h2 className="text-xl font-semibold">Available Live Classes</h2>
               <Button
-                onClick={fetchLiveSessions}
+                onClick={fetchLiveClasses}
                 variant="outline"
                 size="sm"
               >
@@ -193,40 +185,40 @@ const StudentDashboard = () => {
               </Button>
             </div>
 
-            {liveSessions.length === 0 ? (
+            {liveClasses.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
                   <Video className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No live sessions available</h3>
-                  <p className="text-gray-600">Check back later for upcoming live sessions!</p>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No live classes available</h3>
+                  <p className="text-gray-600">Check back later for upcoming live classes!</p>
                 </CardContent>
               </Card>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {liveSessions.map((session) => (
-                  <Card key={session.id} className="hover:shadow-md transition-shadow">
+                {liveClasses.map((liveClass) => (
+                  <Card key={liveClass.id} className="hover:shadow-md transition-shadow">
                     <CardHeader>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <CardTitle className="text-lg">{session.title}</CardTitle>
+                          <CardTitle className="text-lg">{liveClass.title}</CardTitle>
                           <p className="text-sm text-gray-600">
-                            by {session.teacher.first_name} {session.teacher.last_name}
+                            by {liveClass.teacher.first_name} {liveClass.teacher.last_name}
                           </p>
                         </div>
-                        <Badge variant="outline">{session.course.subject}</Badge>
+                        <Badge variant="outline">Live Class</Badge>
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      {session.description && (
-                        <p className="text-sm text-gray-600">{session.description}</p>
+                      {liveClass.description && (
+                        <p className="text-sm text-gray-600">{liveClass.description}</p>
                       )}
                       
                       <div className="space-y-2 text-sm">
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                           <span>
-                            {new Date(session.scheduled_at).toLocaleDateString()} at{' '}
-                            {new Date(session.scheduled_at).toLocaleTimeString([], {
+                            {new Date(liveClass.scheduled_at).toLocaleDateString()} at{' '}
+                            {new Date(liveClass.scheduled_at).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
@@ -234,20 +226,20 @@ const StudentDashboard = () => {
                         </div>
                         <div className="flex items-center">
                           <Clock className="w-4 h-4 mr-2 text-gray-500" />
-                          <span>{session.duration_minutes} minutes</span>
+                          <span>{liveClass.duration_minutes} minutes</span>
                         </div>
                         <div className="flex items-center">
                           <Users className="w-4 h-4 mr-2 text-gray-500" />
-                          <span>Max {session.max_participants} students</span>
+                          <span>Max {liveClass.max_participants} students</span>
                         </div>
                       </div>
 
                       <Button
-                        onClick={() => handleJoinSession(session.id)}
+                        onClick={() => handleJoinClass(liveClass.id)}
                         className="w-full bg-torah-500 hover:bg-torah-600"
                       >
                         <Video className="w-4 h-4 mr-2" />
-                        Join Session
+                        Join Class
                       </Button>
                     </CardContent>
                   </Card>
@@ -307,7 +299,7 @@ const StudentDashboard = () => {
       <JoinCourseModal
         isOpen={showJoinModal}
         onClose={handleCloseJoinModal}
-        sessionId={selectedSessionId}
+        classId={selectedClassId}
       />
     </div>
   );
