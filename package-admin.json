@@ -1,0 +1,13 @@
+
+{
+  "name": "admin-creator",
+  "version": "1.0.0",
+  "description": "Create admin user for Torah Connect",
+  "main": "create-admin-final.js",
+  "scripts": {
+    "create-admin": "node create-admin-final.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.0"
+  }
+}
