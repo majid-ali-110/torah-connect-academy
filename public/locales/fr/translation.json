@@ -1,43 +1,81 @@
-
 {
   "nav": {
     "home": "Accueil",
-    "teachers": "Trouver des Professeurs",
-    "courses": "Cours",
+    "find_teachers": "Trouver des Enseignants",
+    "study_partners": "Partenaires d'Étude",
+    "live_courses": "Cours en Direct",
+    "messages": "Messages",
     "dashboard": "Tableau de Bord",
     "login": "Connexion",
-    "signup": "Inscription",
-    "logout": "Déconnexion"
+    "signup": "S'inscrire",
+    "logout": "Déconnexion",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "admin_panel": "Panneau d'Administration"
   },
   "dashboard": {
     "student": {
       "title": "Tableau de Bord Étudiant"
     },
     "teacher": {
-      "title": "Tableau de Bord Professeur"
+      "title": "Tableau de Bord Enseignant"
+    },
+    "admin": {
+      "title": "Tableau de Bord Administrateur"
     },
     "learning_streak": "Série d'Apprentissage",
-    "my_teachers": "Mes Professeurs",
+    "my_teachers": "Mes Enseignants",
     "my_courses": "Mes Cours",
-    "course_milestones": "Jalons du Cours",
-    "total_students": "Total Étudiants",
+    "course_milestones": "Étapes des Cours",
+    "total_students": "Total des Étudiants",
     "active_courses": "Cours Actifs",
     "avg_progress": "Progrès Moyen",
     "recent_payouts": "Paiements Récents",
-    "teaching_schedule": "Horaire d'Enseignement"
+    "teaching_schedule": "Planning d'Enseignement"
   },
   "common": {
+    "loading": "Chargement...",
+    "go_back": "Retour",
     "progress": "Progrès",
-    "achieved": "Accompli!",
+    "achieved": "Atteint !",
     "required": "requis",
     "best": "Meilleur",
     "days": "jours",
-    "keep_up": "Continuez ce bon travail!"
+    "keep_up": "Continuez le bon travail !",
+    "error": "Erreur"
   },
   "auth": {
-    "select_gender": "Sélectionnez le Genre",
-    "gender_male": "Homme",
-    "gender_female": "Femme",
-    "language_preference": "Préférence Linguistique"
+    "select_gender": "Sélectionner le Genre",
+    "gender_male": "Masculin",
+    "gender_female": "Féminin",
+    "language_preference": "Préférence de Langue",
+    "access_denied": "Accès Refusé",
+    "insufficient_permissions": "Vous avez besoin des permissions {required} pour accéder à cette page. Votre rôle actuel est {current}.",
+    "approval_pending": "Approbation en Attente",
+    "approval_pending_message": "Votre candidature d'enseignant est actuellement en cours d'examen. Vous serez notifié une fois approuvé.",
+    "application_rejected": "Candidature Rejetée",
+    "application_rejected_message": "Votre candidature d'enseignant n'a pas été approuvée. Veuillez contacter le support pour plus d'informations.",
+    "approved": "Approuvé"
+  },
+  "roles": {
+    "admin": "Administrateur",
+    "teacher": "Enseignant",
+    "student": "Étudiant"
+  },
+  "admin": {
+    "dashboard_title": "Tableau de Bord Administrateur",
+    "dashboard_subtitle": "Gérer les enseignants, les cours et les opérations de la plateforme",
+    "pending_teachers": "Approbations d'Enseignants en Attente",
+    "no_pending_teachers": "Aucune candidature d'enseignant en attente",
+    "teacher_approved": "Enseignant Approuvé",
+    "teacher_approved_desc": "L'enseignant a été approuvé avec succès",
+    "teacher_rejected": "Enseignant Rejeté",
+    "teacher_rejected_desc": "La candidature d'enseignant a été rejetée",
+    "approval_error": "Échec de l'approbation de l'enseignant",
+    "rejection_error": "Échec du rejet de l'enseignant",
+    "fetch_teachers_error": "Échec du chargement des candidatures d'enseignants",
+    "status_pending": "En Attente",
+    "status_rejected": "Rejeté",
+    "review": "Examiner"
   }
 }

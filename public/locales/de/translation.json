@@ -1,43 +1,81 @@
-
 {
   "nav": {
     "home": "Startseite",
-    "teachers": "Lehrer Finden",
-    "courses": "Kurse",
+    "find_teachers": "Lehrer Finden",
+    "study_partners": "Lernpartner",
+    "live_courses": "Live-Kurse",
+    "messages": "Nachrichten",
     "dashboard": "Dashboard",
     "login": "Anmelden",
     "signup": "Registrieren",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "profile": "Profil",
+    "settings": "Einstellungen",
+    "admin_panel": "Admin-Panel"
   },
   "dashboard": {
     "student": {
-      "title": "Studenten Dashboard"
+      "title": "Studenten-Dashboard"
     },
     "teacher": {
-      "title": "Lehrer Dashboard"
+      "title": "Lehrer-Dashboard"
     },
-    "learning_streak": "Lernstreak",
+    "admin": {
+      "title": "Admin-Dashboard"
+    },
+    "learning_streak": "Lernserie",
     "my_teachers": "Meine Lehrer",
     "my_courses": "Meine Kurse",
     "course_milestones": "Kurs-Meilensteine",
     "total_students": "Gesamte Studenten",
     "active_courses": "Aktive Kurse",
-    "avg_progress": "Durchschn. Fortschritt",
+    "avg_progress": "Durchschnittlicher Fortschritt",
     "recent_payouts": "Letzte Auszahlungen",
-    "teaching_schedule": "Unterrichtsplan"
+    "teaching_schedule": "Lehrplan"
   },
   "common": {
+    "loading": "Lädt...",
+    "go_back": "Zurück",
     "progress": "Fortschritt",
     "achieved": "Erreicht!",
     "required": "erforderlich",
     "best": "Beste",
     "days": "Tage",
-    "keep_up": "Weiter so!"
+    "keep_up": "Weiter so!",
+    "error": "Fehler"
   },
   "auth": {
     "select_gender": "Geschlecht Auswählen",
     "gender_male": "Männlich",
     "gender_female": "Weiblich",
-    "language_preference": "Sprachpräferenz"
+    "language_preference": "Sprachpräferenz",
+    "access_denied": "Zugriff Verweigert",
+    "insufficient_permissions": "Sie benötigen {required} Berechtigungen, um auf diese Seite zuzugreifen. Ihre aktuelle Rolle ist {current}.",
+    "approval_pending": "Genehmigung Ausstehend",
+    "approval_pending_message": "Ihre Lehrerbewerbung wird derzeit geprüft. Sie werden benachrichtigt, sobald sie genehmigt wurde.",
+    "application_rejected": "Bewerbung Abgelehnt",
+    "application_rejected_message": "Ihre Lehrerbewerbung wurde nicht genehmigt. Bitte kontaktieren Sie den Support für weitere Informationen.",
+    "approved": "Genehmigt"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "teacher": "Lehrer",
+    "student": "Student"
+  },
+  "admin": {
+    "dashboard_title": "Admin-Dashboard",
+    "dashboard_subtitle": "Verwalten Sie Lehrer, Kurse und Plattformoperationen",
+    "pending_teachers": "Ausstehende Lehrer-Genehmigungen",
+    "no_pending_teachers": "Keine ausstehenden Lehrerbewerbungen",
+    "teacher_approved": "Lehrer Genehmigt",
+    "teacher_approved_desc": "Der Lehrer wurde erfolgreich genehmigt",
+    "teacher_rejected": "Lehrer Abgelehnt",
+    "teacher_rejected_desc": "Die Lehrerbewerbung wurde abgelehnt",
+    "approval_error": "Lehrer-Genehmigung fehlgeschlagen",
+    "rejection_error": "Lehrer-Ablehnung fehlgeschlagen",
+    "fetch_teachers_error": "Laden der Lehrerbewerbungen fehlgeschlagen",
+    "status_pending": "Ausstehend",
+    "status_rejected": "Abgelehnt",
+    "review": "Überprüfen"
   }
 }

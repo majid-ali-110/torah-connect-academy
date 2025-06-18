@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, ArrowRight } from 'lucide-react';
@@ -6,11 +5,13 @@ import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [scrollY, setScrollY] = useState(0);
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // Handle scroll effect for parallax
   useEffect(() => {
@@ -46,10 +47,10 @@ const Hero = () => {
             transition={{ duration: 0.5 }}
           >
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 leading-tight">
-              Find Your Perfect Torah Study Partner
+              {t('home.hero_title')}
             </h1>
             <p className="text-lg sm:text-xl lg:text-2xl mb-6 max-w-2xl">
-              Connect with experienced Torah teachers for personalized learning experiences
+              {t('home.hero_subtitle')}
             </p>
           </motion.div>
           
@@ -80,13 +81,13 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 text-center">
-            Find Teachers or Study Partners
+            {t('nav.find_teachers')} {t('common.or')} {t('nav.study_partners')}
           </h2>
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <div className="relative flex-grow group">
               <Input 
                 type="text" 
-                placeholder="Search by subject, teacher name, or keywords..." 
+                placeholder={t('common.search') + ' ' + t('teachers.title').toLowerCase() + '...'} 
                 className="w-full py-4 sm:py-5 lg:py-6 px-4 bg-white rounded-md text-base sm:text-lg pr-12 transition-all duration-300 border-2 group-hover:border-torah-400 focus-within:border-torah-500 focus-within:ring-2 focus-within:ring-torah-200"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -99,7 +100,7 @@ const Hero = () => {
               type="submit"
               className="bg-torah-500 hover:bg-torah-600 px-6 sm:px-8 py-4 sm:py-5 lg:py-6 text-white rounded-md font-medium flex items-center justify-center transition-all duration-300 hover:scale-105 active:scale-95 text-base sm:text-lg"
             >
-              <span>Search</span>
+              <span>{t('common.search')}</span>
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </form>

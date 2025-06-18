@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ import Layout from '@/components/Layout';
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, profile, loading, signIn, signUp, signInWithGoogle } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -59,23 +61,23 @@ const AuthPage = () => {
       if (error) {
         console.error('AuthPage: Sign in error:', error);
         toast({
-          title: 'Error',
+          title: t('common.error'),
           description: error.message,
           variant: 'destructive',
         });
       } else {
         console.log('AuthPage: Sign in successful');
         toast({
-          title: 'Success',
-          description: 'Welcome back!',
+          title: t('common.success'),
+          description: t('auth.welcome_back'),
         });
         // Navigation will be handled by useEffect when auth state updates
       }
     } catch (error) {
       console.error('AuthPage: Unexpected error:', error);
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
+        title: t('common.error'),
+        description: t('errors.general'),
         variant: 'destructive',
       });
     } finally {
@@ -99,22 +101,22 @@ const AuthPage = () => {
       if (error) {
         console.error('AuthPage: Sign up error:', error);
         toast({
-          title: 'Error',
+          title: t('common.error'),
           description: error.message,
           variant: 'destructive',
         });
       } else {
         console.log('AuthPage: Sign up successful');
         toast({
-          title: 'Success',
-          description: 'Account created successfully! Please check your email for verification.',
+          title: t('common.success'),
+          description: t('auth.account_created'),
         });
       }
     } catch (error) {
       console.error('AuthPage: Unexpected error:', error);
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
+        title: t('common.error'),
+        description: t('errors.general'),
         variant: 'destructive',
       });
     } finally {
@@ -130,7 +132,7 @@ const AuthPage = () => {
       if (error) {
         console.error('AuthPage: Google sign in error:', error);
         toast({
-          title: 'Error',
+          title: t('common.error'),
           description: error.message,
           variant: 'destructive',
         });
@@ -138,8 +140,8 @@ const AuthPage = () => {
     } catch (error) {
       console.error('AuthPage: Unexpected error:', error);
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
+        title: t('common.error'),
+        description: t('errors.general'),
         variant: 'destructive',
       });
     } finally {
@@ -171,13 +173,13 @@ const AuthPage = () => {
         >
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl text-center">Welcome to Torah Connect</CardTitle>
+              <CardTitle className="text-2xl text-center">{t('auth.welcome_title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signin">Sign In</TabsTrigger>
-                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signin">{t('auth.sign_in')}</TabsTrigger>
+                  <TabsTrigger value="signup">{t('auth.sign_up')}</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="signin">
@@ -194,7 +196,7 @@ const AuthPage = () => {
                         <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
-                      Continue with Google
+                      {t('auth.continue_with_google')}
                     </Button>
                     
                     <div className="relative">
@@ -203,14 +205,14 @@ const AuthPage = () => {
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                          Or continue with email
+                          {t('auth.or_continue_with_email')}
                         </span>
                       </div>
                     </div>
 
                     <form onSubmit={handleSignIn} className="space-y-4">
                       <div>
-                        <Label htmlFor="signin-email">Email</Label>
+                        <Label htmlFor="signin-email">{t('auth.email')}</Label>
                         <Input
                           id="signin-email"
                           type="email"
@@ -221,7 +223,7 @@ const AuthPage = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="signin-password">Password</Label>
+                        <Label htmlFor="signin-password">{t('auth.password')}</Label>
                         <Input
                           id="signin-password"
                           type="password"
@@ -236,7 +238,7 @@ const AuthPage = () => {
                         className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
                         disabled={isLoading}
                       >
-                        {isLoading ? 'Signing In...' : 'Sign In'}
+                        {isLoading ? t('auth.signing_in') : t('auth.sign_in')}
                       </Button>
                     </form>
                   </div>
@@ -256,7 +258,7 @@ const AuthPage = () => {
                         <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                         <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
-                      Continue with Google
+                      {t('auth.continue_with_google')}
                     </Button>
                     
                     <div className="relative">
@@ -265,7 +267,7 @@ const AuthPage = () => {
                       </div>
                       <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-background px-2 text-muted-foreground">
-                          Or continue with email
+                          {t('auth.or_continue_with_email')}
                         </span>
                       </div>
                     </div>
@@ -273,7 +275,7 @@ const AuthPage = () => {
                     <form onSubmit={handleSignUp} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="signup-firstname">First Name</Label>
+                          <Label htmlFor="signup-firstname">{t('auth.first_name')}</Label>
                           <Input
                             id="signup-firstname"
                             value={signUpData.firstName}
@@ -283,7 +285,7 @@ const AuthPage = () => {
                           />
                         </div>
                         <div>
-                          <Label htmlFor="signup-lastname">Last Name</Label>
+                          <Label htmlFor="signup-lastname">{t('auth.last_name')}</Label>
                           <Input
                             id="signup-lastname"
                             value={signUpData.lastName}
@@ -294,7 +296,7 @@ const AuthPage = () => {
                         </div>
                       </div>
                       <div>
-                        <Label htmlFor="signup-email">Email</Label>
+                        <Label htmlFor="signup-email">{t('auth.email')}</Label>
                         <Input
                           id="signup-email"
                           type="email"
@@ -305,7 +307,7 @@ const AuthPage = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="signup-password">Password</Label>
+                        <Label htmlFor="signup-password">{t('auth.password')}</Label>
                         <Input
                           id="signup-password"
                           type="password"
@@ -316,26 +318,26 @@ const AuthPage = () => {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="signup-role">I want to</Label>
+                        <Label htmlFor="signup-role">{t('auth.i_want_to')}</Label>
                         <Select value={signUpData.role} onValueChange={(value: 'teacher' | 'student') => setSignUpData({ ...signUpData, role: value })}>
                           <SelectTrigger className="focus:ring-2 focus:ring-torah-500 transition-all">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="student">Learn Torah</SelectItem>
-                            <SelectItem value="teacher">Teach Torah</SelectItem>
+                            <SelectItem value="student">{t('auth.learn_torah')}</SelectItem>
+                            <SelectItem value="teacher">{t('auth.teach_torah')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="signup-gender">Gender</Label>
+                        <Label htmlFor="signup-gender">{t('auth.select_gender')}</Label>
                         <Select value={signUpData.gender} onValueChange={(value: string) => setSignUpData({ ...signUpData, gender: value })}>
                           <SelectTrigger className="focus:ring-2 focus:ring-torah-500 transition-all">
-                            <SelectValue placeholder="Select gender" />
+                            <SelectValue placeholder={t('auth.select_gender')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="male">Male</SelectItem>
-                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="male">{t('auth.gender_male')}</SelectItem>
+                            <SelectItem value="female">{t('auth.gender_female')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -344,7 +346,7 @@ const AuthPage = () => {
                         className="w-full bg-torah-500 hover:bg-torah-600 transition-colors"
                         disabled={isLoading}
                       >
-                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                        {isLoading ? t('auth.creating_account') : t('auth.create_account')}
                       </Button>
                     </form>
                   </div>

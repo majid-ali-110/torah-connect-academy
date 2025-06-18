@@ -88,31 +88,50 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const fetchMessages = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      console.log('Fetching messages for conversation:', conversationId);
+      
+      const { data, error } = await supabase
         .from('chat_messages')
-        .select(`
-          id,
-          content,
-          sender_id,
-          created_at,
-          read_at,
-          message_type,
-          meeting_data,
-          profiles!chat_messages_sender_id_fkey(first_name, last_name, avatar_url)
-        `)
+        .select('id, content, sender_id, created_at, read_at, message_type, meeting_data')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        throw error;
+      }
 
-      const formattedMessages = data?.map((msg: any) => ({
-        ...msg,
-        sender: msg.profiles
-      })) || [];
+      console.log('Raw messages data:', data);
 
+      // Get sender profiles for all messages
+      const formattedMessages = await Promise.all(
+        (data || []).map(async (msg: any) => {
+          try {
+            const { data: senderProfile } = await supabase
+              .from('profiles')
+              .select('first_name, last_name, avatar_url')
+              .eq('id', msg.sender_id)
+              .single();
+
+            return {
+              ...msg,
+              sender: senderProfile
+            };
+          } catch (error) {
+            console.error('Error fetching sender profile for message:', msg.id, error);
+            return {
+              ...msg,
+              sender: { first_name: 'Unknown', last_name: 'User', avatar_url: null }
+            };
+          }
+        })
+      );
+
+      console.log('Formatted messages:', formattedMessages);
       setMessages(formattedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
+      setMessages([]);
     } finally {
       setLoading(false);
     }
@@ -120,23 +139,39 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const fetchConversationDetails = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      console.log('Fetching conversation details for:', conversationId);
+      
+      // First get the conversation
+      const { data: conversation, error: convError } = await supabase
         .from('conversations')
-        .select(`
-          student_id,
-          teacher_id,
-          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
-          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
-        `)
+        .select('student_id, teacher_id')
         .eq('id', conversationId)
         .single();
 
-      if (error) throw error;
+      if (convError) {
+        console.error('Error fetching conversation:', convError);
+        throw convError;
+      }
 
-      const otherUserData = data.student_id === currentUserId 
-        ? data.profiles_conversations_teacher_id_fkey 
-        : data.profiles_conversations_student_id_fkey;
+      console.log('Conversation data:', conversation);
 
+      // Then get the other user's profile
+      const otherUserId = conversation.student_id === currentUserId 
+        ? conversation.teacher_id 
+        : conversation.student_id;
+
+      const { data: otherUserData, error: userError } = await supabase
+        .from('profiles')
+        .select('id, first_name, last_name, avatar_url, role')
+        .eq('id', otherUserId)
+        .single();
+
+      if (userError) {
+        console.error('Error fetching other user:', userError);
+        throw userError;
+      }
+
+      console.log('Other user data:', otherUserData);
       setOtherUser(otherUserData);
     } catch (error) {
       console.error('Error fetching conversation details:', error);
@@ -145,7 +180,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const markMessagesAsRead = async () => {
     try {
-      await (supabase as any)
+      await supabase
         .from('chat_messages')
         .update({ read_at: new Date().toISOString() })
         .eq('conversation_id', conversationId)
@@ -161,7 +196,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
     setSending(true);
     try {
-      const { error } = await (supabase as any)
+      console.log('Sending message:', newMessage.trim());
+      
+      const { error } = await supabase
         .from('chat_messages')
         .insert([{
           conversation_id: conversationId,
@@ -170,10 +207,15 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           message_type: 'text'
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
+
+      console.log('Message sent successfully');
 
       // Update conversation timestamp
-      await (supabase as any)
+      await supabase
         .from('conversations')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', conversationId);

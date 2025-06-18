@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -79,55 +78,72 @@ const ConversationsList: React.FC<ConversationsListProps> = ({
 
   const fetchConversations = async () => {
     try {
-      const { data: conversationsData, error } = await (supabase as any)
+      console.log('Fetching conversations for user:', currentUserId);
+      
+      const { data: conversationsData, error } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          student_id,
-          teacher_id,
-          updated_at,
-          profiles!conversations_student_id_fkey(id, first_name, last_name, avatar_url, role),
-          profiles!conversations_teacher_id_fkey(id, first_name, last_name, avatar_url, role)
-        `)
+        .select('id, student_id, teacher_id, updated_at')
         .or(`student_id.eq.${currentUserId},teacher_id.eq.${currentUserId}`)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching conversations:', error);
+        throw error;
+      }
 
-      // Get last message for each conversation
+      console.log('Raw conversations data:', conversationsData);
+
+      // Get last message and other user for each conversation
       const conversationsWithMessages = await Promise.all(
         (conversationsData || []).map(async (conv: any) => {
-          const { data: lastMessage } = await (supabase as any)
-            .from('chat_messages')
-            .select('content, created_at, sender_id')
-            .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+          try {
+            // Get last message
+            const { data: lastMessage } = await supabase
+              .from('chat_messages')
+              .select('content, created_at, sender_id')
+              .eq('conversation_id', conv.id)
+              .order('created_at', { ascending: false })
+              .limit(1)
+              .single();
 
-          const { count: unreadCount } = await (supabase as any)
-            .from('chat_messages')
-            .select('*', { count: 'exact', head: true })
-            .eq('conversation_id', conv.id)
-            .neq('sender_id', currentUserId)
-            .is('read_at', null);
+            // Get unread count
+            const { count: unreadCount } = await supabase
+              .from('chat_messages')
+              .select('*', { count: 'exact', head: true })
+              .eq('conversation_id', conv.id)
+              .neq('sender_id', currentUserId)
+              .is('read_at', null);
 
-          const otherUser = conv.student_id === currentUserId 
-            ? conv.profiles_conversations_teacher_id_fkey 
-            : conv.profiles_conversations_student_id_fkey;
+            // Get other user's profile
+            const otherUserId = conv.student_id === currentUserId 
+              ? conv.teacher_id 
+              : conv.student_id;
 
-          return {
-            ...conv,
-            other_user: otherUser,
-            last_message: lastMessage,
-            unread_count: unreadCount || 0
-          };
+            const { data: otherUser } = await supabase
+              .from('profiles')
+              .select('id, first_name, last_name, avatar_url, role')
+              .eq('id', otherUserId)
+              .single();
+
+            return {
+              ...conv,
+              other_user: otherUser,
+              last_message: lastMessage,
+              unread_count: unreadCount || 0
+            };
+          } catch (error) {
+            console.error('Error processing conversation:', conv.id, error);
+            return null;
+          }
         })
       );
 
-      setConversations(conversationsWithMessages);
+      const validConversations = conversationsWithMessages.filter(conv => conv !== null);
+      console.log('Processed conversations:', validConversations);
+      setConversations(validConversations);
     } catch (error) {
       console.error('Error fetching conversations:', error);
+      setConversations([]);
     } finally {
       setLoading(false);
     }

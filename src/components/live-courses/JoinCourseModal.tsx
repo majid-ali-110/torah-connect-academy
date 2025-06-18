@@ -1,121 +1,101 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { KeyRound, Users } from 'lucide-react';
+import { CalendarDays, Clock, Users, Video, AlertCircle, CheckCircle } from 'lucide-react';
+
+interface LiveSession {
+  id: string;
+  title: string;
+  description: string | null;
+  scheduled_at: string;
+  duration_minutes: number;
+  max_participants: number;
+  jitsi_room: string;
+  course: {
+    id: string;
+    title: string;
+    subject: string;
+  };
+  teacher: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+}
 
 interface JoinCourseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onClassJoined: () => void;
+  sessionId?: string;
 }
 
 const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
   isOpen,
   onClose,
-  onClassJoined
+  sessionId
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [session, setSession] = useState<LiveSession | null>(null);
   const [loading, setLoading] = useState(false);
-  const [courseKey, setCourseKey] = useState('');
+  const [joining, setJoining] = useState(false);
+  const [eligibility, setEligibility] = useState<{
+    isEnrolled: boolean;
+    hasFreeTrial: boolean;
+    canJoin: boolean;
+    reason?: string;
+  } | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !courseKey.trim()) return;
+  useEffect(() => {
+    if (isOpen && sessionId) {
+      fetchSessionDetails();
+    }
+  }, [isOpen, sessionId]);
 
+  const fetchSessionDetails = async () => {
+    if (!sessionId || !user) return;
+    
     setLoading(true);
     try {
-      // First, check if the course exists
-      const { data: liveClass, error: fetchError } = await supabase
-        .from('live_classes')
+      const { data, error } = await supabase
+        .from('live_sessions')
         .select(`
-          *,
-          profiles!teacher_id (
+          id,
+          title,
+          description,
+          scheduled_at,
+          duration_minutes,
+          max_participants,
+          jitsi_room,
+          course:courses(
+            id,
+            title,
+            subject
+          ),
+          teacher:profiles!live_sessions_teacher_id_fkey(
+            id,
             first_name,
             last_name
           )
         `)
-        .eq('course_key', courseKey.trim().toUpperCase())
+        .eq('id', sessionId)
         .single();
 
-      if (fetchError || !liveClass) {
-        toast({
-          title: 'Invalid Course Key',
-          description: 'The course key you entered does not exist. Please check and try again.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // Check if student is already enrolled
-      const { data: existingEnrollment } = await supabase
-        .from('class_enrollments')
-        .select('id')
-        .eq('class_id', liveClass.id)
-        .eq('student_id', user.id)
-        .single();
-
-      if (existingEnrollment) {
-        toast({
-          title: 'Already Enrolled',
-          description: 'You are already enrolled in this live class.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // Check current enrollment count
-      const { count: currentEnrollments } = await supabase
-        .from('class_enrollments')
-        .select('*', { count: 'exact' })
-        .eq('class_id', liveClass.id);
-
-      if (currentEnrollments && currentEnrollments >= liveClass.max_participants) {
-        toast({
-          title: 'Class Full',
-          description: 'This live class has reached its maximum capacity.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      // Enroll the student
-      const { error: enrollError } = await supabase
-        .from('class_enrollments')
-        .insert({
-          class_id: liveClass.id,
-          student_id: user.id
-        });
-
-      if (enrollError) {
-        toast({
-          title: 'Error',
-          description: 'Failed to join the live class. Please try again.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      const teacherName = `${liveClass.profiles?.first_name || ''} ${liveClass.profiles?.last_name || ''}`.trim();
+      if (error) throw error;
+      setSession(data);
       
-      toast({
-        title: 'Successfully Joined!',
-        description: `You've joined "${liveClass.title}" by ${teacherName}`,
-      });
-
-      setCourseKey('');
-      onClassJoined();
+      // Check eligibility
+      await checkEligibility(data);
     } catch (error) {
-      console.error('Error joining live class:', error);
+      console.error('Error fetching session:', error);
       toast({
         title: 'Error',
-        description: 'An unexpected error occurred.',
+        description: 'Failed to load session details.',
         variant: 'destructive'
       });
     } finally {
@@ -123,59 +103,213 @@ const JoinCourseModal: React.FC<JoinCourseModalProps> = ({
     }
   };
 
+  const checkEligibility = async (sessionData: LiveSession) => {
+    if (!user) return;
+
+    try {
+      // Check if student is enrolled in the course
+      const { data: enrollment } = await supabase
+        .from('course_enrollments')
+        .select('id')
+        .eq('course_id', sessionData.course.id)
+        .eq('student_id', user.id)
+        .single();
+
+      const isEnrolled = !!enrollment;
+
+      // Check free trial usage for this course and teacher
+      const { data: freeTrials } = await supabase
+        .from('free_trials')
+        .select('id')
+        .eq('student_id', user.id)
+        .eq('course_id', sessionData.course.id)
+        .eq('teacher_id', sessionData.teacher.id);
+
+      const hasFreeTrial = !freeTrials || freeTrials.length === 0;
+
+      const canJoin = isEnrolled || hasFreeTrial;
+      const reason = !canJoin 
+        ? 'You have already used your free trial for this course with this teacher.'
+        : !isEnrolled 
+        ? 'You are using your free trial for this session.'
+        : 'You are enrolled in this course.';
+
+      setEligibility({
+        isEnrolled,
+        hasFreeTrial,
+        canJoin,
+        reason
+      });
+    } catch (error) {
+      console.error('Error checking eligibility:', error);
+    }
+  };
+
+  const handleJoinSession = async () => {
+    if (!user || !session) return;
+    
+    setJoining(true);
+    try {
+      // Record attendance
+      const { error: attendanceError } = await supabase
+        .from('live_attendance')
+        .insert({
+          session_id: session.id,
+          student_id: user.id,
+          joined_at: new Date().toISOString()
+        });
+
+      if (attendanceError) throw attendanceError;
+
+      // If using free trial, record it
+      if (eligibility?.hasFreeTrial && !eligibility?.isEnrolled) {
+        const { error: trialError } = await supabase
+          .from('free_trials')
+          .insert({
+            student_id: user.id,
+            course_id: session.course.id,
+            teacher_id: session.teacher.id,
+            used_at: new Date().toISOString()
+          });
+
+        if (trialError) throw trialError;
+      }
+
+      toast({
+        title: 'Success',
+        description: 'You have joined the live session!',
+      });
+
+      // Redirect to Jitsi room
+      window.open(`/live-session/${session.jitsi_room}`, '_blank');
+      onClose();
+    } catch (error) {
+      console.error('Error joining session:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to join session. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-torah-500"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!session) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <div className="text-center py-8">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <p className="text-gray-600">Session not found.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center">
-            <KeyRound className="mr-2 h-5 w-5" />
-            Join Live Class
+            <Video className="mr-2 h-5 w-5" />
+            Join Live Session
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label htmlFor="courseKey">Course Key *</Label>
-            <Input
-              id="courseKey"
-              value={courseKey}
-              onChange={(e) => setCourseKey(e.target.value)}
-              placeholder="Enter the course key provided by your teacher"
-              className="mt-1"
-              required
-            />
-            <p className="text-sm text-gray-600 mt-2">
-              Course keys are usually 8 characters long (e.g., ABC123XY)
-            </p>
-          </div>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{session.title}</CardTitle>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline">{session.course.subject}</Badge>
+                <Badge variant="secondary">{session.course.title}</Badge>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {session.description && (
+                <p className="text-gray-600">{session.description}</p>
+              )}
+              
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center">
+                  <CalendarDays className="mr-2 h-4 w-4 text-gray-500" />
+                  <span>
+                    {new Date(session.scheduled_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex items-center">
+                  <Clock className="mr-2 h-4 w-4 text-gray-500" />
+                  <span>{session.duration_minutes} minutes</span>
+                </div>
+                <div className="flex items-center">
+                  <Users className="mr-2 h-4 w-4 text-gray-500" />
+                  <span>Max {session.max_participants} students</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-gray-500">Teacher:</span>
+                  <span className="ml-1">
+                    {session.teacher.first_name} {session.teacher.last_name}
+                  </span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="flex items-start">
-              <Users className="mr-2 h-5 w-5 text-green-600 mt-0.5" />
-              <div>
-                <p className="text-sm text-green-800 font-medium">How to get a course key:</p>
-                <ul className="text-sm text-green-700 mt-1 list-disc list-inside">
-                  <li>Ask your teacher for the course key</li>
-                  <li>Check class announcements or emails</li>
-                  <li>Look for it in your course materials</li>
-                </ul>
+          {eligibility && (
+            <div className={`p-4 rounded-lg border ${
+              eligibility.canJoin 
+                ? 'bg-green-50 border-green-200' 
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <div className="flex items-start">
+                {eligibility.canJoin ? (
+                  <CheckCircle className="w-5 h-5 text-green-600 mr-2 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-red-600 mr-2 mt-0.5" />
+                )}
+                <div>
+                  <p className={`font-medium ${
+                    eligibility.canJoin ? 'text-green-800' : 'text-red-800'
+                  }`}>
+                    {eligibility.canJoin ? 'You can join this session!' : 'Cannot join this session'}
+                  </p>
+                  <p className={`text-sm ${
+                    eligibility.canJoin ? 'text-green-700' : 'text-red-700'
+                  }`}>
+                    {eligibility.reason}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex justify-end space-x-3">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              disabled={loading || !courseKey.trim()}
+            <Button
+              onClick={handleJoinSession}
+              disabled={!eligibility?.canJoin || joining}
               className="bg-torah-500 hover:bg-torah-600"
             >
-              {loading ? 'Joining...' : 'Join Class'}
+              {joining ? 'Joining...' : 'Join Session'}
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

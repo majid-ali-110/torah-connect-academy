@@ -21,12 +21,22 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Set language from user profile if available
-    if (profile?.preferred_language && profile.preferred_language !== currentLanguage) {
-      i18n.changeLanguage(profile.preferred_language);
-      setCurrentLanguage(profile.preferred_language);
-    }
-  }, [profile?.preferred_language, i18n]); // Removed currentLanguage to prevent potential infinite loops
+    // Set language from user profile if available and different
+    const changeLang = async () => {
+      if (profile?.preferred_language && profile.preferred_language !== i18n.language) {
+        try {
+          await i18n.changeLanguage(profile.preferred_language);
+          setCurrentLanguage(profile.preferred_language);
+        } catch (err) {
+          setError('Failed to change language from profile');
+        } finally {
+          setIsUpdating(false);
+        }
+      }
+    };
+    changeLang();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.preferred_language]);
 
   const setLanguage = async (lang: string) => {
     setIsUpdating(true);

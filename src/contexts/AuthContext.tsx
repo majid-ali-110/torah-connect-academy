@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -60,14 +59,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log('AuthProvider: Auth state change', { event, sessionExists: !!session, userId: session?.user?.id });
         
         try {
+          if (event === 'SIGNED_OUT') {
+            console.log('AuthProvider: User signed out, clearing state');
+            setSession(null);
+            setUser(null);
+            setProfile(null);
+            setLoading(false);
+            return;
+          }
+          
           setSession(session);
           setUser(session?.user ?? null);
           
           if (session?.user && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
             await fetchOrCreateProfile(session.user, setLoading);
-          } else if (event === 'SIGNED_OUT') {
-            setProfile(null);
-            setLoading(false);
           } else {
             setLoading(false);
           }
@@ -145,13 +150,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
+      console.log('AuthProvider: Starting sign out process');
       setLoading(true);
-      await signOutUser();
+      
+      // Clear local state first
       setProfile(null);
       setUser(null);
       setSession(null);
+      
+      // Sign out from Supabase
+      const result = await signOutUser();
+      console.log('AuthProvider: Sign out completed', result);
+      
+      // Navigate to home page after successful logout
+      window.location.href = '/';
+      
     } catch (error) {
       console.error('AuthProvider: Error during sign out:', error);
+      // Even if there's an error, clear local state
+      setProfile(null);
+      setUser(null);
+      setSession(null);
+      window.location.href = '/';
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -25,79 +24,86 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [courses, setCourses] = useState<{ id: string; title: string }[]>([]);
   const [formData, setFormData] = useState({
+    course_id: '',
     title: '',
     description: '',
     scheduled_at: '',
     duration_minutes: '60',
     max_participants: '20',
-    meeting_type: 'google_meet'
   });
 
-  const generateCourseKey = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
+  // Fetch teacher's courses
+  useEffect(() => {
+    const fetchCourses = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('courses')
+        .select('id, title')
+        .eq('teacher_id', user.id)
+        .eq('is_active', true);
+      if (!error && data) {
+        setCourses(data);
+      }
+    };
+    if (isOpen) fetchCourses();
+  }, [isOpen, user]);
 
-  const generateGoogleMeetLink = () => {
-    // In a real implementation, you would integrate with Google Calendar API
-    // For now, we'll generate a placeholder meet link
-    const meetId = Math.random().toString(36).substring(2, 12);
-    return `https://meet.google.com/${meetId}`;
+  const generateJitsiRoomName = () => {
+    // Use a unique, non-guessable room name
+    return `live-${user?.id?.slice(0, 8) || 'user'}-${Date.now().toString(36)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
+    if (!formData.course_id) {
+      toast({ title: 'Error', description: 'Please select a course.', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     try {
-      const courseKey = generateCourseKey();
-      const meetingLink = generateGoogleMeetLink();
-
+      const jitsiRoom = generateJitsiRoomName();
       const { error } = await supabase
-        .from('live_classes')
+        .from('live_sessions')
         .insert({
+          course_id: formData.course_id,
+          teacher_id: user.id,
           title: formData.title,
           description: formData.description,
-          teacher_id: user.id,
-          course_key: courseKey,
-          meeting_link: meetingLink,
           scheduled_at: formData.scheduled_at,
           duration_minutes: parseInt(formData.duration_minutes),
-          max_participants: parseInt(formData.max_participants)
+          max_participants: parseInt(formData.max_participants),
+          jitsi_room: jitsiRoom,
         });
-
       if (error) {
         toast({
           title: 'Error',
-          description: 'Failed to create live class. Please try again.',
-          variant: 'destructive'
+          description: 'Failed to create live session. Please try again.',
+          variant: 'destructive',
         });
         return;
       }
-
       toast({
         title: 'Success',
-        description: `Live class created! Course key: ${courseKey}`,
+        description: `Live session created!`,
       });
-
-      // Reset form
       setFormData({
+        course_id: '',
         title: '',
         description: '',
         scheduled_at: '',
         duration_minutes: '60',
         max_participants: '20',
-        meeting_type: 'google_meet'
       });
-
       onClassCreated();
     } catch (error) {
-      console.error('Error creating live class:', error);
+      console.error('Error creating live session:', error);
       toast({
         title: 'Error',
         description: 'An unexpected error occurred.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -124,31 +130,49 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
             Create Live Class
           </DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <Label htmlFor="title">Class Title *</Label>
+              <Label htmlFor="course_id">Course *</Label>
+              <Select
+                value={formData.course_id}
+                onValueChange={value => handleInputChange('course_id', value)}
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a course" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courses.length === 0 ? (
+                    <SelectItem value="" disabled>No courses found</SelectItem>
+                  ) : (
+                    courses.map(course => (
+                      <SelectItem key={course.id} value={course.id}>{course.title}</SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <Label htmlFor="title">Session Title *</Label>
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
+                onChange={e => handleInputChange('title', e.target.value)}
                 placeholder="e.g., Introduction to Talmud"
                 required
               />
             </div>
-
             <div className="md:col-span-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Describe what students will learn in this live class..."
+                onChange={e => handleInputChange('description', e.target.value)}
+                placeholder="Describe what students will learn in this live session..."
                 rows={3}
               />
             </div>
-
             <div>
               <Label htmlFor="scheduled_at" className="flex items-center">
                 <CalendarDays className="mr-1 h-4 w-4" />
@@ -158,20 +182,19 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
                 id="scheduled_at"
                 type="datetime-local"
                 value={formData.scheduled_at}
-                onChange={(e) => handleInputChange('scheduled_at', e.target.value)}
+                onChange={e => handleInputChange('scheduled_at', e.target.value)}
                 min={getMinDateTime()}
                 required
               />
             </div>
-
             <div>
               <Label htmlFor="duration_minutes" className="flex items-center">
                 <Clock className="mr-1 h-4 w-4" />
                 Duration (minutes)
               </Label>
-              <Select 
-                value={formData.duration_minutes} 
-                onValueChange={(value) => handleInputChange('duration_minutes', value)}
+              <Select
+                value={formData.duration_minutes}
+                onValueChange={value => handleInputChange('duration_minutes', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -185,15 +208,14 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
                 </SelectContent>
               </Select>
             </div>
-
             <div>
               <Label htmlFor="max_participants" className="flex items-center">
                 <Users className="mr-1 h-4 w-4" />
                 Max Participants
               </Label>
-              <Select 
-                value={formData.max_participants} 
-                onValueChange={(value) => handleInputChange('max_participants', value)}
+              <Select
+                value={formData.max_participants}
+                onValueChange={value => handleInputChange('max_participants', value)}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -208,42 +230,22 @@ const CreateLiveClassModal: React.FC<CreateLiveClassModalProps> = ({
                 </SelectContent>
               </Select>
             </div>
-
-            <div>
-              <Label htmlFor="meeting_type">Meeting Platform</Label>
-              <Select 
-                value={formData.meeting_type} 
-                onValueChange={(value) => handleInputChange('meeting_type', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="google_meet">Google Meet</SelectItem>
-                  <SelectItem value="zoom" disabled>Zoom (Coming Soon)</SelectItem>
-                  <SelectItem value="teams" disabled>Teams (Coming Soon)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
-
           <div className="bg-blue-50 p-4 rounded-lg">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> After creating the class, you'll receive a unique course key that students can use to join. 
-              A Google Meet link will be automatically generated for this session.
+              <strong>Note:</strong> After creating the session, a unique Jitsi video room will be generated for you and your students. Only enrolled students will be able to join.
             </p>
           </div>
-
           <div className="flex justify-end space-x-3">
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={loading}
               className="bg-torah-500 hover:bg-torah-600"
             >
-              {loading ? 'Creating...' : 'Create Live Class'}
+              {loading ? 'Creating...' : 'Create Live Session'}
             </Button>
           </div>
         </form>

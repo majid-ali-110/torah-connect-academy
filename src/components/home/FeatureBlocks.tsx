@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarDays, Users, Video, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const FeatureBlock = ({ 
   icon: Icon, 
@@ -18,6 +18,7 @@ const FeatureBlock = ({
   bgColor: string;
   description: string;
 }) => {
+  const { t } = useLanguage();
   return (
     <motion.div
       whileHover={{ 
@@ -53,7 +54,7 @@ const FeatureBlock = ({
             className="inline-flex items-center justify-center rounded-full bg-white/20 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white group-hover:bg-white/30 transition-colors"
             whileHover={{ backgroundColor: "rgba(255,255,255,0.4)" }}
           >
-            Learn more
+            {t('feature_blocks.learn_more')}
           </motion.div>
         </div>
         
@@ -71,6 +72,7 @@ const FeatureBlock = ({
 
 const FeatureBlocks = () => {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   
   const container = {
     hidden: { opacity: 0 },
@@ -89,20 +91,20 @@ const FeatureBlocks = () => {
 
   const getGenderSpecificTitle = () => {
     if (profile?.gender === 'male') {
-      return "Men's Studies";
+      return t('feature_blocks.men_title');
     } else if (profile?.gender === 'female') {
-      return "Women's Studies";
+      return t('feature_blocks.women_title');
     }
-    return "Adult Studies";
+    return t('feature_blocks.adult_title');
   };
 
   const getGenderSpecificDescription = () => {
     if (profile?.gender === 'male') {
-      return "Torah learning opportunities specifically tailored for men";
+      return t('feature_blocks.men_desc');
     } else if (profile?.gender === 'female') {
-      return "Torah learning opportunities specifically tailored for women";
+      return t('feature_blocks.women_desc');
     }
-    return "Torah learning opportunities for adults";
+    return t('feature_blocks.adult_desc');
   };
 
   return (
@@ -115,10 +117,10 @@ const FeatureBlocks = () => {
         className="text-center mb-8 sm:mb-12 lg:mb-16"
       >
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">
-          Explore Our Services
+          {t('feature_blocks.heading')}
         </h2>
         <p className="text-gray-600 text-sm sm:text-base lg:text-lg max-w-3xl mx-auto leading-relaxed">
-          Find the perfect learning experience tailored to your needs and preferences
+          {t('feature_blocks.subheading')}
         </p>
       </motion.div>
 
@@ -132,10 +134,10 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Calendar} 
-            title="Children's Learning" 
+            title={t('feature_blocks.children_title')} 
             link="/children-courses" 
             bgColor="bg-red-400"
-            description="Specialized Torah education designed for children of all ages"
+            description={t('feature_blocks.children_desc')}
           />
         </motion.div>
         
@@ -152,20 +154,20 @@ const FeatureBlocks = () => {
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Video} 
-            title="Live Courses" 
+            title={t('feature_blocks.live_title')} 
             link="/live-courses" 
             bgColor="bg-yellow-400"
-            description="Join our interactive live Torah sessions with renowned teachers"
+            description={t('feature_blocks.live_desc')}
           />
         </motion.div>
         
         <motion.div variants={item}>
           <FeatureBlock 
             icon={Users} 
-            title="SOS Partner" 
+            title={t('feature_blocks.sos_title')} 
             link="/sos-havrouta" 
             bgColor="bg-teal-400"
-            description="Get matched with a study partner right away for immediate learning"
+            description={t('feature_blocks.sos_desc')}
           />
         </motion.div>
       </motion.div>

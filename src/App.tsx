@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,6 +11,7 @@ import AuthPage from "@/pages/AuthPage";
 import Dashboard from "@/pages/Dashboard";
 import StudentDashboard from "@/pages/StudentDashboard";
 import TeacherDashboard from "@/pages/TeacherDashboard";
+import AdminDashboard from "@/pages/AdminDashboard";
 import Profile from "@/pages/Profile";
 import FindTeachers from "@/pages/FindTeachers";
 import TeacherProfile from "@/pages/TeacherProfile";
@@ -21,6 +21,7 @@ import ChildrenCourses from "@/pages/ChildrenCourses";
 import WomenCourses from "@/pages/WomenCourses";
 import FindPartner from "@/pages/FindPartner";
 import LiveCourses from "@/pages/LiveCourses";
+import LiveSession from "@/pages/LiveSession";
 import Classroom from "@/pages/Classroom";
 import Payment from "@/pages/Payment";
 import SearchResults from "@/pages/SearchResults";
@@ -60,7 +61,7 @@ const App = () => (
               <Route 
                 path="/dashboard/student" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireRole="student">
                     <Layout><StudentDashboard /></Layout>
                   </ProtectedRoute>
                 } 
@@ -68,8 +69,16 @@ const App = () => (
               <Route 
                 path="/dashboard/teacher" 
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requireRole="teacher">
                     <Layout><TeacherDashboard /></Layout>
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/admin" 
+                element={
+                  <ProtectedRoute requireRole="admin">
+                    <Layout><AdminDashboard /></Layout>
                   </ProtectedRoute>
                 } 
               />
@@ -122,6 +131,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <LiveCourses />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/live-session/:roomName" 
+                element={
+                  <ProtectedRoute>
+                    <LiveSession />
                   </ProtectedRoute>
                 } 
               />

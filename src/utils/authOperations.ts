@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 
 export const signInWithPassword = async (email: string, password: string) => {
@@ -65,6 +64,12 @@ export const signOutUser = async () => {
   console.log('AuthOperations: Signing out user');
   
   try {
+    // Clear any cached data first
+    localStorage.removeItem('supabase.auth.token');
+    localStorage.removeItem('supabase.auth.expires_at');
+    localStorage.removeItem('supabase.auth.refresh_token');
+    sessionStorage.clear();
+    
     // Sign out from Supabase
     const { error } = await supabase.auth.signOut();
     
@@ -75,9 +80,10 @@ export const signOutUser = async () => {
     
     console.log('AuthOperations: Sign out successful');
     
-    // Clear any cached data
-    localStorage.removeItem('supabase.auth.token');
-    sessionStorage.clear();
+    // Additional cleanup
+    localStorage.clear();
+    
+    return { success: true };
     
   } catch (error) {
     console.error('AuthOperations: Sign out failed:', error);

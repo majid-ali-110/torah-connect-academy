@@ -1518,6 +1518,60 @@ export type Database = {
           },
         ]
       }
+      live_sessions: {
+        Row: {
+          id: string;
+          course_id: string;
+          teacher_id: string;
+          title: string;
+          description: string | null;
+          scheduled_at: string;
+          duration_minutes: number;
+          max_participants: number;
+          jitsi_room: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id: string;
+          teacher_id: string;
+          title: string;
+          description?: string | null;
+          scheduled_at: string;
+          duration_minutes: number;
+          max_participants: number;
+          jitsi_room: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          course_id?: string;
+          teacher_id?: string;
+          title?: string;
+          description?: string | null;
+          scheduled_at?: string;
+          duration_minutes?: number;
+          max_participants?: number;
+          jitsi_room?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "live_sessions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_sessions_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          }
+        ];
+      },
     }
     Views: {
       [_ in never]: never

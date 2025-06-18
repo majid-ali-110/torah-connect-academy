@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,10 +26,10 @@ const Navbar = () => {
 
   const navigationLinks = [
     { to: "/", label: t('nav.home') },
-    { to: "/find-teachers", label: "Find Teachers" },
-    { to: "/find-partner", label: "Study Partners" },
-    { to: "/live-courses", label: "Live Courses", icon: Video },
-    { to: "/chat", label: "Messages" },
+    { to: "/find-teachers", label: t('nav.find_teachers') },
+    { to: "/find-partner", label: t('nav.study_partners') },
+    { to: "/live-courses", label: t('nav.live_courses'), icon: Video },
+    { to: "/chat", label: t('nav.messages') },
     ...(user ? [{ to: "/dashboard", label: t('nav.dashboard') }] : [])
   ];
 
@@ -99,18 +98,18 @@ const Navbar = () => {
                   <DropdownMenuItem asChild>
                     <Link to="/profile" className="cursor-pointer">
                       <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <span>{t('nav.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <span>{t('nav.settings')}</span>
                   </DropdownMenuItem>
                   {profile?.role === 'admin' && (
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard/admin" className="cursor-pointer">
                         <Shield className="mr-2 h-4 w-4" />
-                        <span>Admin Panel</span>
+                        <span>{t('nav.admin_panel')}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
