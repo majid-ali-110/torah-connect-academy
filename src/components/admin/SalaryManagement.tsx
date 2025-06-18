@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,14 +28,6 @@ interface MonthlyPayment {
   teacher_amount: number;
   admin_amount: number;
   status: string;
-}
-
-interface PaymentCalculation {
-  total_hours: number;
-  hourly_rate: number;
-  gross_amount: number;
-  teacher_amount: number;
-  admin_amount: number;
 }
 
 export const SalaryManagement: React.FC = () => {
@@ -135,20 +128,18 @@ export const SalaryManagement: React.FC = () => {
 
         if (calcError) throw calcError;
 
-        const paymentCalc = calculation as unknown as PaymentCalculation;
-
-        if (paymentCalc.total_hours > 0) {
+        if (calculation.total_hours > 0) {
           // Insert payment record
           const { error: insertError } = await supabase
             .from('monthly_teacher_payments')
             .insert({
               teacher_id: teacher.id,
               month_year: currentMonth,
-              total_hours: paymentCalc.total_hours,
-              hourly_rate: paymentCalc.hourly_rate,
-              gross_amount: paymentCalc.gross_amount,
-              teacher_amount: paymentCalc.teacher_amount,
-              admin_amount: paymentCalc.admin_amount
+              total_hours: calculation.total_hours,
+              hourly_rate: calculation.hourly_rate,
+              gross_amount: calculation.gross_amount,
+              teacher_amount: calculation.teacher_amount,
+              admin_amount: calculation.admin_amount
             });
 
           if (insertError) throw insertError;
