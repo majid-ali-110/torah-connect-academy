@@ -37,9 +37,7 @@ const VideoCall: React.FC = () => {
 
       if (booking && !bookingError) {
         setMeetingData({
-          roomId: roomId,
-          teacherId: booking.teacher_id,
-          studentId: booking.student_id,
+          roomName: `lesson-${roomId}`,
           subject: booking.subject,
           teacher: booking.teacher,
           student: booking.student
@@ -47,9 +45,7 @@ const VideoCall: React.FC = () => {
       } else {
         // If not a lesson booking, create a generic meeting
         setMeetingData({
-          roomId: roomId,
-          teacherId: profile?.role === 'teacher' ? user.id : '',
-          studentId: profile?.role === 'student' ? user.id : '',
+          roomName: `meeting-${roomId}`,
           subject: 'General Session'
         });
       }
@@ -101,11 +97,8 @@ const VideoCall: React.FC = () => {
         </div>
 
         <JitsiMeeting
-          roomId={meetingData.roomId}
-          teacherId={meetingData.teacherId}
-          studentId={meetingData.studentId}
-          subject={meetingData.subject}
-          onEndMeeting={handleEndMeeting}
+          roomName={meetingData.roomName}
+          onLeave={handleEndMeeting}
         />
       </div>
     </div>
