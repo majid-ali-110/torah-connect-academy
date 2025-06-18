@@ -60,7 +60,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Error fetching profile:', error);
         setProfile(null);
       } else {
-        setProfile(data);
+        // Ensure availability_status has a proper default value
+        const profileData: Profile = {
+          ...data,
+          availability_status: data.availability_status || 'offline'
+        } as Profile;
+        setProfile(profileData);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);

@@ -13,6 +13,7 @@ interface Course {
   subject: string;
   description: string;
   price: number;
+  teacher_id: string;
   teacher: {
     first_name: string;
     last_name: string;
