@@ -2,124 +2,108 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, MessageCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Clock, BookOpen, Heart } from 'lucide-react';
 
 const SOSPartner = () => {
   return (
-    <section className="py-16 bg-gradient-to-b from-blue-50 to-white">
+    <div className="py-16 lg:py-24 bg-gradient-to-br from-blue-600 to-indigo-700">
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Find Your Study Partner
-          </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Connect with fellow students for collaborative learning and mutual support
-          </p>
-        </motion.div>
-
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            className="text-white"
           >
-            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Users className="w-8 h-8 text-blue-600" />
-                </div>
-                <CardTitle>Study Groups</CardTitle>
-                <CardDescription>
-                  Join study groups with students at your level
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• Collaborative learning sessions</li>
-                  <li>• Peer-to-peer teaching</li>
-                  <li>• Shared study schedules</li>
-                </ul>
-              </CardContent>
-            </Card>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+              Find Your Perfect Study Partner
+            </h2>
+            
+            <p className="text-lg md:text-xl text-blue-100 mb-8 leading-relaxed">
+              Join our vibrant community of learners and find a chavruta (study partner) 
+              who shares your passion for Torah study and Jewish learning.
+            </p>
+            
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center">
+                <Users className="h-6 w-6 text-blue-200 mr-3" />
+                <span className="text-blue-100">Match with compatible study partners</span>
+              </div>
+              <div className="flex items-center">
+                <Clock className="h-6 w-6 text-blue-200 mr-3" />
+                <span className="text-blue-100">Flexible scheduling across time zones</span>
+              </div>
+              <div className="flex items-center">
+                <BookOpen className="h-6 w-6 text-blue-200 mr-3" />
+                <span className="text-blue-100">Study various Jewish texts together</span>
+              </div>
+              <div className="flex items-center">
+                <Heart className="h-6 w-6 text-blue-200 mr-3" />
+                <span className="text-blue-100">Build lasting learning relationships</span>
+              </div>
+            </div>
+            
+            <Button 
+              asChild 
+              size="lg" 
+              className="bg-white text-blue-600 hover:bg-blue-50"
+            >
+              <Link to="/find-partner">Find Study Partners</Link>
+            </Button>
           </motion.div>
-
+          
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative"
           >
-            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-8 h-8 text-green-600" />
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8">
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-semibold text-white mb-4">
+                  Active Study Groups
+                </h3>
+                <p className="text-blue-100">
+                  Join thousands of students learning together
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-6 mb-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">500+</div>
+                  <div className="text-blue-200 text-sm">Active Partnerships</div>
                 </div>
-                <CardTitle>Discussion Forums</CardTitle>
-                <CardDescription>
-                  Engage in meaningful discussions about your studies
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• Ask questions and get answers</li>
-                  <li>• Share insights and discoveries</li>
-                  <li>• Build lasting friendships</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <Card className="h-full hover:shadow-lg transition-shadow duration-300">
-              <CardHeader className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Clock className="w-8 h-8 text-purple-600" />
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">15+</div>
+                  <div className="text-blue-200 text-sm">Study Topics</div>
                 </div>
-                <CardTitle>Flexible Scheduling</CardTitle>
-                <CardDescription>
-                  Find partners who match your availability
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li>• Coordinate study times</li>
-                  <li>• Weekly group sessions</li>
-                  <li>• Emergency study help</li>
-                </ul>
-              </CardContent>
-            </Card>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">24/7</div>
+                  <div className="text-blue-200 text-sm">Global Access</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-white">98%</div>
+                  <div className="text-blue-200 text-sm">Satisfaction Rate</div>
+                </div>
+              </div>
+              
+              <div className="bg-white/10 rounded-xl p-4">
+                <div className="flex items-center mb-2">
+                  <div className="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                  <span className="text-white font-medium">Currently Active</span>
+                </div>
+                <p className="text-blue-100 text-sm">
+                  147 study partners are currently online and available for learning
+                </p>
+              </div>
+            </div>
           </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center"
-        >
-          <Link to="/find-partner">
-            <Button size="lg" className="px-8 py-3 text-lg">
-              Find Study Partners
-            </Button>
-          </Link>
-        </motion.div>
       </div>
-    </section>
+    </div>
   );
 };
 
