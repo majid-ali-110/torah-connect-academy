@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -136,7 +135,7 @@ export const SalaryManagement: React.FC = () => {
 
         if (calcError) throw calcError;
 
-        const paymentCalc = calculation as PaymentCalculation;
+        const paymentCalc = calculation as unknown as PaymentCalculation;
 
         if (paymentCalc.total_hours > 0) {
           // Insert payment record
