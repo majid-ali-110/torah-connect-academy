@@ -40,3 +40,7 @@ export const sanitizeInput = (input: string): string => {
     .replace(/on\w+=/gi, '') // Remove event handlers
     .trim();
 };
+
+export const validateTextLength = (text: string, maxLength: number = 2000, minLength: number = 1): boolean => {
+  return text.length >= minLength && text.length <= maxLength;
+};

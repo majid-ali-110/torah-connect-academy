@@ -3,7 +3,8 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send } from 'lucide-react';
-import { sanitizeHtml, validateTextLength } from '@/utils/inputValidation';
+import { sanitizeHtml } from '@/utils/inputSanitization';
+import { validateTextLength } from '@/utils/inputValidation';
 import { toast } from 'sonner';
 
 interface SecureMessageInputProps {
