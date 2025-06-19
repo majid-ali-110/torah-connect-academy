@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -28,8 +27,8 @@ const Footer = () => {
       case 'male':
       case 'man':
         return {
-          link: "/hommes",
-          label: t('footer.men_section') || 'Men Section'
+          link: "/courses",
+          label: t('footer.courses_section') || 'Courses Section'
         };
       default:
         return {
