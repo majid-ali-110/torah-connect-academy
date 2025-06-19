@@ -12,8 +12,8 @@ const Footer = () => {
     if (!profile?.gender) {
       // Default fallback when no user is logged in or gender not set
       return {
-        link: "/femmes",
-        label: t('footer.women_section') || 'Women Section'
+        link: "/courses",
+        label: t('footer.courses_section') || 'Courses Section'
       };
     }
     
@@ -57,14 +57,13 @@ const Footer = () => {
               <li><Link to="/rabbanim" className="text-gray-600 hover:text-torah-600">{t('footer.rabbis_directory') || 'Rabbis Directory'}</Link></li>
               <li><Link to="/eleves" className="text-gray-600 hover:text-torah-600">{t('footer.students_section') || 'Students Section'}</Link></li>
               <li><Link to={genderSection.link} className="text-gray-600 hover:text-torah-600">{genderSection.label}</Link></li>
-              <li><Link to="/beit-hamidrash" className="text-gray-600 hover:text-torah-600">{t('footer.online_beit_midrash') || 'Online Beit Midrash'}</Link></li>
             </ul>
           </div>
           
           <div>
             <h3 className="font-bold text-lg mb-4">{t('footer.resources') || 'Resources'}</h3>
             <ul className="space-y-2">
-              <li><Link to="/faq" className="text-gray-600 hover:text-torah-600">{t('footer.faq') || 'FAQ'}</Link></li>
+              <li><Link to="/faq" className="text-gray-600 hover:text-torah-600">{t('footer.faq') || 'FAQ'</Link></li>
               <li><Link to="/blog" className="text-gray-600 hover:text-torah-600">{t('footer.blog') || 'Blog'}</Link></li>
               <li><Link to="/contact" className="text-gray-600 hover:text-torah-600">{t('footer.contact') || 'Contact'}</Link></li>
               <li><Link to="/support" className="text-gray-600 hover:text-torah-600">{t('footer.tech_support') || 'Technical Support'}</Link></li>
