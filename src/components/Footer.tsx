@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -63,7 +64,7 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">{t('footer.resources') || 'Resources'}</h3>
             <ul className="space-y-2">
-              <li><Link to="/faq" className="text-gray-600 hover:text-torah-600">{t('footer.faq') || 'FAQ'</Link></li>
+              <li><Link to="/faq" className="text-gray-600 hover:text-torah-600">{t('footer.faq') || 'FAQ'}</Link></li>
               <li><Link to="/blog" className="text-gray-600 hover:text-torah-600">{t('footer.blog') || 'Blog'}</Link></li>
               <li><Link to="/contact" className="text-gray-600 hover:text-torah-600">{t('footer.contact') || 'Contact'}</Link></li>
               <li><Link to="/support" className="text-gray-600 hover:text-torah-600">{t('footer.tech_support') || 'Technical Support'}</Link></li>
