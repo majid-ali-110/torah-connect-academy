@@ -2,9 +2,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Footer = () => {
   const { t } = useLanguage();
+  const { profile } = useAuth();
+  
+  // Determine the appropriate section based on user gender
+  const getGenderSection = () => {
+    if (!profile?.gender) {
+      // Default fallback when no user is logged in or gender not set
+      return {
+        link: "/femmes",
+        label: t('footer.women_section') || 'Women Section'
+      };
+    }
+    
+    switch (profile.gender.toLowerCase()) {
+      case 'female':
+      case 'woman':
+        return {
+          link: "/femmes",
+          label: t('footer.women_section') || 'Women Section'
+        };
+      case 'male':
+      case 'man':
+        return {
+          link: "/hommes",
+          label: t('footer.men_section') || 'Men Section'
+        };
+      default:
+        return {
+          link: "/courses",
+          label: t('footer.courses_section') || 'Courses Section'
+        };
+    }
+  };
+
+  const genderSection = getGenderSection();
   
   return (
     <footer className="bg-gray-100 py-10 mt-10">
@@ -22,7 +57,7 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/rabbanim" className="text-gray-600 hover:text-torah-600">{t('footer.rabbis_directory') || 'Rabbis Directory'}</Link></li>
               <li><Link to="/eleves" className="text-gray-600 hover:text-torah-600">{t('footer.students_section') || 'Students Section'}</Link></li>
-              <li><Link to="/femmes" className="text-gray-600 hover:text-torah-600">{t('footer.women_section') || 'Women Section'}</Link></li>
+              <li><Link to={genderSection.link} className="text-gray-600 hover:text-torah-600">{genderSection.label}</Link></li>
               <li><Link to="/beit-hamidrash" className="text-gray-600 hover:text-torah-600">{t('footer.online_beit_midrash') || 'Online Beit Midrash'}</Link></li>
             </ul>
           </div>
