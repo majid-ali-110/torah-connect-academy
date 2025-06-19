@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -12,8 +13,8 @@ const Footer = () => {
     if (!profile?.gender) {
       // Default fallback when no user is logged in or gender not set
       return {
-        link: "/courses",
-        label: t('footer.adult_studies') || 'Adult Studies'
+        link: "/femmes",
+        label: t('footer.women_section') || 'Women Section'
       };
     }
     
