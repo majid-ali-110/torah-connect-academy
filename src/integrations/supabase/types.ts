@@ -572,6 +572,58 @@ export type Database = {
           },
         ]
       }
+      free_trials: {
+        Row: {
+          course_id: string | null
+          id: string
+          status: string | null
+          student_id: string | null
+          subject: string
+          teacher_id: string | null
+          used_at: string | null
+        }
+        Insert: {
+          course_id?: string | null
+          id?: string
+          status?: string | null
+          student_id?: string | null
+          subject: string
+          teacher_id?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          course_id?: string | null
+          id?: string
+          status?: string | null
+          student_id?: string | null
+          subject?: string
+          teacher_id?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "free_trials_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "free_trials_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "free_trials_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_bookings: {
         Row: {
           created_at: string | null
@@ -629,6 +681,42 @@ export type Database = {
           {
             foreignKeyName: "lesson_bookings_teacher_id_fkey"
             columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_attendance: {
+        Row: {
+          id: string
+          joined_at: string | null
+          live_session_id: string | null
+          student_id: string | null
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          live_session_id?: string | null
+          student_id?: string | null
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          live_session_id?: string | null
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_attendance_live_session_id_fkey"
+            columns: ["live_session_id"]
+            isOneToOne: false
+            referencedRelation: "live_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_attendance_student_id_fkey"
+            columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -733,6 +821,63 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "live_classes_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_sessions: {
+        Row: {
+          course_key: string
+          created_at: string | null
+          description: string | null
+          duration_minutes: number
+          id: string
+          live_class_id: string | null
+          max_participants: number
+          meeting_link: string
+          scheduled_at: string
+          teacher_id: string | null
+          title: string
+        }
+        Insert: {
+          course_key: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          live_class_id?: string | null
+          max_participants?: number
+          meeting_link: string
+          scheduled_at: string
+          teacher_id?: string | null
+          title: string
+        }
+        Update: {
+          course_key?: string
+          created_at?: string | null
+          description?: string | null
+          duration_minutes?: number
+          id?: string
+          live_class_id?: string | null
+          max_participants?: number
+          meeting_link?: string
+          scheduled_at?: string
+          teacher_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_sessions_live_class_id_fkey"
+            columns: ["live_class_id"]
+            isOneToOne: false
+            referencedRelation: "live_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_sessions_teacher_id_fkey"
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -1786,6 +1931,10 @@ export type Database = {
         Returns: Database["public"]["Enums"]["user_role"]
       }
       has_trial_for_subject: {
+        Args: { user_id: string; subject_name: string }
+        Returns: boolean
+      }
+      has_used_trial_for_subject: {
         Args: { user_id: string; subject_name: string }
         Returns: boolean
       }
